@@ -1,29 +1,27 @@
-# Project Title
+# Quizzify: A Realtime Quiz Platform
 
-Quizzify: A Realtime Quiz Platform
-
-# Team Members
+## Team Members
 - Henry Wong
 - Peter Yan Tsai Chow
 
-# Description of the Web Application
+## Description of the Web Application
 
 
 
-## Key Features to be Completed by Beta Version
+### Key Features to be Completed by Beta Version
 
 
 
-## Additional Features to be Completed by Final Version
+### Additional Features to be Completed by Final Version
 
 
 
-## Technology Stack Used to Build and Deploy
+### Technology Stack Used to Build and Deploy
 - **Backend:** Express.js (Node.js, express-ws), MongoDB, Auth0, Twilio SendGrid
 - **Frontend:** React, Redux, Chakra UI
 - **Deployment:** Docker, Heroku
 
-## Top 5 Technical Challenges. 
+### Top 5 Technical Challenges
 > Understand that a challenge is something new that you have to learn or figure out. Anything we have already covered in class cannot be considered as a challenge. Making the application work and deploying it is not a challenge but a project requirement.
 
 1. **Real-time Synchronization**: Utilize web sockets to ensure all participants see all actions at the same time (ex. questions/answers, updated leaderboards, real-time, timer) + handle effects of possible network latency
