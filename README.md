@@ -7,7 +7,7 @@
 
 ## Description
 
-Quizzify is an engaging, real-time quiz platform designed to bring interactive learning to classrooms, meetings, and casual groups. Inspired by Kahoot, this web application allows educators, trainers, or anyone interested to create and host quiz sessions where participants can join using a unique code. The primary goal is to offer an intuitive user experience for both the quiz host and participants, combined with a modern and responsive design.
+Quizzify is an immersive, real-time quiz platform crafted to infuse interactivity into classrooms, gatherings, and informal assemblies. Inspired by industry-leading platforms such as Kahoot, Quizzify enables endless possibilities for everybody to create, host, and play fun quiz sessions in real-time with exciting features like quiz templates and special game modes!
 
 ### Key Features to be Completed by Beta Version
 - **User Registration & Login:** Securely sign up/log in with their Google account (via Auth0 + JWTs) and manage user profiles.
@@ -29,10 +29,10 @@ with multiple-choice questions, set timer for each question, and add images or v
 - **Private quiz creation:** Create Quizzes that are hidden to other users and only accessible to logged in users that are shared to it (allows a specific list of shared emails)
 - **Start a private quiz:** Invite/grant access to specified user accounts/emails to privately participate in quiz (prevent unwanted raids)
   - Integrate Twilio SendGrid to send email notifications
-- Different game modes: 
+- **Different game modes:**
   - **Rapid-fire:** Accelerate question speed by a set multiplier (& award points by exponentially decreasing multiplier)
   - **Last one standing:** Three errors and you are out of the game.
-- **Quiz templates:** Users can take inspiration from public quiz templates and create a copy of it to modify on their own
+- **Quiz templates:** Users can take inspiration from public quiz templates and create a copy to modify on their own
 - **Account history:** User history shows total/percentage of wins and past quizzes played
 - **Image upload:** Quiz questions can be accompanied with an image uploaded by quiz creator
 
@@ -43,8 +43,6 @@ with multiple-choice questions, set timer for each question, and add images or v
 - **Deployment:** Docker, Heroku
 
 ### Top 5 Technical Challenges
-> Understand that a challenge is something new that you have to learn or figure out. Anything we have already covered in class cannot be considered as a challenge. Making the application work and deploying it is not a challenge but a project requirement.
-
 1. **Real-time Synchronization**: Utilize web sockets to ensure all participants see all actions at the same time (ex. questions/answers, updated leaderboards, real-time, timer) + handle effects of possible network latency
 2. **Scalability**: Ensure the web application can handle a large number of concurrent playing users, (notably large quiz sessions)
 3. **3rd-party Services**: Integrate 3rd party services such as Twilio SendGrid to send email notifications 
