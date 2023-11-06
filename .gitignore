@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-/quizzify/backend
 /quizzify/backend/node_modules
 /quizzify/frontend/node_modules
 /.pnp
