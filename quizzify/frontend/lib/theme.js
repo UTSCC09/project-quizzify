@@ -1,5 +1,4 @@
 import { extendTheme } from '@chakra-ui/react'
-import { mode } from '@chakra-ui/theme-tools'
 
 const config = {
     initialColorMode: 'light',
@@ -9,7 +8,7 @@ const config = {
 const styles = {
     global: props => ({
         body: {
-            bg: mode('background.400', 'black')(props),
+            bg: 'background.400',
             overflow: "overlay",
             color: "primary.400",
         },
