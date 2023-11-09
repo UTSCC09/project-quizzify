@@ -7,9 +7,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
 var app = express();
 
 // view engine setup
@@ -27,8 +24,10 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/', require('./routes/index'));
+app.use('/auth', require('./routes/auth'));
+app.use('/users', require('./routes/users'));
+app.use('/quizzes', require('./routes/quizzes'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

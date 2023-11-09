@@ -1,9 +1,19 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+const mongoose = require("mongoose")
+const User = require("../models/user")
+
+// GET /users
+router.get('/', (req, res, next) => {
+});
+
+// GET /users/:userId
+router.get('/:userId', (req, res, next) => {
+});
+
+// GET /users/:userId/quizzes
+router.get('/:userId/quizzes', (req, res, next) => {
 });
 
 module.exports = router;
