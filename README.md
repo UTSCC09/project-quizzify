@@ -39,7 +39,7 @@ with multiple-choice questions, set timer for each question, and add images or v
 
 ### Technology Stack Used to Build and Deploy
 - **Backend:** Express.js (Node.js, express-ws), MongoDB, Auth0, Twilio SendGrid
-- **Frontend:** React, Redux, Chakra UI
+- **Frontend:** React, Next.js, Chakra UI
 - **Deployment:** Docker, Heroku
 
 ### Top 5 Technical Challenges

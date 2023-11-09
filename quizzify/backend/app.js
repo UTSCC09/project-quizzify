@@ -1,8 +1,11 @@
 var createError = require('http-errors');
 var express = require('express');
+var config = require('./config');
+var cors = require('cors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -17,7 +20,12 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+const corsOptions = {
+  origin: config.frontendBaseUrl,
+  credentials: true
+}
+app.use(cors(corsOptions))
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -37,5 +45,12 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+connectToMongoDB().catch(err => console.log(err));
+
+async function connectToMongoDB() {
+  await mongoose.connect(config.mongodb_uri);
+  console.log("Connected to MongoDB")
+}
 
 module.exports = app;
