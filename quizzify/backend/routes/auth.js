@@ -1,20 +1,23 @@
 var express = require('express');
 var router = express.Router();
 
+const { requiresAuth } = require('express-openid-connect');
+
 const mongoose = require("mongoose")
 const User = require("../models/user")
 
-// GET /auth
-router.get('/', (req, res, next) => {
-  // TODO: Get current authed user
+
+router.get('/', function (req, res, next) {
+  res.json({ 
+    isAuthenticated: req.oidc.isAuthenticated()
+  })
 });
 
-// POST /auth/register
-router.post('/register', (req, res, next) => {
+router.get('/profile', requiresAuth(), function (req, res, next) {
+  res.json({
+    user: req.oidc.user
+  })
 });
 
-// POST /auth/login
-router.post('/login', (req, res, next) => {
-});
 
 module.exports = router;
