@@ -1,13 +1,14 @@
 var express = require('express');
-var config = require('./config');
 var cors = require('cors');
 const mongoose = require('mongoose');
-const { auth, requiresAuth } = require('express-openid-connect');
 
 var path = require('path');
 var createError = require('http-errors');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+
+const dotenv = require("dotenv");
+dotenv.config();
 
 var app = express();
 
@@ -21,31 +22,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: config.frontendBaseUrl,
+  origin: process.env.FRONTEND_BASE_URL,
   credentials: true
 }
 app.use(cors(corsOptions))
 
-// Auth
-const authConfig = {
-  authRequired: false,
-  auth0Logout: true,
-  baseURL: config.backend_base_url,
-  clientID: config.auth0.client_id,
-  issuerBaseURL: config.auth0.issuer_base_url,
-  secret: config.auth0.secret
-};
-app.use(auth(authConfig));
-// Middleware to make the `user` object available for all views
-app.use(function (req, res, next) {
-  res.locals.user = req.oidc.user;
-  next();
-});
-
-
 // Routes
 app.use('/', require('./routes/index'));
-app.use('/auth', require('./routes/auth'));
 app.use('/users', require('./routes/users'));
 app.use('/quizzes', require('./routes/quizzes'));
 
@@ -61,14 +44,14 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  res.status(err.status || 500).json(err);
+  // res.render('error');
 });
 
 connectToMongoDB().catch(err => console.log(err));
 
 async function connectToMongoDB() {
-  await mongoose.connect(config.mongodb_uri);
+  await mongoose.connect(process.env.MONGODB_URI);
   console.log("Connected to MongoDB")
 }
 
