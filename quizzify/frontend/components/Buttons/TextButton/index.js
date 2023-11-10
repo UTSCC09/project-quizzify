@@ -21,7 +21,8 @@ export default function TextButton({
             py={py ? py : useBreakpointValue({ base: '3.5px', lg: '5.5px' })}
             fontSize={fontSize ? fontSize : useBreakpointValue({ base: '11px', lg: '12px' })}
             fontWeight={fontWeight ? fontWeight : 500}
-            color={color ? color : '#F2F2F2'}
+            color={color ? color : 'white'}
+            bg={bg ? bg : 'brand.400'}
             border={'1px solid #F2F2F2'}
             borderRadius={'full'}
             _focus={{ outline: 0 }}
