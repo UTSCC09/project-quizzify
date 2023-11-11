@@ -10,12 +10,12 @@ const { Quiz, QUIZ_TYPES } = require("../models/quiz");
 // GET /quizzes
 router.get('/', async (req, res, next) => {
     try {
-        const userId = "TODO"
+        const authedUserId = "TODO"
         // TODO: Paginate
         const quizzes = await Quiz.find({
             $or: [ // Public quizzes OR private (owned by user)
                 { private: false },
-                { private: true, userId: userId },
+                { private: true, userId: authedUserId },
             ]
         })
         res.send(quizzes)
@@ -51,12 +51,12 @@ router.get('/templates', async (req, res, next) => {
 // GET /quizzes/:quizId
 router.get('/:quizId', async (req, res, next) => {
     try {
-        const userId = "TODO"
+        const authedUserId = "TODO"
         const quiz = await Quiz.findById(req.params.quizId)
 
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== userId)// Only return private quiz if owned by user
+        else if (quiz.private && quiz.userId !== authedUserId)// Only return private quiz if owned by user
             res.sendStatus(403)
         else
             res.send(quiz)
@@ -67,12 +67,12 @@ router.get('/:quizId', async (req, res, next) => {
 // PUT /quizzes/:quizId
 router.put('/:quizId', validateAccessToken, async (req, res, next) => {
     try {
-        const userId = "TODO"
+        const authedUserId = "TODO"
         var quiz = await Quiz.findById(req.params.quizId)
 
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== userId) // Only update private quiz if owned by user
+        else if (quiz.private && quiz.userId !== authedUserId) // Only update private quiz if owned by user
             res.sendStatus(403)
         else {
             if (req.body.name)
@@ -89,12 +89,12 @@ router.put('/:quizId', validateAccessToken, async (req, res, next) => {
 // DELETE /quizzes/:quizId
 router.delete('/:quizId', validateAccessToken, async (req, res, next) => {
     try {
-        const userId = "TODO"
+        const authedUserId = "TODO"
         var quiz = await Quiz.findById(req.params.quizId)
 
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== userId) // Only deleted private quiz if owned by user
+        else if (quiz.private && quiz.userId !== authedUserId) // Only deleted private quiz if owned by user
             res.sendStatus(403)
         else {
             const deletedQuiz = await Quiz.delete(quiz) // TODO: Verify
