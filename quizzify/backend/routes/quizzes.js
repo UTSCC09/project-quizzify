@@ -18,6 +18,7 @@ router.get('/', async (req, res, next) => {
                 { private: true, userId: authedUserId },
             ]
         })
+            .map(quiz => quiz.hideQuestionsFromNonOwner(authedUserId))
         res.send(quizzes)
     } catch (error) {
         res.status(500).send(error)
@@ -53,6 +54,7 @@ router.get('/:quizId', async (req, res, next) => {
     try {
         const authedUserId = "TODO"
         const quiz = await Quiz.findById(req.params.quizId)
+            .hideQuestionsFromNonOwner(authedUserId)
 
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)

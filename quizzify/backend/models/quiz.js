@@ -36,6 +36,13 @@ const QuizSchema = new mongoose.Schema({
 })
 
 QuizSchema.methods = {
+  hideQuestionsFromNonOwner: function(authedUserId) { // Remove `questions` field from non-owned quizzes
+     var quiz = this.toObject()
+     if (quiz.userId !== authedUserId)
+         delete quiz.questions
+     return quiz
+  },
+
   addQuestion: function(question, responses) {
 
   },

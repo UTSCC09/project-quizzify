@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const mongoose = require("mongoose")
-const User = require("../models/user")
+const Quiz = require("../models/quiz")
 
 // GET /users
 router.get('/', (req, res, next) => {
@@ -34,8 +34,10 @@ router.get('/:userId/quizzes', async (req, res, next) => {
                 { private: true, userId: authedUserId },
             ]
         })
+            .map(quiz => quiz.hideQuestionsFromNonOwner(authedUserId))
         res.send(quizzes)
     } catch (error) {
+        console.log(error)
         res.status(500).send(error)
     }
 });
