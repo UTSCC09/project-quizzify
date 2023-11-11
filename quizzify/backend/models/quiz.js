@@ -1,7 +1,9 @@
 const mongoose = require("mongoose")
 
-const quizSchema = new mongoose.Schema({
-  name: {type: String, required: true},
+const QuizSchema = new mongoose.Schema({
+  userId: {type: String, required: true, index: true},
+  name: {type: String, required: true, index: true},
+  private: {type: Boolean, required: true},
   questions: [{
     question: {type: String, required: true},
     type: {type: String, required: true}, // idk if we do indices or string
@@ -14,7 +16,14 @@ const quizSchema = new mongoose.Schema({
       contentType: String
     }
   }],
-  private: {type: Boolean, required: true}
 })
 
-module.exports = mongoose.model("Quiz", quizSchema)
+
+QuizSchema.statics = {
+  create: function(userId, name, private, questions) {
+    const quiz = new this({ userId, name, private, questions })
+    return quiz.save()
+  }
+}
+
+module.exports = mongoose.model("Quiz", QuizSchema)

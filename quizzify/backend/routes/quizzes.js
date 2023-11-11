@@ -9,10 +9,22 @@ const Quiz = require("../models/quiz")
 
 // GET /quizzes
 router.get('/', (req, res, next) => {
-    res.json({quizzes: ["test1", "test2"]})
+    // TODO: Paginate; private
+    Quiz.find()
+        .then((result) => res.send(result))
+        .catch((error) => res.send(error))
 });
 // POST /quizzes
-router.post('/', (req, res, next) => {
+router.post('/', validateAccessToken, (req, res, next) => {
+    const quiz = {
+        userId: req.auth.payload.sub,
+        name: req.body.name,
+        private: req.body.private,
+        questions: req.body.questions,
+    }
+    Quiz.create(quiz.userId, quiz.name, quiz.private, quiz.questions)
+        .then((result) => res.send(result))
+        .catch((error) => res.send(error))
 });
 
 // GET /quizzes/templates
@@ -20,7 +32,10 @@ router.get('/templates', (req, res, next) => {
 });
 
 // GET /quizzes/:quizId
-router.get('/:quizId', (req, res, next) => {
+router.get('/:quizId', async (req, res, next) => {
+  Quiz.findById(req.params.quizId).exec()
+    .then((result) => res.send(result))
+    .catch((error) => res.send(error))
 });
 // PUT /quizzes/:quizId
 router.put('/:quizId', validateAccessToken, (req, res, next) => {

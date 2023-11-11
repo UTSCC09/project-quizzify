@@ -5,3 +5,7 @@ const BASE_API_URL = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/quizzes`
 export const getQuizzes = async (accessToken) => {
   return await getRequest(BASE_API_URL, accessToken)
 }
+
+export const createQuiz = async (accessToken, data) => {
+  return await postRequest(BASE_API_URL, accessToken, data)
+}

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const Quiz = require("./quiz")
 
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   displayName: {type: String, required: true},
   avatar: {
     data: Buffer,
@@ -11,4 +11,4 @@ const userSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model("User", userSchema)
+module.exports = mongoose.model("User", UserSchema)
