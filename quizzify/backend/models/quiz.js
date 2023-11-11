@@ -5,7 +5,7 @@ const MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
 const TRUE_OR_FALSE= "TRUE_OR_FALSE"
 const FILL_BLANK = "FILL_BLANK"
 
-QUIZ_TYPES = [SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_OR_FALSE, FILL_BLANK]
+const QUIZ_TYPES = [SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_OR_FALSE, FILL_BLANK]
 
 const QuizSchema = new mongoose.Schema({
   userId: {type: String, required: true, index: true},
@@ -34,6 +34,18 @@ const QuizSchema = new mongoose.Schema({
     immutable: true
   },
 })
+
+QuizSchema.methods = {
+  addQuestion: function(question, responses) {
+
+  },
+  updateQuestion: function(questionId, question, responses) {
+
+  },
+  deleteQuestion: function(questionId) {
+    
+  }
+}
 
 QuizSchema.statics = {
   create: function(userId, name, private, questions) {
