@@ -12,13 +12,12 @@ router.get('/', async (req, res, next) => {
     try {
         const authedUserId = "TODO"
         // TODO: Paginate
-        const quizzes = await Quiz.find({
+        const quizzes = (await Quiz.find({
             $or: [ // Public quizzes OR private (owned by user)
                 { private: false },
                 { private: true, userId: authedUserId },
             ]
-        })
-            .map(quiz => quiz.hideQuestionsFromNonOwner(authedUserId))
+        })).map(quiz => quiz.hideQuestionsFromNonOwner(authedUserId))
         res.send(quizzes)
     } catch (error) {
         res.status(500).send(error)
@@ -53,7 +52,7 @@ router.get('/templates', async (req, res, next) => {
 router.get('/:quizId', async (req, res, next) => {
     try {
         const authedUserId = "TODO"
-        const quiz = await Quiz.findById(req.params.quizId)
+        const quiz = (await Quiz.findById(req.params.quizId))
             .hideQuestionsFromNonOwner(authedUserId)
 
         if (quiz === undefined) // Does not exist

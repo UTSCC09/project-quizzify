@@ -27,14 +27,13 @@ router.get('/:userId/quizzes', async (req, res, next) => {
     try {
         const authedUserId = "TODO"
         // TODO: Paginate
-        const quizzes = await Quiz.find({
+        const quizzes = (await Quiz.find({
             userId: req.params.userId,
             $or: [ // Public quizzes OR private (owned by user)
                 { private: false },
                 { private: true, userId: authedUserId },
             ]
-        })
-            .map(quiz => quiz.hideQuestionsFromNonOwner(authedUserId))
+        })).map(quiz => quiz.hideQuestionsFromNonOwner(authedUserId))
         res.send(quizzes)
     } catch (error) {
         console.log(error)

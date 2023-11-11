@@ -61,4 +61,8 @@ QuizSchema.statics = {
   }
 }
 
-module.exports = mongoose.model("Quiz", QuizSchema)
+const Quiz = mongoose.model("Quiz", QuizSchema)
+module.exports = {
+  Quiz,
+  QUIZ_TYPES
+}
