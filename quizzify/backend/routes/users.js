@@ -2,21 +2,47 @@ var express = require('express');
 var router = express.Router();
 
 const mongoose = require("mongoose")
-const Quiz = require("../models/quiz")
+const Quiz = require("../models/quiz");
+const { getUsers, getUserById } = require('../utils/auth');
+
+const stripUserFields = (user) => {
+    return {
+        created_at: user.created_at,
+        email: user.email,
+        family_name: user.family_name,
+        given_name: user.given_name,
+        locale: user.locale,
+        name: user.name,
+        picture: user.picture,
+        user_id: user.user_id,
+    }
+}
 
 // GET /users
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
     try {
-        res.sendStatus(501) // TODO
+        const users = await getUsers()
+        if (users.statusCode && users.statusCode !== 200)
+            res.sendStatus(users.statusCode)
+        else {
+            const strippedUsers = users.map(user => stripUserFields(user))
+            res.send(strippedUsers)
+        }
     } catch (error) {
         res.status(500).send(error)
     }
 });
 
 // GET /users/:userId
-router.get('/:userId', (req, res, next) => {
+router.get('/:userId', async (req, res, next) => {
     try {
-        res.sendStatus(501) // TODO
+        const user = await getUserById(req.params.userId)
+        if (user.statusCode && user.statusCode !== 200)
+            res.sendStatus(user.statusCode)
+        else {
+            const strippedUser = stripUserFields(user)
+            res.send(strippedUser)
+        }
     } catch (error) {
         res.status(500).send(error)
     }

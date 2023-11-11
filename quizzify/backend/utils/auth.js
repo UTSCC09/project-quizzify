@@ -30,7 +30,29 @@ const checkRequiredPermissions = (requiredPermissions) => {
   };
 };
 
+const getUsers = () => {
+  return fetch(`https://${process.env.AUTH0_DOMAIN}/api/v2/users`, {
+    method: 'GET',
+    headers: { 
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${process.env.AUTH0_MANAGEMENT_TOKEN}` 
+    }
+  }).then(response => response.json())
+}
+
+const getUserById = (userId) => {
+  return fetch(`https://${process.env.AUTH0_DOMAIN}/api/v2/users/${userId}`, {
+    method: 'GET',
+    headers: { 
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${process.env.AUTH0_MANAGEMENT_TOKEN}` 
+    }
+  }).then(response => response.json())
+}
+
 module.exports = {
   validateAccessToken,
   checkRequiredPermissions,
+  getUsers,
+  getUserById,
 };
