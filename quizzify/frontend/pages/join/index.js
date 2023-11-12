@@ -43,8 +43,12 @@ export default function Join() {
         // Create a socket connection
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
 
-        socket.on("host:gameStart", () => {
+        socket.on("room:start", () => {
             console.log("Host started game!")
+        })
+        socket.on("room:end", () => {
+            console.log("Host ended game!")
+            setGameCode("")
         })
 
         // Clean up the socket connection on unmount

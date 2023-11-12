@@ -4,7 +4,10 @@ const { Quiz } = require("./quiz")
 const GameSchema = new mongoose.Schema({
   joinCode: {type: String, required: true, index: true, unique: true},
   active: {type: Boolean, required: true, default: false},
-  hostId: {type: String, required: true, index: true},
+  host: {
+    userId: {type: String, required: true, index: true},
+    socketId: {type: String, required: true},
+  },
   quiz: {type: mongoose.Schema.Types.ObjectId, required: true, ref: "Quiz"},
   currQuestion: {
     index: {type: Number, required: true, default: 0},
@@ -25,11 +28,17 @@ GameSchema.methods = {
 }
 
 GameSchema.statics = {
-  create: async function(userId, quizId) {
+  create: async function(socketId, userId, quizId) {
+    if (!await Quiz.findById(quizId))
+      throw Error(`Quiz ${quizId} does not exist`)
+
     const joinCode = Math.random().toString(36).slice(2,8) // 6 digit alphanumeric
     const game = new this({ 
       joinCode: joinCode, 
-      hostId: userId, 
+      host: {
+        userId: userId, 
+        socketId: socketId, 
+      },
       quiz: quizId,
       players: [],
     })

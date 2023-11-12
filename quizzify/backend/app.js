@@ -79,7 +79,8 @@ io.on("connection", (socket) => {
   socketLog(socket, "Connected")
 
   // Utils
-  socket.on("disconnect", utils.disconnect)
+  socket.on(eventNames.UTILS.disconnecting, utils.disconnecting)
+  socket.on(eventNames.UTILS.disconnect, utils.disconnect)
   
   // Host
   socket.on(eventNames.HOST.create, host.create)

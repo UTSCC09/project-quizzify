@@ -4,9 +4,11 @@ const eventNamePrefixes = {
     UTILS: "utils",
     HOST: "host",
     PLAYER: "player",
+    ROOM: "room",
 }
 const eventNames = {
     UTILS: {
+        disconnecting: "disconnecting",
         disconnect: "disconnect",
         getTimer: `${eventNamePrefixes.HOST}:getTimer`,
     },
@@ -20,6 +22,11 @@ const eventNames = {
         join: `${eventNamePrefixes.PLAYER}:join`,
         answer: `${eventNamePrefixes.PLAYER}:answer`,
         getScore: `${eventNamePrefixes.PLAYER}:getScore`,
+    },
+    ROOM: {
+        updatePlayers: `${eventNamePrefixes.ROOM}:updatePlayers`,
+        start: `${eventNamePrefixes.ROOM}:start`,
+        end: `${eventNamePrefixes.ROOM}:end`,
     }
 }
 
@@ -33,10 +40,34 @@ const socketLog = (socket, message, joinCode="") => {
 module.exports = (io) => {
     // Utils
     const utils = {
-        disconnect: function () {
+        disconnecting: function () {
+            const socket = this
+            socket.rooms.forEach(async (joinCode) => {
+                const game = await Game.findOne({joinCode: joinCode})
+                if (game) {
+                    try { 
+                        if (!game.active) { // Only end/leave when game not started
+                            if (game.host.socketId == socket.id) { // Host (end game)
+                                await Game.deleteOne({joinCode: joinCode})
+                                io.to(joinCode).emit(eventNames.ROOM.end)
+                                socketLog(socket, "Host ended game", joinCode)
+                            } else { // Player (leave game)
+                                game.players = game.players.filter(player => player.socketId !== socket.id)
+                                await game.save()
+                                io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+                                socketLog(socket, "Player left game", joinCode)
+                            }
+                        }
+                    } catch (error) {
+                        console.log(error)
+                        socketLog(socket, "Failed to end/leave game")
+                    }
+                }
+            })
+        },
+        disconnect: async function () {
             const socket = this
             socketLog(socket, "Disconnect")
-            // Handle host & player logic
         },
         getTimer: function () {
 
@@ -51,11 +82,11 @@ module.exports = (io) => {
             // TODO: Validate IDs
             try {
                 const existingGame = await Game.findOne({
-                    hostId: userId, 
+                    "host.userId": userId, 
                     quiz: {_id: quizId}, 
                     active: false
                 })
-                const game = (existingGame ?? await Game.create(userId, quizId))
+                const game = (existingGame ?? await Game.create(socket.id, userId, quizId))
                 if (!game) 
                     throw Error
 
@@ -83,7 +114,7 @@ module.exports = (io) => {
                 
                 game.active = true
                 await game.save()
-                io.to(joinCode).emit("host:gameStart")
+                io.to(joinCode).emit(eventNames.ROOM.start)
                 callback({ 
                     success: true,
                     question: game.quiz.questions[game.currQuestion.index] 
@@ -148,7 +179,7 @@ module.exports = (io) => {
                     game.players.push({socketId: socket.id})
                     await game.save()
                 }
-                io.to(joinCode).emit("host:updatePlayers", game.players)
+                io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
                 callback({ success: true })
 
                 socketLog(socket, "Player connected to game", joinCode)
