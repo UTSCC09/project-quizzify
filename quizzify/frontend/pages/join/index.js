@@ -43,10 +43,9 @@ export default function Join() {
         // Create a socket connection
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
 
-        // Listen for incoming messages
-        // socket.on("player:join", (res) => {
-        //     setMessages((prevMessages) => [...prevMessages, message]);
-        // });
+        socket.on("host:gameStart", () => {
+            console.log("Host started game!")
+        })
 
         // Clean up the socket connection on unmount
         return () => { 
