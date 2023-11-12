@@ -24,7 +24,7 @@ const colors = {
         400: "#111213",
     },
     secondary: {
-        400: "#494C4F",
+        400: "#A3A7AE",
     },
     background:{
         400: "#F7F8FC",
