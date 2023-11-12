@@ -30,6 +30,7 @@ const colors = {
         400: "#F7F8FC",
     },
     brand: {
+        100: "#6E5CEC5c",
         400: "#6E5CEC",
     },
     wrongAccent: {
