@@ -1,7 +1,7 @@
 import { Select } from '@chakra-ui/react'
 import FormWrapper from './FormWrapper'
 
-export default function ShortInput({
+export default function FormSelect({
     type,
     label,
     placeholder,

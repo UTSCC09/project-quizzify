@@ -10,6 +10,7 @@ import * as QUIZ_API from "@/api/quizzes";
 import ShortInput from "@/components/Forms/ShortInput";
 import FormSelect from "@/components/Forms/FormSelect";
 import QuizCard from "@/components/QuizCard";
+import AddQuestionForm from "@/components/AddQuestionForm";
 
 export default function Home() {
   const {
@@ -40,31 +41,31 @@ export default function Home() {
   const [questionsList, setQuestionsList] = useState([
       {
           question: 'What mammal has the most powerful bite?',
-          type: 'Quiz',
+          type: 'SINGLE_CHOICE',
           responses: [{response: 'Your mom', isAnswer: false }, {response: 'Gorilla', isAnswer: false }, 
                       {response: 'Hippopotamus', isAnswer: true }, {response: 'Grizzly Bear', isAnswer: false }],
       },
       {
           question: 'What is a group of cats called?',
-          type: 'Quiz',
+          type: 'SINGLE_CHOICE',
           responses: [{response: 'A Clowder', isAnswer: true }, {response: 'A Pandemonium', isAnswer: false }, 
                       {response: 'A Spawnage', isAnswer: false }, {response: 'A Clover', isAnswer: false }],
       },
       {
           question: 'How many legs does a lobster have?',
-          type: 'Quiz',
+          type: 'SINGLE_CHOICE',
           responses: [{response: '10', isAnswer: true }, {response: '8', isAnswer: false }, 
                       {response: '12', isAnswer: false }, {response: '6', isAnswer: false }],
       },
       {
           question: 'What is the deadliest creature in the world?',
-          type: 'Quiz',
+          type: 'SINGLE_CHOICE',
           responses: [{response: 'Snake', isAnswer: false }, {response: 'Shark', isAnswer: false }, 
                       {response: 'Grizzly Bear', isAnswer: false }, {response: 'Mosquito', isAnswer: true }],
       },
       {
           question: 'The ostrich lays the smallest egg compared to all animals.',
-          type: 'T/F',
+          type: 'TRUE_OR_FALSE',
           responses: [{response: 'True', isAnswer: false }, {response: 'False', isAnswer: true }],
       },
     ]);
@@ -104,7 +105,7 @@ export default function Home() {
                   ))
                 }
                 <GridItem>
-                  <Button>Add a Question!</Button> {/* Trigger pop up to add a question */}
+                  <AddQuestionForm />
                 </GridItem>
               </Grid>
             </Flex>

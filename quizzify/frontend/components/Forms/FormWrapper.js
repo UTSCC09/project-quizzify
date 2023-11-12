@@ -15,7 +15,6 @@ import {
           <FormControl>
               <FormLabel mb={0} fontWeight={600} fontSize={16} >{label}</FormLabel>
                 {otherProps.children}
-              <FormHelperText>{helperText}</FormHelperText>
           </FormControl>
       </>
     )
