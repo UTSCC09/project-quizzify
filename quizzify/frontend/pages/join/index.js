@@ -2,12 +2,14 @@ import CustomPinInput from "@/components/CustomPinInput";
 import JoinNavBar from "@/components/JoinNavBar";
 import { PinInput, Flex, HStack, Text } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
 import { io } from "socket.io-client";
 
 var socket
 
 export default function Join() {    
+    const router = useRouter()
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
 
@@ -45,6 +47,7 @@ export default function Join() {
 
         socket.on("room:start", () => {
             console.log("Host started game!")
+            router.push("/play")
         })
         socket.on("room:end", () => {
             console.log("Host ended game!")

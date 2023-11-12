@@ -33,7 +33,7 @@ const eventNames = {
 const socketLog = (socket, message, joinCode="") => {
     var socketIdentifier = `id=${socket.id}`
     if (joinCode !== "")
-        socketIdentifier += `, code=${joinCode}`
+        socketIdentifier = `code=${joinCode}, ` + socketIdentifier
     console.log(`[SOCKET] (${socketIdentifier}): ${message}`)
 }
 
@@ -89,6 +89,12 @@ module.exports = (io) => {
                 const game = (existingGame ?? await Game.create(socket.id, userId, quizId))
                 if (!game) 
                     throw Error
+                
+                if (existingGame) { // Clear previously connected players
+                    game.players = []
+                    await game.save()
+                    io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+                }
 
                 socket.join(game.joinCode)
                 callback({ 
@@ -108,9 +114,13 @@ module.exports = (io) => {
             const { userId, joinCode } = payload
             // TODO: Validate userId
             try {
-                var game = await Game.findOne({hostId: userId, joinCode: joinCode, active: false}).populate("quiz")
+                var game = await Game.findOne({
+                    "host.userId": userId, 
+                    joinCode: joinCode, 
+                    active: false
+                }).populate("quiz")
                 if (!game) 
-                    throw Error
+                    throw Error("Game not found")
                 
                 game.active = true
                 await game.save()

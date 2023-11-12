@@ -69,8 +69,10 @@ export default function Host() {
     return (
         <>
             Game code: {gameCode}
+
             {gameCode ? <>
-                Players: {players.map(player => player.socketId)}
+                <h1>Players:</h1>
+                {players.map(player => <div>- {player.socketId}</div>)}
                 <Button onClick={startGame} isDisabled={players.length <= 0}>Start Game</Button>
             </> : null}
         </>
