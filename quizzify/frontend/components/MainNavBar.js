@@ -26,16 +26,21 @@ import {
 import { AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
 import { FaUser } from 'react-icons/fa'
 import { IoIosCreate } from 'react-icons/io'
+import LoginButton from './Buttons/Auth/LoginButton'
 
 const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
-  { name: 'Profile', icon: FaUser, href: "/profile" },
+  { name: 'Profile', icon: FaUser, href: "/profile", authenticated: true },
   { name: 'Play', icon: AiFillStar, href: "/join" },
-  { name: 'Create', icon: IoIosCreate, href: "/create"},
+  { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},
   { name: 'Discover', icon: AiFillCompass, href: "/discover"},
 ]
 
 const SidebarContent = ({ onClose, ...rest }) => {
+  const {
+    isAuthenticated,
+  } = useAuth0();
+
   return (
     <Box
       transition="3s ease"
@@ -53,9 +58,10 @@ const SidebarContent = ({ onClose, ...rest }) => {
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} href={link.href}>
-          {link.name}
-        </NavItem>
+        (!link.authenticated || (link.authenticated && isAuthenticated)) ? 
+          <NavItem key={link.name} icon={link.icon} href={link.href}>
+            {link.name}
+          </NavItem> : null
       ))}
     </Box>
   )
@@ -106,6 +112,7 @@ const NavItem = ({ href, icon, children, ...rest }) => {
 const MobileNav = ({ onOpen, ...rest }) => {
   const {
     user,
+    isAuthenticated,
     logout
   } = useAuth0();
 
@@ -138,34 +145,35 @@ const MobileNav = ({ onOpen, ...rest }) => {
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <Flex alignItems={'center'}>
-          <Menu>
-            <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
-              <HStack>
-                <Avatar
-                  size={'sm'}
-                  src={user.picture}
-                />
-                <VStack
-                  display={{ base: 'none', md: 'flex' }}
-                  alignItems="flex-start"
-                  spacing="1px"
-                  ml="2">
-                  <Text fontSize="sm">{user.name}</Text>
-                  <Text fontSize="xs" color="gray.600">
-                    {user.email}
-                  </Text>
-                </VStack>
-                <Box display={{ base: 'none', md: 'flex' }}>
-                  <FiChevronDown />
-                </Box>
-              </HStack>
-            </MenuButton>
-            <MenuList
-              bg={'white'}
-              borderColor={'gray.200'}>
-              <MenuItem onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>Log out</MenuItem>
-            </MenuList>
-          </Menu>
+          {!isAuthenticated ? <LoginButton/> :
+            <Menu>
+              <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
+                  <HStack>
+                    <Avatar
+                      size={'sm'}
+                      src={user.picture}
+                    />
+                    <VStack
+                      display={{ base: 'none', md: 'flex' }}
+                      alignItems="flex-start"
+                      spacing="1px"
+                      ml="2">
+                      <Text fontSize="sm">{user.name}</Text>
+                      <Text fontSize="xs" color="gray.600">
+                        {user.email}
+                      </Text>
+                    </VStack>
+                    <Box display={{ base: 'none', md: 'flex' }}>
+                      <FiChevronDown />
+                    </Box>
+                  </HStack>
+              </MenuButton>
+              <MenuList
+                bg={'white'}
+                borderColor={'gray.200'}>
+                <MenuItem onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>Log out</MenuItem>
+              </MenuList>
+            </Menu>}
         </Flex>
       </HStack>
     </Flex>
