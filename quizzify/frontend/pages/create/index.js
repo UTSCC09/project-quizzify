@@ -20,7 +20,13 @@ export default function Home() {
         const quiz = {
           name: "New Quiz",
           private: false,
-          questions: [],
+          questions: [
+            {
+                question: 'What mammal has the most powerful bite?',
+                type: QUIZ_API.QUIZ_TYPES.SINGLE_CHOICE,
+                responses: [{response: 'Your mom', isAnswer: false }, {response: 'Gorilla', isAnswer: false }, 
+                            {response: 'Hippopotamus', isAnswer: true }, {response: 'Grizzly Bear', isAnswer: false }]
+            }],
         }
 
         const accessToken = await getAccessTokenSilently();
@@ -29,7 +35,7 @@ export default function Home() {
       }
     }
     createNewQuiz()
-  }, [])
+  }, [isAuthenticated, getAccessTokenSilently])
 
   return (
     <>

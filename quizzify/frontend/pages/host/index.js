@@ -39,7 +39,7 @@ export default function Host() {
             if (isAuthenticated && socket) {
                 socket.emit("host:create", { 
                     userId: user.sub, 
-                    quizId: "654ef5432afff2206ac21a99" 
+                    quizId: "65515a97355daad172dbd5d0" // TODO: Select quizId
                 }, (response) => {
                     if (response.success) {// Created game
                         setGameCode(response.joinCode)
@@ -58,13 +58,17 @@ export default function Host() {
                 userId: user.sub, 
                 joinCode: gameCode
             }, (response) => {
-                if (response.success) // Created game
-                    console.log("Starting game!")
-                else // Failed to create game
+                if (response.success) { // Created game
+                    setQuestion(response.question)
+                    console.log("Starting game!", question)
+                } else // Failed to create game
                     console.log("Failed to start game!")
             })
         }
     }
+
+    // TODO: Move to another file
+    const [question, setQuestion] = useState({})
 
     return (
         <>
@@ -74,6 +78,12 @@ export default function Host() {
                 <h1>Players:</h1>
                 {players.map(player => <div>- {player.socketId}</div>)}
                 <Button onClick={startGame} isDisabled={players.length <= 0}>Start Game</Button>
+            </> : null}
+            
+            {Object.keys(question).length > 0 ? <>
+                <h1>Question: {question.question}</h1>
+                {/* {players.map(player => <div>- {player.socketId}</div>)} */}
+                {/* <Button onClick={nextQuestion}>Next Question</Button> */}
             </> : null}
         </>
     )

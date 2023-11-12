@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
 import { io } from "socket.io-client";
 
-var socket
 
 export default function Join() {    
+    var socket;
     const router = useRouter()
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")

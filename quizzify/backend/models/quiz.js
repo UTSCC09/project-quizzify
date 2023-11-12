@@ -15,19 +15,22 @@ const QuizSchema = new mongoose.Schema({
     required: true, 
     default: false
   },
-  questions: [{
-    question: {type: String, required: true},
-    type: {
-      type: String, 
-      required: true, 
-      enum: QUIZ_TYPES,
-      default: SINGLE_CHOICE
-    },
-    responses: [{
-      response: {type: String, required: true},
-      isAnswer: {type: Boolean, required: true}
+  questions: {
+    type: [{
+      question: {type: String, required: true},
+      type: {
+        type: String, 
+        required: true, 
+        enum: QUIZ_TYPES,
+        default: SINGLE_CHOICE
+      },
+      responses: [{
+        response: {type: String, required: true},
+        isAnswer: {type: Boolean, required: true}
+      }],
     }],
-  }],
+    validate: [(val) => val.length > 0 && val.length <= 6, "Must have minimum one and maximum six questions"]
+  },
   createdAt: {
     type: Date,
     default: () => Date.now(),
