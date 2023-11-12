@@ -1,6 +1,10 @@
+var https = require('https');
+var fs = require('fs');
+
 var express = require('express');
 var cors = require('cors');
 const mongoose = require('mongoose');
+const socketIO = require('socket.io')
 
 var path = require('path');
 var createError = require('http-errors');
@@ -55,4 +59,23 @@ async function connectToMongoDB() {
   console.log("Connected to MongoDB")
 }
 
-module.exports = app;
+const privateKey = fs.readFileSync("server.key");
+const certificate = fs.readFileSync("server.crt");
+const config = { key: privateKey, cert: certificate };
+const port = process.env.PORT ?? '5000'
+
+// Sockets
+const server = https.createServer(config, app)
+const io = socketIO(server, {
+  cors: corsOptions
+})
+
+io.on("connection", (socket) => {
+})
+
+
+server.listen(port, function (err) {
+  if (err) console.log(err);
+  else console.log("HTTPS server on https://localhost:%s", port);
+});
+

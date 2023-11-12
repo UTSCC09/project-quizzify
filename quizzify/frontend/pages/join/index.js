@@ -3,6 +3,9 @@ import JoinNavBar from "@/components/JoinNavBar";
 import { PinInput, Flex, HStack, Text } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
 import { useEffect, useState } from 'react';
+import { io } from "socket.io-client"
+
+var socket
 
 export default function Join() {    
     const theme = useTheme();
@@ -27,6 +30,22 @@ export default function Join() {
         // call api, move to game if coorect
         console.log(gameCode)
     }
+
+
+    useEffect(() => {
+        // Create a socket connection
+        socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
+
+        // Listen for incoming messages
+        // socket.on("player:join", (res) => {
+        //     setMessages((prevMessages) => [...prevMessages, message]);
+        // });
+
+        // Clean up the socket connection on unmount
+        return () => { 
+            socket.disconnect() 
+        }
+    }, []);
 
     return (
         <>
