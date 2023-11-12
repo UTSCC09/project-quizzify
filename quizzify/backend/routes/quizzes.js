@@ -8,9 +8,9 @@ const { Quiz, QUIZ_TYPES } = require("../models/quiz");
 
 
 // GET /quizzes
-router.get('/', async (req, res, next) => {
+router.get('/', validateAccessToken(false), async (req, res, next) => {
     try {
-        const authedUserId = "TODO"
+        const authedUserId = req.auth?.payload.sub
         // TODO: Paginate
         const quizzes = (await Quiz.find({
             $or: [ // Public quizzes OR private (owned by user)
@@ -24,7 +24,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 // POST /quizzes
-router.post('/', validateAccessToken, async (req, res, next) => {
+router.post('/', validateAccessToken(), async (req, res, next) => {
     try {
         const quiz = {
             userId: req.auth.payload.sub,
@@ -49,9 +49,9 @@ router.get('/templates', async (req, res, next) => {
 });
 
 // GET /quizzes/:quizId
-router.get('/:quizId', async (req, res, next) => {
+router.get('/:quizId', validateAccessToken(false), async (req, res, next) => {
     try {
-        const authedUserId = "TODO"
+        const authedUserId = req.auth.payload.sub
         const quiz = (await Quiz.findById(req.params.quizId))
             .hideQuestionsFromNonOwner(authedUserId)
 
@@ -66,9 +66,9 @@ router.get('/:quizId', async (req, res, next) => {
     }
 });
 // PUT /quizzes/:quizId
-router.put('/:quizId', validateAccessToken, async (req, res, next) => {
+router.put('/:quizId', validateAccessToken(), async (req, res, next) => {
     try {
-        const authedUserId = "TODO"
+        const authedUserId = req.auth.payload.sub
         var quiz = await Quiz.findById(req.params.quizId)
 
         if (quiz === undefined) // Does not exist
@@ -88,9 +88,9 @@ router.put('/:quizId', validateAccessToken, async (req, res, next) => {
     }
 });
 // DELETE /quizzes/:quizId
-router.delete('/:quizId', validateAccessToken, async (req, res, next) => {
+router.delete('/:quizId', validateAccessToken(), async (req, res, next) => {
     try {
-        const authedUserId = "TODO"
+        const authedUserId = req.auth.payload.sub
         var quiz = await Quiz.findById(req.params.quizId)
 
         if (quiz === undefined) // Does not exist
@@ -107,7 +107,7 @@ router.delete('/:quizId', validateAccessToken, async (req, res, next) => {
 });
 
 // POST /quizzes/:quizId/questions
-router.post('/:quizId/questions', validateAccessToken, async (req, res, next) => {
+router.post('/:quizId/questions', validateAccessToken(), async (req, res, next) => {
     try {
         var quiz = await Quiz.findById(req.params.quizId)
         
@@ -125,7 +125,7 @@ router.post('/:quizId/questions', validateAccessToken, async (req, res, next) =>
     }
 });
 // PUT /quizzes/:quizId/questions/:questionId
-router.put('/:quizId/questions/:questionId', validateAccessToken, async (req, res, next) => {
+router.put('/:quizId/questions/:questionId', validateAccessToken(), async (req, res, next) => {
     try {
         var quiz = await Quiz.findById(req.params.quizId)
         
@@ -154,7 +154,7 @@ router.put('/:quizId/questions/:questionId', validateAccessToken, async (req, re
     }
 });
 // DELETE /quizzes/:quizId/questions/:questionId
-router.delete('/:quizId/questions/:questionId', validateAccessToken, async (req, res, next) => {
+router.delete('/:quizId/questions/:questionId', validateAccessToken(), async (req, res, next) => {
     try {
         let quiz = await Quiz.findById(req.params.quizId)
         
@@ -172,8 +172,11 @@ router.delete('/:quizId/questions/:questionId', validateAccessToken, async (req,
     }
 });
 
+/*  -------------------------------------------------------------------------
+        Web sockets 
+    ------------------------------------------------------------------------ */
 // POST /quizzes/:quizId/start
-router.post('/:quizId/start', validateAccessToken, async (req, res, next) => {
+router.post('/:quizId/start', validateAccessToken(), async (req, res, next) => {
     try {
         res.sendStatus(501) // TODO
     } catch (error) {
@@ -181,7 +184,7 @@ router.post('/:quizId/start', validateAccessToken, async (req, res, next) => {
     }
 });
 // POST /quizzes/:quizId/end
-router.post('/:quizId/end', validateAccessToken, async (req, res, next) => {
+router.post('/:quizId/end', validateAccessToken(), async (req, res, next) => {
     try {
         res.sendStatus(501) // TODO
     } catch (error) {

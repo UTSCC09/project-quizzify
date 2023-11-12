@@ -9,10 +9,16 @@ const {
 const dotenv = require("dotenv");
 dotenv.config();
 
-const validateAccessToken = auth({
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
-  audience: process.env.AUTH0_AUDIENCE,
-});
+const validateAccessToken = (authRequired) => {
+  return (req, res, next) => {
+    const authCheck = auth({
+      issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
+      audience: process.env.AUTH0_AUDIENCE,
+      authRequired: authRequired // Let middleware send 401 errors
+    })
+    authCheck(req, res, next);
+  }
+}
 
 const checkRequiredPermissions = (requiredPermissions) => {
   return (req, res, next) => {
