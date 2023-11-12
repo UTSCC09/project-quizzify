@@ -69,8 +69,28 @@ const server = https.createServer(config, app)
 const io = socketIO(server, {
   cors: corsOptions
 })
+const { 
+  socketLog, 
+  eventNames, 
+  utils, host, player 
+} = require('./sockets/game')(io)
 
 io.on("connection", (socket) => {
+  socketLog(socket, "Connected")
+
+  // Utils
+  socket.on("disconnect", utils.disconnect)
+  
+  // Host
+  socket.on(eventNames.HOST.create, host.create)
+  socket.on(eventNames.HOST.start, host.start)
+  socket.on(eventNames.HOST.nextQuestion, host.nextQuestion)
+  socket.on(eventNames.HOST.questionTimerExpired, host.questionTimerExpired)
+  
+  // Player
+  socket.on(eventNames.PLAYER.join, player.join)
+  socket.on(eventNames.PLAYER.answer, player.answer)
+  socket.on(eventNames.PLAYER.getScore, player.getScore)
 })
 
 

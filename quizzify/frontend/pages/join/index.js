@@ -3,7 +3,7 @@ import JoinNavBar from "@/components/JoinNavBar";
 import { PinInput, Flex, HStack, Text } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
 import { useEffect, useState } from 'react';
-import { io } from "socket.io-client"
+import { io } from "socket.io-client";
 
 var socket
 
@@ -27,7 +27,14 @@ export default function Join() {
     }
 
     const handleComplete = (gameCode) => {
-        // call api, move to game if coorect
+        // Call api, move to game if coorect
+        socket.emit("player:join", gameCode, (response) => {
+            if (response.success) { // Joined game
+                console.log("Successfully joined game!")
+            } else { // Failed to join game
+                console.log("Failed to join game!")
+            }
+        })
         console.log(gameCode)
     }
 
