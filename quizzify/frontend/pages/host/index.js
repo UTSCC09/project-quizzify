@@ -27,7 +27,7 @@ export default function Host() {
         // Create a socket connection
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
 
-        socket.on("room:updatePlayers", (players) => {
+        socket.on(SOCKET_EVENTS.ROOM.updatePlayers, (players) => {
             setPlayers(players)
         })
 

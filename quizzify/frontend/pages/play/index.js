@@ -30,11 +30,11 @@ export default function Play() {
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
         setSocketConnected(true)
         
-        socket.on("room:start", () => {
+        socket.on(SOCKET_EVENTS.ROOM.start, () => {
             console.log("Host started game!")
             setGameStart(true)
         })
-        socket.on("room:end", () => {
+        socket.on(SOCKET_EVENTS.ROOM.end, () => {
             console.log("Host ended game!")
             setGameStart(false)
             setConnected(false)
