@@ -25,12 +25,10 @@ export const SOCKET_EVENTS = {
         create: `${eventNamePrefixes.HOST}:create`,
         start: `${eventNamePrefixes.HOST}:start`,
         nextQuestion: `${eventNamePrefixes.HOST}:nextQuestion`,
-        questionTimerExpired: `${eventNamePrefixes.HOST}:questionTimerExpired`,
     },
     PLAYER: {
         join: `${eventNamePrefixes.PLAYER}:join`,
         answer: `${eventNamePrefixes.PLAYER}:answer`,
-        getScore: `${eventNamePrefixes.PLAYER}:getScore`,
     },
     ROOM: {
         updatePlayers: `${eventNamePrefixes.ROOM}:updatePlayers`,

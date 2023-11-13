@@ -56,7 +56,6 @@ export default function PlayerPlay({
             socket.on(SOCKET_EVENTS.ROOM.nextQuestion, (question) => {
                 setCurrQuestion(question)
                 resetQuizQuestion()
-                console.log("nextQuestion", question)
             })
         }
     }, [])
