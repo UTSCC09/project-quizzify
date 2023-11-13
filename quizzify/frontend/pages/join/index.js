@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
 import { io } from "socket.io-client";
 
+var socket;
 
 export default function Join() {    
-    var socket;
     const router = useRouter()
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
@@ -23,23 +23,6 @@ export default function Join() {
             document.body.style.background = originalBgColor;
         };
     }, [theme.colors.brand]);
-
-    const handleChange = (value) => {
-        setGameCode(value)
-    }
-
-    const handleComplete = (gameCode) => {
-        // Call api, move to game if coorect
-        socket.emit("player:join", gameCode, (response) => {
-            if (response.success) { // Joined game
-                console.log("Successfully joined game!")
-            } else { // Failed to join game
-                console.log("Failed to join game!")
-            }
-        })
-        console.log(gameCode)
-    }
-
 
     useEffect(() => {
         // Create a socket connection
@@ -59,6 +42,21 @@ export default function Join() {
             socket.disconnect() 
         }
     }, []);
+
+    const handleChange = (value) => {
+        setGameCode(value)
+    }
+
+    const handleComplete = (gameCode) => {
+        // Call api, move to game if coorect
+        socket.emit("player:join", gameCode, (response) => {
+            if (response.success) { // Joined game
+                console.log("Successfully joined game!")
+            } else { // Failed to join game
+                console.log("Failed to join game!")
+            }
+        })
+    }
 
     return (
         <>

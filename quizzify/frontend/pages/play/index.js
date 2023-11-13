@@ -5,8 +5,9 @@ import { Box, Container, Flex, Grid, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
+var socket;
+
 export default function Play() {
-    var socket;
     useEffect(() => {
         // Create a socket connection
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
