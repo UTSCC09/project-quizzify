@@ -1,0 +1,31 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/quizzify/backend/node_modules
+/quizzify/frontend/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+/quizzify/backend/.env
+/quizzify/backend/.env.production
+/quizzify/backend/.env.development
+/quizzify/frontend/.env
+.idea
+.vscode
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
