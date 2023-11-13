@@ -46,6 +46,15 @@ QuizSchema.methods = {
          delete quiz.questions
      return quiz
   },
+  hideResponseAnswers: function() { // Remove `questions.responses.isAnswer` field
+     var quiz = this.toObject()
+     quiz.questions.forEach((question) => {
+      question.responses.forEach((response) => {
+        delete response.isAnswer
+      })
+     })
+     return quiz
+  },
 
   addQuestion: function(question, responses) {
 

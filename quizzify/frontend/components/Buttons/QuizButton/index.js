@@ -7,6 +7,7 @@ const QuizButton = ({
     onSelect,
     quizReset,
     response,
+    index,
     onClick
 }) => {
     const theme = useTheme();
@@ -77,9 +78,10 @@ const QuizButton = ({
             }}
             onClick={() => {
                 if (!showAns){
-                    onSelect(response.response, ()=>{
-                        setSelected(!selected);
-                    })
+                    onSelect({
+                        response: response, 
+                        index: index 
+                    }, () => { setSelected(!selected) })
                     if (onClick) onClick()
                 }
             }}>

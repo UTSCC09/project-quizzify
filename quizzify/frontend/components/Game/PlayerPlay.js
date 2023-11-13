@@ -1,5 +1,6 @@
 import QuizButton from "@/components/Buttons/QuizButton";
 import TextButton from "@/components/Buttons/TextButton";
+import { QUIZ_TYPES, SOCKET_EVENTS } from "@/constants";
 import { SAMPLE_QUIZ } from "@/constants/testingConstants";
 import { Box, Container, Flex, Grid, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -9,25 +10,25 @@ export default function PlayerPlay({
     gameCode
 }) {
     // following values changes with the state of game:
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // TODO: this is just internal logic, will be enforced with api calls
+    // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // TODO: this is just internal logic, will be enforced with api calls
     const [showAns, setShowAns] = useState(false); // TODO: sync with timer
     const [quizReset, setQuizReset] = useState(false);
     const [selectedAnswers, setSelectedAnswers] = useState([]);
     const [actualAnswer, setActualAnswer] = useState([]); // TODO: this is just internal logic, will be enforced with api calls
     
-    const onSelect = (selectedResponse, callBack) => {
+    const onSelect = (selectedResponse, resetSelectCallback) => {
+        const { response, index } = selectedResponse
         const maxSelection = 1; // TODO: number depends on the type of quiz
-        if (!selectedAnswers.includes(selectedResponse) && selectedAnswers.length + 1 > maxSelection) return;
-        if (!selectedAnswers.includes(selectedResponse)){
-            selectedAnswers.push(selectedResponse)
+        if (!selectedAnswers.includes(index) && selectedAnswers.length + 1 > maxSelection) return;
+        else if (!selectedAnswers.includes(index)) {
+            selectedAnswers.push(index)
             setSelectedAnswers(selectedAnswers);
-            callBack()
+            resetSelectCallback()
+        } else {
+            setSelectedAnswers(selectedAnswers.filter(e => e !== index))
+            resetSelectCallback()
         }
-        else {
-            setSelectedAnswers(selectedAnswers.filter((e)=> e!== selectedResponse))
-            callBack()
-        }
-        console.log(selectedAnswers) // TODO: for debugging purposes, will remove
+        console.log("Selected answers", selectedAnswers) // TODO: for debugging purposes, will remove
     }
 
     const resetQuizQuestion = () =>{
@@ -36,20 +37,50 @@ export default function PlayerPlay({
         setQuizReset(!quizReset) // reset state of quiz buttons
     }
 
-    const getNextQuestion = () => {
-        // TODO: this logic will be changed since we will not have access to the entire quiz
-        return SAMPLE_QUIZ.questions[currentQuestionIndex]
+    const handleSubmit = () => {
+        // if (!showAns) {
+        //     console.log(selectedAnswers) // TODO: for debugging purposes, will remove
+        //     setShowAns(!showAns) // TODO: api call/socket logic should be made here to find answer
+        // }
+        socket.emit(SOCKET_EVENTS.PLAYER.answer, {
+            joinCode: gameCode, 
+            selectedAnswers: selectedAnswers
+        })
     }
-    
-    const currentQuestion = getNextQuestion()
-    const questionChoices = currentQuestion.responses;
+
+    const [currQuestion, setCurrQuestion] = useState({})
+    useEffect(() => {
+        if (!socket)
+            console.log("Socket not connected")
+        else {
+            socket.on(SOCKET_EVENTS.ROOM.nextQuestion, (question) => {
+                setCurrQuestion(question)
+                resetQuizQuestion()
+                console.log("nextQuestion", question)
+            })
+        }
+    }, [])
+
+    const questionTypeToDisplayString = (type) => {
+        switch (type) {
+            case QUIZ_TYPES.SINGLE_CHOICE:
+                return "Single Choice"
+            case QUIZ_TYPES.MULTIPLE_CHOICE:
+                return "Multiple Choice"
+            case QUIZ_TYPES.TRUE_OR_FALSE:
+                return "True/False"
+            case QUIZ_TYPES.FILL_BLANK:
+                return "Fill in the blank"
+        }
+    }
 
     return (
-        <Container w={'600px'}>
+        Object.keys(currQuestion).length <= 0 ? "No question yet" : <>
+            <Container w={'600px'}>
             <Flex flexDirection={'column'} height={'100vh'} justifyContent={'center'}>
                 <Box>
-                    <Text>Question Type: {currentQuestion.type}</Text>
-                    <Text>Question: {currentQuestion.question}</Text>
+                    <Text>Question Type: {questionTypeToDisplayString(currQuestion.type)}</Text>
+                    <Text>Question: {currQuestion.question}</Text>
                 </Box>
                 <Grid
                     padding={5}
@@ -58,38 +89,23 @@ export default function PlayerPlay({
                     gridGap={'25px'}
                     templateColumns='repeat(2, 1fr)'>
                     {
-                        questionChoices.map((response, i) => (
+                        currQuestion.responses.map((response, i) => (
                             <QuizButton 
-                                key={i} showAns={showAns} quizReset={quizReset}
+                                key={i} 
+                                showAns={showAns} 
+                                quizReset={quizReset}
                                 onSelect={onSelect}
+                                index={i} 
                                 response={response} />
                         ))
                     }
                 </Grid>
                 <Flex gap={'10px'}>
-                    <TextButton text={'Prev Question'} // TODO: for testing purposes, this will be removed.
-                        onClick={()=>{
-                            if (currentQuestionIndex > 0){
-                                setCurrentQuestionIndex(currentQuestionIndex-1)
-                                resetQuizQuestion();
-                            }
-                        }} />
-                    <TextButton text={'Next Question'} // TODO: for testing purposes, this will be removed.
-                        onClick={()=>{
-                            if (currentQuestionIndex < questionChoices.length){
-                                setCurrentQuestionIndex(currentQuestionIndex+1)
-                                resetQuizQuestion();
-                            }
-                        }} />
-                    <TextButton text={'Submit'}
-                        onClick={()=>{
-                            if (!showAns){
-                                console.log(selectedAnswers) // TODO: for debugging purposes, will remove
-                                setShowAns(!showAns) // TODO: api call/socket logic should be made here to find answer
-                            }
-                        }} />
+                    <TextButton text={'Submit'} onClick={handleSubmit} />
                 </Flex>
             </Flex>
         </Container>
+        </>
+        
     )
 }

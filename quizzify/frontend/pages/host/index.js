@@ -28,7 +28,7 @@ export default function Host() {
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
 
         socket.on(SOCKET_EVENTS.ROOM.updatePlayers, (players) => {
-            setPlayers(players)
+            setPlayers(players.sort(sortPlayersByScore))
         })
 
         // Clean up the socket connection on unmount
@@ -90,7 +90,8 @@ export default function Host() {
     // Source: https://stackoverflow.com/a/62110789
     const [question, setQuestion] = useState({})
     const [questionStart, setQuestionStart] = useState(false)
-    const TIMER_DEFAULT_SECONDS = 15 // TODO: Short/medium/long
+    const [gameEnd, setGameEnd] = useState(false)
+    const TIMER_DEFAULT_SECONDS = 20+3 // TODO: Short/medium/long (+3 for 2s loading time for players)
     const [timerSeconds, setTimerSeconds] = useState(TIMER_DEFAULT_SECONDS)
     const startQuestion = (question) => {
         setQuestion(question)
@@ -110,13 +111,14 @@ export default function Host() {
     }, [questionStart])
     useEffect(() => {
         if (timerSeconds === 0) {
-          clearInterval(intervalRef.current);
-          setQuestionStart(false);
-          socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
+            clearInterval(intervalRef.current);
+            setQuestionStart(false);
+            socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
                 if (response.success) {
                     if (response.gameOver) { // No more questions
                         console.log("No more questions")
                         setQuestionStart(false)
+                        setGameEnd(true)
                     } else { // Next question
                         console.log("Updated next question")
                         startQuestion(response.question)
@@ -128,6 +130,7 @@ export default function Host() {
         }
     }, [timerSeconds]);
     
+    const sortPlayersByScore = (a, b) => { b.score - a.score }
 
     return (
         <>
@@ -146,15 +149,24 @@ export default function Host() {
 
             {gameCode ? <>
                 <h1>Players:</h1>
-                {players.map(player => <div>- {player.socketId}</div>)}
+                {players.map(player => 
+                    <div>
+                        - {player.socketId} ({player.points} points)
+                    </div>
+                    )}
                 <Button onClick={startGame} isDisabled={players.length <= 0}>Start Game</Button>
             </> : null}
             
             {Object.keys(question).length > 0 ? <>
                 <h1>Question: {question.question}</h1>
-                <h1>{JSON.stringify(question.responses)}</h1>
-                <h1>Timer: {timerSeconds} seconds left</h1>
-                {/* <Button onClick={nextQuestion}>Next Question</Button> */}
+                {question.responses.map(response => <div>- {response.response}</div>)}
+                
+                {!gameEnd ? <h2>Timer: {timerSeconds} seconds left</h2> :
+                    <>
+                        <h2>Game over!</h2>
+                        <div>{players[0]?.socketId} won with {players[0]?.points} points</div>
+                    </>
+                 }
             </> : null}
         </>
     )

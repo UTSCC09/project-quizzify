@@ -15,7 +15,8 @@ const GameSchema = new mongoose.Schema({
     numPlayersAnswered: {type: Number, required: true, default: 0},
   },
   players: [{
-    socketId: {type: String, required: true}
+    socketId: {type: String, required: true},
+    points: {type: Number, required: true, default: 0},
   }],
   createdAt: {
     type: Date,

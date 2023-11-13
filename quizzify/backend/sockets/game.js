@@ -10,7 +10,6 @@ const eventNames = {
     UTILS: {
         disconnecting: "disconnecting",
         disconnect: "disconnect",
-        getTimer: `${eventNamePrefixes.HOST}:getTimer`,
     },
     HOST: {
         create: `${eventNamePrefixes.HOST}:create`,
@@ -27,8 +26,10 @@ const eventNames = {
         updatePlayers: `${eventNamePrefixes.ROOM}:updatePlayers`,
         start: `${eventNamePrefixes.ROOM}:start`,
         end: `${eventNamePrefixes.ROOM}:end`,
+        nextQuestion: `${eventNamePrefixes.ROOM}:nextQuestion`,
     }
 }
+const PLAYER_QUESTION_SEND_DELAY = 2000 // 2s
 
 const socketLog = (socket, message, joinCode="") => {
     var socketIdentifier = `id=${socket.id}`
@@ -68,10 +69,7 @@ module.exports = (io) => {
         disconnect: async function () {
             const socket = this
             socketLog(socket, "Disconnect")
-        },
-        getTimer: function () {
-
-        },
+        }
     }
 
     // Host
@@ -132,6 +130,12 @@ module.exports = (io) => {
                     question: game.quiz.questions[game.currQuestion.index] 
                 })
                 socketLog(this, `Host started game`, joinCode)
+                
+                setTimeout(() => { // Send first question after 5s
+                    const quizHiddenAnswers = game.quiz.hideResponseAnswers()
+                    io.to(joinCode).emit(eventNames.ROOM.nextQuestion, quizHiddenAnswers.questions[game.currQuestion.index])
+                }, PLAYER_QUESTION_SEND_DELAY)
+                socketLog(this, `Host sent first question`, joinCode)
 
             } catch (error) {
                 console.log(error)
@@ -159,20 +163,27 @@ module.exports = (io) => {
                         success: true,
                         gameOver: true 
                     })
+                    io.to(game.joinCode).emit(eventNames.ROOM.end)
                     socketLog(this, `Host sent game over`, game.joinCode)
                 } else { // Send next question
                     game.currQuestion.index++
                     game.currQuestion.numPlayersAnswered = 0
                     await game.save()
-
+                    
+                    const quizHiddenAnswers = game.quiz.hideResponseAnswers()
                     callback({ 
                         success: true,
-                        question: game.quiz.questions[game.currQuestion.index],
+                        question: quizHiddenAnswers.questions[game.currQuestion.index],
                         gameOver: false
                     })
+                    setTimeout(() => { // Send next question after 2s
+                        io.to(game.joinCode).emit(eventNames.ROOM.nextQuestion, quizHiddenAnswers.questions[game.currQuestion.index])
+                    }, PLAYER_QUESTION_SEND_DELAY)
                     socketLog(this, `Host sent next question`, game.joinCode)
                 }
+                io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
             } catch (error) {
+                console.log(error)
                 callback({ success: false })
                 socketLog(this, "Host failed to send next question")
             }
@@ -194,7 +205,7 @@ module.exports = (io) => {
                 // Update players in game
                 socket.join(joinCode)
                 if (!game.players.some(player => player.socketId == socket.id)) {
-                    game.players.push({socketId: socket.id})
+                    game.players.push({ socketId: socket.id })
                     await game.save()
                 }
                 io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
@@ -207,8 +218,46 @@ module.exports = (io) => {
                 socketLog(this, "Player failed to join game", joinCode)
             }
         },
-        answer: function (payload) {
+        answer: async function (payload) {
+            const socket = this
+            const { joinCode, selectedAnswers } = payload
+            try {
+                var game = await Game.findOne({
+                    joinCode: joinCode, 
+                    active: true, 
+                    end: false
+                }).populate("quiz")
+                if (!game)
+                    throw Error("Game not found")
+                
+                var playerIndex = game.players.findIndex(player => player.socketId == socket.id)
+                if (playerIndex == -1)
+                    throw Error("Player not found in game")
+                
+                const responses = game.quiz.questions[game.currQuestion.index].responses
+                let numCorrect = 0
+                const totalNumAnswers = responses.filter(response => response.isAnswer).length
+                selectedAnswers.forEach(selectedIndex => {
+                    if (responses[selectedIndex].isAnswer)
+                        numCorrect++
+                })
+            
+                // Calculate points (max 100)
+                const points = Math.floor(100 * (numCorrect / totalNumAnswers))
+                game.quiz.questions[game.currQuestion.index].responses
+                game.players[playerIndex].points += points
 
+                game.currQuestion.numPlayersAnswered++
+                await game.save()
+
+                socketLog(socket, "Player answered to game", joinCode)
+
+                // TODO: If all players answered, call nextQuestion()
+            } catch (error) {
+                console.log(error)
+                // callback({ success: false })
+                socketLog(this, "Player failed to answer", joinCode)
+            }
         },
         getScore: function (payload) {
 

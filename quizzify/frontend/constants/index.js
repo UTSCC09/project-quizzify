@@ -20,7 +20,6 @@ export const SOCKET_EVENTS = {
     UTILS: {
         disconnecting: "disconnecting",
         disconnect: "disconnect",
-        getTimer: `${eventNamePrefixes.HOST}:getTimer`,
     },
     HOST: {
         create: `${eventNamePrefixes.HOST}:create`,
@@ -37,5 +36,6 @@ export const SOCKET_EVENTS = {
         updatePlayers: `${eventNamePrefixes.ROOM}:updatePlayers`,
         start: `${eventNamePrefixes.ROOM}:start`,
         end: `${eventNamePrefixes.ROOM}:end`,
+        nextQuestion: `${eventNamePrefixes.ROOM}:nextQuestion`,
     }
 }

@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import JoinLobby from "../../components/Game/JoinLobby";
 import PlayerPlay from "../../components/Game/PlayerPlay";
 import { LoadingPage } from "@/components/LoadingPage";
+import { SOCKET_EVENTS } from "@/constants";
 
 var socket;
 
