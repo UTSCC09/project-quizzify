@@ -154,7 +154,6 @@ export default function Host() {
                 <h1>Question: {question.question}</h1>
                 <h1>{JSON.stringify(question.responses)}</h1>
                 <h1>Timer: {timerSeconds} seconds left</h1>
-                {/* {players.map(player => <div>- {player.socketId}</div>)} */}
                 {/* <Button onClick={nextQuestion}>Next Question</Button> */}
             </> : null}
         </>
