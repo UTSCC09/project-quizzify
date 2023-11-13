@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const mongoose = require("mongoose")
-const Quiz = require("../models/quiz");
+const { Quiz } = require("../models/quiz");
 const { getUsers, getUserById } = require('../utils/auth');
 
 const stripUserFields = (user) => {

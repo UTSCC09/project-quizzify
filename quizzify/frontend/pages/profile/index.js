@@ -7,24 +7,27 @@ import {
     useState, 
 } from "react";
 import { useAuth0 } from '@auth0/auth0-react';
+import * as USER_API from "@/api/users";
 import * as QUIZ_API from "@/api/quizzes";
 
 export default function Home() {
   const {
+    user,
     isAuthenticated,
     getAccessTokenSilently,
   } = useAuth0();
 
   const [quizzes, setQuizzes] = useState([])
   useEffect(() => {
-    const getQuizzes = async () => {
-      const accessToken = await getAccessTokenSilently();
-      const response = await QUIZ_API.getQuizzes(accessToken) // TODO: get logged in user's quizzes
-      setQuizzes(response[1])
+    const getUserQuizzes = async () => {
+      if (isAuthenticated) {
+        const accessToken = await getAccessTokenSilently();
+        const response = await USER_API.getQuizzesByUserId(accessToken, user.sub)
+        setQuizzes(response[1])
+      }
     }
-    if (isAuthenticated)
-      getQuizzes()
-  }, [isAuthenticated, getAccessTokenSilently])
+    getUserQuizzes()
+  }, [user, isAuthenticated, getAccessTokenSilently])
 
   return (
     <>
@@ -33,10 +36,7 @@ export default function Home() {
           <Box>This is the profile page. Can put list of user quizzes and other stuff</Box>
           <h2>Quizzes:</h2>
           {quizzes.map(quiz => 
-            <div>
-              Quiz name: {quiz.name} /
-              Creator: {quiz.userId}
-            </div>
+            <div>{JSON.stringify(quiz)}</div>
           )}
         </MainNavBar>
       }
