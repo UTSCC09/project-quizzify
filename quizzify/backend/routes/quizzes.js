@@ -27,24 +27,29 @@ router.get('/', validateAccessToken(false), async (req, res, next) => {
 router.post('/', validateAccessToken(), async (req, res, next) => {
     try {
         req.body.questions.forEach((question, questionIndex) => {
-            let questionHasAnswer = false
+            // TODO: Handle fill in the blank
+            let questionAnswers = 0
             question.responses.forEach((response, responseIndex) => {
-                questionHasAnswer = questionHasAnswer || response.isAnswer
                 if (!response.response)
                     throw Error(`Response ${responseIndex+1} of question ${questionIndex+1} must not be empty`)
-
+                if (response.isAnswer)
+                    questionAnswers++
             })
-            // if (!questionHasAnswer)
+
+            // if (questionAnswers == 0)
             //     throw Error(`Question ${questionIndex+1} must have a response marked as answer`)
+            // else if (question.TYPE == QUIZ_TYPES.SINGLE_CHOICE && questionAnswers != 1)
+            //     throw Error(`Question ${questionIndex+1} must have a single response marked as answer`)
         })
 
         const quiz = {
             userId: req.auth.payload.sub,
             name: req.body.name,
+            description: req.body.description,
             private: req.body.private,
             questions: req.body.questions,
         }
-        const newQuiz = await Quiz.create(quiz.userId, quiz.name, quiz.private, quiz.questions)
+        const newQuiz = await Quiz.create(quiz.userId, quiz.name, quiz.description, quiz.private, quiz.questions)
         res.send(newQuiz)
     } catch (error) {
         res.status(500).send(error)

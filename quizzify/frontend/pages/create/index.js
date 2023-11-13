@@ -30,14 +30,17 @@ export default function Home() {
       if (isAuthenticated) {
         const quiz = {
           name: titleInput,
-          // description: descriptionInput,
+          description: descriptionInput,
           private: permissionsInput === PRIVATE,
           questions: questionsList,
         }
 
         const accessToken = await getAccessTokenSilently();
         const response = await QUIZ_API.createQuiz(accessToken, quiz);
-        console.log("quiz created: ", response)
+        if (response[0].status == 200)
+          console.log("Created quiz!", response[1])
+        else
+          console.log("Failed to create quiz")
       }
     }
     if (questionsList.length !== 0) createNewQuiz();
