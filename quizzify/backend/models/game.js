@@ -32,7 +32,7 @@ GameSchema.statics = {
     if (!await Quiz.findById(quizId))
       throw Error(`Quiz ${quizId} does not exist`)
 
-    const joinCode = Math.random().toString(36).slice(2,8).toUpperCase() // 6 digit alphanumeric
+    const joinCode = Math.random().toString(36).slice(2,8) // 6 digit alphanumeric
     const game = new this({ 
       joinCode: joinCode, 
       host: {

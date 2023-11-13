@@ -3,30 +3,11 @@ import TextButton from "@/components/Buttons/TextButton";
 import { SAMPLE_QUIZ } from "@/constants/testingConstants";
 import { Box, Container, Flex, Grid, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 
-var socket;
-
-export default function Play() {
-    useEffect(() => {
-        // Create a socket connection
-        socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
-
-        socket.on("room:start", () => {
-            console.log("Host started game!")
-            router.push("/play")
-        })
-        socket.on("room:end", () => {
-            console.log("Host ended game!")
-            setGameCode("")
-        })
-
-        // Clean up the socket connection on unmount
-        return () => { 
-            socket.disconnect() 
-        }
-    }, []);
-
+export default function PlayerPlay({
+    socket,
+    gameCode
+}) {
     // following values changes with the state of game:
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // TODO: this is just internal logic, will be enforced with api calls
     const [showAns, setShowAns] = useState(false); // TODO: sync with timer

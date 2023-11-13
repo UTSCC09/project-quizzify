@@ -1,18 +1,18 @@
-import CustomPinInput from "@/components/CustomPinInput";
-import JoinNavBar from "@/components/JoinNavBar";
-import { PinInput, Flex, HStack, Text } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
 import { io } from "socket.io-client";
+import JoinLobby from "../../components/Game/JoinLobby";
+import PlayerPlay from "../../components/Game/PlayerPlay";
+import { LoadingPage } from "@/components/LoadingPage";
 
 var socket;
 
 export default function Join() {    
-    const router = useRouter()
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
+    const [socketConnected, setSocketConnected] = useState(false)
     const [connected, setConnected] = useState(false)
+    const [gameStart, setGameStart] = useState(false)
 
     // Set the background color when the component mounts
     useEffect(() => {
@@ -28,78 +28,40 @@ export default function Join() {
     useEffect(() => {
         // Create a socket connection
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
-
+        setSocketConnected(true)
+        
         socket.on("room:start", () => {
             console.log("Host started game!")
-            router.push("/play")
+            setGameStart(true)
         })
         socket.on("room:end", () => {
             console.log("Host ended game!")
+            setGameStart(false)
             setConnected(false)
             setGameCode("")
         })
-
+        
         // Clean up the socket connection on unmount
         return () => { 
             socket.disconnect() 
+            setSocketConnected(true)
         }
     }, []);
 
-    const handleChange = (value) => {
-        setGameCode(value)
-    }
-
-    const handleComplete = (gameCode) => {
-        // Call api, move to game if correct
-        if (!connected) {
-            socket.emit("player:join", gameCode, (response) => {
-                if (response.success) { // Joined game
-                    setConnected(true)
-                    console.log("Successfully joined game")
-                } else { // Failed to join game
-                    setConnected(false)
-                    console.log("Failed to join game")
-                }
-            })
-        } else {
-            console.log("Already connected to a game")
-        }
-        
-    }
-
-    return (
-        <>
-            <Flex height={'100vh'} flexDirection={'column'}>
-                <JoinNavBar />
-                <Flex 
-                    height={'100vh'}
-                    justifyContent={'center'}
-                    alignItems={'center'}
-                    flexDirection={'column'}
-                    gap={4}>
-                    {!connected ? <>
-                        <Text color={'background.400'} fontSize={'md'}>Enter the 6 digit Code to join  🎉</Text>
-                        <HStack padding={'20px'} borderRadius={'15px'} bg={'#ffffff38'}>
-                            <PinInput 
-                                type="alphanumeric"
-                                autoFocus
-                                value={gameCode} 
-                                onChange={handleChange} onComplete={handleComplete}
-                            >
-                                <CustomPinInput />
-                                <CustomPinInput />
-                                <CustomPinInput />
-                                <CustomPinInput />
-                                <CustomPinInput />
-                                <CustomPinInput />
-                            </PinInput>
-                        </HStack>
-                    </> : <>
-                        <Text color={'background.400'} fontSize={'md'}>Connected to {gameCode}</Text>
-                        <Text color={'background.400'} fontSize={'md'}>Waiting for host to start...</Text>
-                    </>}
-                </Flex>
-            </Flex>
-        </>
+    return (!socketConnected ? <LoadingPage/> : 
+        (gameStart ? 
+            <PlayerPlay
+                socket={socket} 
+                gameCode={gameCode}
+            /> 
+            : 
+            <JoinLobby
+                socket={socket}
+                gameCode={gameCode}
+                setGameCode={setGameCode}
+                connected={connected}
+                setConnected={setConnected}
+            />
+        )
     )
 }
