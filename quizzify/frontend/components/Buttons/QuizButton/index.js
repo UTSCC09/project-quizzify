@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 
 const QuizButton = ({
     showAns = false, // this becomes true when timer runs up. will be changed dynamically
-    onSelect,
-    quizReset,
     response,
     index,
+    selectedAnswers,
+    onSelect,
     onClick
 }) => {
     const theme = useTheme();
@@ -41,21 +41,21 @@ const QuizButton = ({
     // TODO: convert to useEffect
     // override colors if answer should be shown
     if (showAns) {
-        if (response.isAnswer){
-            resultBG = correctStyle.BG
-            resultBS = selected ? selectedBSParams + correctStyle.BS : resultBS
-            resultColor = 'white'
-        }
-        else if (selected && !response.isAnswer){
-            resultBG = wrongStyle.BG
-            resultBS = selected ? selectedBSParams + wrongStyle.BS : resultBS
-            resultColor = 'white'
-        }
+        // if (response.isAnswer){
+        //     resultBG = correctStyle.BG
+        //     resultBS = selected ? selectedBSParams + correctStyle.BS : resultBS
+        //     resultColor = 'white'
+        // }
+        // else if (selected && !response.isAnswer){
+        //     resultBG = wrongStyle.BG
+        //     resultBS = selected ? selectedBSParams + wrongStyle.BS : resultBS
+        //     resultColor = 'white'
+        // }
     }
 
     useEffect(() => {
-        setSelected(false);
-    }, [quizReset]);
+        setSelected(selectedAnswers.includes(index));
+    }, [selectedAnswers])
 
     return (
         <Flex
@@ -77,11 +77,8 @@ const QuizButton = ({
                 transitionTimingFunction: "ease-in-out"
             }}
             onClick={() => {
-                if (!showAns){
-                    onSelect({
-                        response: response, 
-                        index: index 
-                    }, () => { setSelected(!selected) })
+                if (!showAns) {
+                    onSelect(response, index)
                     if (onClick) onClick()
                 }
             }}>

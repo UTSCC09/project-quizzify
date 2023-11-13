@@ -28,7 +28,7 @@ const eventNames = {
         nextQuestion: `${eventNamePrefixes.ROOM}:nextQuestion`,
     }
 }
-const PLAYER_QUESTION_SEND_DELAY = 2000 // 2s
+const PLAYER_QUESTION_SEND_DELAY = 1000 // 1s
 
 const socketLog = (socket, message, joinCode="") => {
     var socketIdentifier = `id=${socket.id}`
@@ -95,11 +95,11 @@ const create = async function (socket, io, payload, callback) {
             joinCode: game.joinCode,
             players: game.players
         })
-        socketLog(this, `Host created ${existingGame ? "existing " : "" }game`, game.joinCode)
+        socketLog(socket, `Host created ${existingGame ? "existing " : "" }game`, game.joinCode)
     } catch (error) {
         console.log(error)
         callback({ success: false })
-        socketLog(this, "Host failed to create game")
+        socketLog(socket, "Host failed to create game")
     }
 }
 
@@ -125,10 +125,10 @@ const start = async function (socket, io, payload, callback) {
         })
         socketLog(socket, `Host started game`, joinCode)
         
-        setTimeout(() => { // Send first question after 5s
+        setTimeout(() => { // Send first question after 2s
             const quizHiddenAnswers = game.quiz.hideResponseAnswers()
             io.to(joinCode).emit(eventNames.ROOM.nextQuestion, quizHiddenAnswers.questions[game.currQuestion.index])
-        }, PLAYER_QUESTION_SEND_DELAY)
+        }, PLAYER_QUESTION_SEND_DELAY*2)
         socketLog(socket, `Host sent first question`, joinCode)
 
     } catch (error) {
@@ -170,7 +170,7 @@ const hostNextQuestion = async function (socket, io, callback) {
                 question: quizHiddenAnswers.questions[game.currQuestion.index],
                 gameOver: false
             })
-            setTimeout(() => { // Send next question after 2s
+            setTimeout(() => { // Send next question after 1s
                 io.to(game.joinCode).emit(eventNames.ROOM.nextQuestion, quizHiddenAnswers.questions[game.currQuestion.index])
             }, PLAYER_QUESTION_SEND_DELAY)
             socketLog(socket, `Host sent next question`, game.joinCode)
@@ -209,7 +209,7 @@ const join = async function (socket, io, joinCode, callback) {
     }
 }
 
-const answer = async function (socket, io, payload) {
+const answer = async function (socket, io, payload, callback) {
     const { joinCode, selectedAnswers } = payload
     try {
         var game = await Game.findOne({
@@ -226,26 +226,27 @@ const answer = async function (socket, io, payload) {
         
         const responses = game.quiz.questions[game.currQuestion.index].responses
         let numCorrect = 0
-        const totalNumAnswers = responses.filter(response => response.isAnswer).length
-        selectedAnswers.forEach(selectedIndex => {
-            if (responses[selectedIndex].isAnswer)
+        responses.forEach((response, index) => {
+            const isSelectedResponse = selectedAnswers.includes(index)
+            if ((response.isAnswer && isSelectedResponse) || (!response.isAnswer && !isSelectedResponse))
                 numCorrect++
         })
     
         // Calculate points (max 100)
-        const points = Math.floor(100 * (numCorrect / totalNumAnswers))
+        const points = Math.floor(100 * (numCorrect / responses.length))
         game.quiz.questions[game.currQuestion.index].responses
         game.players[playerIndex].points += points
 
         game.currQuestion.numPlayersAnswered++
         await game.save()
 
+        callback({ success: true })
         socketLog(socket, "Player answered to game", joinCode)
 
         // TODO: If all players answered, call nextQuestion()
     } catch (error) {
         console.log(error)
-        // callback({ success: false })
+        callback({ success: false })
         socketLog(socket, "Player failed to answer", joinCode)
     }
 }
@@ -269,7 +270,7 @@ module.exports = (io) => {
     // Player
     const player = {
         join: function (joinCode, callback) { join(this, io, joinCode, callback) },
-        answer: function (payload) { answer(this, io, payload) },
+        answer: function (payload, callback) { answer(this, io, payload, callback) },
     }
 
     return {

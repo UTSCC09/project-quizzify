@@ -1,7 +1,6 @@
 import QuizButton from "@/components/Buttons/QuizButton";
 import TextButton from "@/components/Buttons/TextButton";
 import { QUIZ_TYPES, SOCKET_EVENTS } from "@/constants";
-import { SAMPLE_QUIZ } from "@/constants/testingConstants";
 import { Box, Container, Flex, Grid, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
@@ -9,42 +8,52 @@ export default function PlayerPlay({
     socket,
     gameCode
 }) {
-    // following values changes with the state of game:
-    // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // TODO: this is just internal logic, will be enforced with api calls
     const [showAns, setShowAns] = useState(false); // TODO: sync with timer
-    const [quizReset, setQuizReset] = useState(false);
     const [selectedAnswers, setSelectedAnswers] = useState([]);
     const [actualAnswer, setActualAnswer] = useState([]); // TODO: this is just internal logic, will be enforced with api calls
     
-    const onSelect = (selectedResponse, resetSelectCallback) => {
-        const { response, index } = selectedResponse
-        const maxSelection = 1; // TODO: number depends on the type of quiz
-        if (!selectedAnswers.includes(index) && selectedAnswers.length + 1 > maxSelection) return;
-        else if (!selectedAnswers.includes(index)) {
-            selectedAnswers.push(index)
-            setSelectedAnswers(selectedAnswers);
-            resetSelectCallback()
+    const onSelect = (response, index) => {
+        if (currQuestion) {
+            let maxSelection = 1
+            switch (currQuestion.type) {
+                case QUIZ_TYPES.MULTIPLE_CHOICE:
+                    maxSelection = Math.min(6, Math.max(maxSelection, currQuestion.responses.length)) // [2, x] where 1 <= currQuestion.responses.length <= x <= 6
+                    break
+            }
+
+            if (!selectedAnswers.includes(index)) { // Add to selected answers
+                if (maxSelection <= 2) // Toggle other selected answer
+                    setSelectedAnswers([index])
+                else if (selectedAnswers.length >= maxSelection) 
+                    return;
+                else
+                    setSelectedAnswers([...selectedAnswers, index]);
+            } else // Remove from selected answers
+                setSelectedAnswers(selectedAnswers.filter(e => e !== index))
         } else {
-            setSelectedAnswers(selectedAnswers.filter(e => e !== index))
-            resetSelectCallback()
+            console.log("No current question; cannot select response")
         }
-        console.log("Selected answers", selectedAnswers) // TODO: for debugging purposes, will remove
     }
 
     const resetQuizQuestion = () =>{
         setSelectedAnswers([])
         setShowAns(false)
-        setQuizReset(!quizReset) // reset state of quiz buttons
+        setSubmitted(false)
     }
 
+    const [submitted, setSubmitted] = useState(false)
     const handleSubmit = () => {
-        // if (!showAns) {
-        //     console.log(selectedAnswers) // TODO: for debugging purposes, will remove
-        //     setShowAns(!showAns) // TODO: api call/socket logic should be made here to find answer
-        // }
         socket.emit(SOCKET_EVENTS.PLAYER.answer, {
             joinCode: gameCode, 
             selectedAnswers: selectedAnswers
+        }, (response) => {
+            if (response.success) { // Submitted answer
+                setSubmitted(true)
+                console.log("Submitted answer!")
+            } else { // Failed to submit game
+                setSubmitted(false)
+                console.log("Failed to submit answer!")
+            }
         })
     }
 
@@ -54,8 +63,8 @@ export default function PlayerPlay({
             console.log("Socket not connected")
         else {
             socket.on(SOCKET_EVENTS.ROOM.nextQuestion, (question) => {
-                setCurrQuestion(question)
                 resetQuizQuestion()
+                setCurrQuestion(question)
             })
         }
     }, [])
@@ -87,20 +96,20 @@ export default function PlayerPlay({
                     w={'600px'}
                     gridGap={'25px'}
                     templateColumns='repeat(2, 1fr)'>
-                    {
-                        currQuestion.responses.map((response, i) => (
+                    {currQuestion.responses.map((response, index) => (
                             <QuizButton 
-                                key={i} 
-                                showAns={showAns} 
-                                quizReset={quizReset}
+                                key={index} 
+                                showAns={submitted}//{showAns} 
+                                response={response}
+                                index={index} 
+                                selectedAnswers={selectedAnswers}
                                 onSelect={onSelect}
-                                index={i} 
-                                response={response} />
+                                />
                         ))
                     }
                 </Grid>
                 <Flex gap={'10px'}>
-                    <TextButton text={'Submit'} onClick={handleSubmit} />
+                    <TextButton text={'Submit'} isDisabled={submitted} onClick={handleSubmit} />
                 </Flex>
             </Flex>
         </Container>

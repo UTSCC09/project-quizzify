@@ -158,10 +158,13 @@ export default function Host() {
             </> : null}
             
             {Object.keys(question).length > 0 ? <>
-                <h1>Question: {question.question}</h1>
-                {question.responses.map(response => <div>- {response.response}</div>)}
-                
-                {!gameEnd ? <h2>Timer: {timerSeconds} seconds left</h2> :
+                {!gameEnd ? <>
+                    <h1>Question: {question.question}</h1>
+                    {question.responses.map(response => <div>- {response.response}</div>)}
+                    
+                    ? <h2>Timer: {timerSeconds} seconds left</h2>
+                    </> 
+                    :
                     <>
                         <h2>Game over!</h2>
                         <div>{players[0]?.socketId} won with {players[0]?.points} points</div>
