@@ -41,7 +41,7 @@ export default function Home() {
       }
     }
     if (questionsList.length !== 0) createNewQuiz();
-  }, [questionsList])
+  }, [questionsList, isAuthenticated, getAccessTokenSilently])
 
   const onAddQuestion = (questionToBeAdded, callback) =>{
     setQuestionsList([...questionsList, questionToBeAdded]);

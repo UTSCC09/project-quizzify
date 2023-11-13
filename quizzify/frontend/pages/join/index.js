@@ -2,9 +2,14 @@ import CustomPinInput from "@/components/CustomPinInput";
 import JoinNavBar from "@/components/JoinNavBar";
 import { PinInput, Flex, HStack, Text } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
+import { io } from "socket.io-client";
+
 
 export default function Join() {    
+    var socket;
+    const router = useRouter()
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
 
@@ -24,9 +29,36 @@ export default function Join() {
     }
 
     const handleComplete = (gameCode) => {
-        // call api, move to game if coorect
+        // Call api, move to game if coorect
+        socket.emit("player:join", gameCode, (response) => {
+            if (response.success) { // Joined game
+                console.log("Successfully joined game!")
+            } else { // Failed to join game
+                console.log("Failed to join game!")
+            }
+        })
         console.log(gameCode)
     }
+
+
+    useEffect(() => {
+        // Create a socket connection
+        socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
+
+        socket.on("room:start", () => {
+            console.log("Host started game!")
+            router.push("/play")
+        })
+        socket.on("room:end", () => {
+            console.log("Host ended game!")
+            setGameCode("")
+        })
+
+        // Clean up the socket connection on unmount
+        return () => { 
+            socket.disconnect() 
+        }
+    }, []);
 
     return (
         <>
