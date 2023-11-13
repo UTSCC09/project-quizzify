@@ -11,6 +11,8 @@ import ShortInput from "@/components/Forms/ShortInput";
 import FormSelect from "@/components/Forms/FormSelect";
 import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
+import { SAMPLE_QUIZ } from "@/constants/testingConstants";
+import { PRIVATE, PUBLIC } from "@/constants";
 
 export default function Home() {
   const {
@@ -18,13 +20,19 @@ export default function Home() {
     getAccessTokenSilently,
   } = useAuth0();
 
+  const [titleInput, setTitleInput] = useState('');
+  const [descriptionInput, setDescriptionInput] = useState('');
+  const [permissionsInput, setPermissionsInput] = useState('');
+  const [questionsList, setQuestionsList] = useState([]);
+
   const createQuiz = useCallback(() => {
     const createNewQuiz = async () => {
       if (isAuthenticated) {
         const quiz = {
-          name: "New Quiz",
-          private: false,
-          questions: [],
+          name: titleInput,
+          // description: descriptionInput,
+          private: permissionsInput === PRIVATE,
+          questions: questionsList,
         }
 
         const accessToken = await getAccessTokenSilently();
@@ -32,43 +40,13 @@ export default function Home() {
         console.log("quiz created: ", response)
       }
     }
-    createNewQuiz()
-  }, [])
+    if (questionsList.length !== 0) createNewQuiz();
+  }, [questionsList])
 
-  const [titleInput, setTitleInput] = useState('');
-  const [descriptionInput, setDescriptionInput] = useState('');
-  const [permissionsInput, setPermissionsInput] = useState('');
-  const [questionsList, setQuestionsList] = useState([
-      {
-          question: 'What mammal has the most powerful bite?',
-          type: 'SINGLE_CHOICE',
-          responses: [{response: 'Your mom', isAnswer: false }, {response: 'Gorilla', isAnswer: false }, 
-                      {response: 'Hippopotamus', isAnswer: true }, {response: 'Grizzly Bear', isAnswer: false }],
-      },
-      {
-          question: 'What is a group of cats called?',
-          type: 'SINGLE_CHOICE',
-          responses: [{response: 'A Clowder', isAnswer: true }, {response: 'A Pandemonium', isAnswer: false }, 
-                      {response: 'A Spawnage', isAnswer: false }, {response: 'A Clover', isAnswer: false }],
-      },
-      {
-          question: 'How many legs does a lobster have?',
-          type: 'SINGLE_CHOICE',
-          responses: [{response: '10', isAnswer: true }, {response: '8', isAnswer: false }, 
-                      {response: '12', isAnswer: false }, {response: '6', isAnswer: false }],
-      },
-      {
-          question: 'What is the deadliest creature in the world?',
-          type: 'SINGLE_CHOICE',
-          responses: [{response: 'Snake', isAnswer: false }, {response: 'Shark', isAnswer: false }, 
-                      {response: 'Grizzly Bear', isAnswer: false }, {response: 'Mosquito', isAnswer: true }],
-      },
-      {
-          question: 'The ostrich lays the smallest egg compared to all animals.',
-          type: 'TRUE_OR_FALSE',
-          responses: [{response: 'True', isAnswer: false }, {response: 'False', isAnswer: true }],
-      },
-    ]);
+  const onAddQuestion = (questionToBeAdded, callback) =>{
+    setQuestionsList([...questionsList, questionToBeAdded]);
+    callback();
+  }
 
   return (
     <>
@@ -84,8 +62,8 @@ export default function Home() {
               <Flex flexDirection={'row'} gap={4}>
                 <ShortInput label='Description' placeholder='Enter Description' inputValue={descriptionInput} handleInputChange={setDescriptionInput} />
                 <FormSelect label='Visibility of Quiz' inputValue={permissionsInput} handleInputChange={setPermissionsInput}>
-                  <option>Public</option>
-                  <option>Private</option>
+                  <option value={PUBLIC}>Public</option>
+                  <option value={PRIVATE}>Private</option>
                 </FormSelect>
               </Flex>
             </Flex>
@@ -105,11 +83,11 @@ export default function Home() {
                   ))
                 }
                 <GridItem>
-                  <AddQuestionForm />
+                  <AddQuestionForm onAddQuestion={onAddQuestion}/>
                 </GridItem>
               </Grid>
             </Flex>
-            {/* <Button onClick={createQuiz}>Create Quiz</Button> */}
+            <Button onClick={createQuiz}>Create Quiz</Button>
           </Flex>
         </MainNavBar>
       }

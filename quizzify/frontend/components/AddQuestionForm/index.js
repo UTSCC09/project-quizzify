@@ -22,17 +22,17 @@ export default function AddQuestionForm({
     onAddQuestion,
 }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
-
+    const defaultResponse = {response: '', isAnswer: false};
     const [questionInput, setQuestionInput] = useState('');
     const [typeInput, setTypeInput] = useState(SINGLE_CHOICE); // default is SINGLE_CHOICE
-    const [responsesListInput, setResponsesListInput] = useState([""]);
-    const [savedResponseList, setSavedResponseList] = useState([""]);
+    const [responsesListInput, setResponsesListInput] = useState([defaultResponse]);
+    const [savedResponseList, setSavedResponseList] = useState([defaultResponse]);
 
     const [responseReset, setResponseReset] = useState(false);
 
     const onResponseListChange = (value, index) => {
         const newResponseList = [...responsesListInput]
-        newResponseList[index] = value
+        newResponseList[index] = {response: value, isAnswer: false}
         setResponsesListInput(newResponseList)
     }
 
@@ -41,7 +41,12 @@ export default function AddQuestionForm({
 
         if (value === TRUE_OR_FALSE) setSavedResponseList(responsesListInput)
         onResetResponseList()
-        setResponsesListInput(value === TRUE_OR_FALSE ? ['True', 'False'] : savedResponseList)
+        setResponsesListInput(value === TRUE_OR_FALSE ? 
+            [
+                {response: 'True', isAnswer: false},
+                {response: 'False', isAnswer: false},
+            ]
+            : savedResponseList)
     }
 
     const onResetResponseList = () => {
@@ -49,8 +54,11 @@ export default function AddQuestionForm({
     }
 
     const handleSubmit = () => {
-        console.log(questionInput, typeInput, responsesListInput)
-        // onClose();
+        onAddQuestion({
+            question: questionInput,
+            type: typeInput,
+            responses: responsesListInput
+        }, onClose)
     }
 
     return (
@@ -90,7 +98,7 @@ export default function AddQuestionForm({
                             {
                                 responsesListInput.length <= 5 && typeInput !== TRUE_OR_FALSE ? (
                                     <Button onClick={()=>{
-                                        if (responsesListInput.length <= 5) setResponsesListInput([...responsesListInput, ''])
+                                        if (responsesListInput.length <= 5) setResponsesListInput([...responsesListInput, defaultResponse])
                                     }}>Add a Response</Button>
                                 ) : null
                             }

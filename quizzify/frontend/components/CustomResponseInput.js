@@ -12,7 +12,7 @@ export default function CustomResponseInput({
   const ref = useRef(null);
 
   useEffect(() => {
-    ref.current.value = response;
+    ref.current.value = response.response;
   }, [responseReset]);
 
   return (
@@ -25,7 +25,7 @@ export default function CustomResponseInput({
         <Input
           ref={ref}
           isDisabled={type===TRUE_OR_FALSE}
-          value={response}
+          value={response.response}
           onChange={(e)=>{onChange(e.target.value, index)}}
           fontSize={14}
           padding={2}

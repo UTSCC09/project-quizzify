@@ -31,13 +31,13 @@ export default function QuizCard({
             <Box w={'200px'} bgSize="cover" style={{backgroundImage: `url(${img})` }} />
             <Box w={2 / 3} p={4}>
             <chakra.h1 fontSize="lg" fontWeight="600">{question.question}</chakra.h1>
-            <chakra.p mt={2} fontSize="sm" color="gray.600">
+            <Box mt={2} fontSize="sm" color="gray.600">
                 {
                     question.responses.map((resp, i) => (
                         <Text key={i}>{resp.response}{resp.isAnswer && ' ✅'}</Text>
                     ))
                 }
-            </chakra.p>
+            </Box>
             </Box>
         </Flex>
     </>
