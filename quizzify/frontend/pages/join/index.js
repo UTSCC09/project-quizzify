@@ -12,6 +12,7 @@ export default function Join() {
     const router = useRouter()
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
+    const [connected, setConnected] = useState(false)
 
     // Set the background color when the component mounts
     useEffect(() => {
@@ -34,6 +35,7 @@ export default function Join() {
         })
         socket.on("room:end", () => {
             console.log("Host ended game!")
+            setConnected(false)
             setGameCode("")
         })
 
@@ -48,14 +50,21 @@ export default function Join() {
     }
 
     const handleComplete = (gameCode) => {
-        // Call api, move to game if coorect
-        socket.emit("player:join", gameCode, (response) => {
-            if (response.success) { // Joined game
-                console.log("Successfully joined game!")
-            } else { // Failed to join game
-                console.log("Failed to join game!")
-            }
-        })
+        // Call api, move to game if correct
+        if (!connected) {
+            socket.emit("player:join", gameCode, (response) => {
+                if (response.success) { // Joined game
+                    setConnected(true)
+                    console.log("Successfully joined game")
+                } else { // Failed to join game
+                    setConnected(false)
+                    console.log("Failed to join game")
+                }
+            })
+        } else {
+            console.log("Already connected to a game")
+        }
+        
     }
 
     return (
@@ -68,22 +77,27 @@ export default function Join() {
                     alignItems={'center'}
                     flexDirection={'column'}
                     gap={4}>
-                    <Text color={'background.400'} fontSize={'md'}>Enter the 6 digit Code to join  🎉</Text>
-                    <HStack padding={'20px'} borderRadius={'15px'} bg={'#ffffff38'}>
-                        <PinInput 
-                            type="alphanumeric"
-                            autoFocus
-                            value={gameCode} 
-                            onChange={handleChange} onComplete={handleComplete}
-                        >
-                            <CustomPinInput />
-                            <CustomPinInput />
-                            <CustomPinInput />
-                            <CustomPinInput />
-                            <CustomPinInput />
-                            <CustomPinInput />
-                        </PinInput>
-                    </HStack>
+                    {!connected ? <>
+                        <Text color={'background.400'} fontSize={'md'}>Enter the 6 digit Code to join  🎉</Text>
+                        <HStack padding={'20px'} borderRadius={'15px'} bg={'#ffffff38'}>
+                            <PinInput 
+                                type="alphanumeric"
+                                autoFocus
+                                value={gameCode} 
+                                onChange={handleChange} onComplete={handleComplete}
+                            >
+                                <CustomPinInput />
+                                <CustomPinInput />
+                                <CustomPinInput />
+                                <CustomPinInput />
+                                <CustomPinInput />
+                                <CustomPinInput />
+                            </PinInput>
+                        </HStack>
+                    </> : <>
+                        <Text color={'background.400'} fontSize={'md'}>Connected to {gameCode}</Text>
+                        <Text color={'background.400'} fontSize={'md'}>Waiting for host to start...</Text>
+                    </>}
                 </Flex>
             </Flex>
         </>
