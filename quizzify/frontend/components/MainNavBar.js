@@ -31,7 +31,7 @@ import { AuthenticationGuard } from './AuthenticationGuard'
 
 const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
-  { name: 'Play', icon: AiFillApi, href: "/join" },
+  { name: 'Play', icon: AiFillApi, href: "/play" },
   { name: 'Host', icon: AiFillStar, href: "/host", authenticated: true },
   { name: 'Discover', icon: AiFillCompass, href: "/discover"},
   { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},

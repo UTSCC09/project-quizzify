@@ -20,7 +20,7 @@ export default function JoinLobby({
             console.log("Already connected to a game")
         else {
             // Call WebSocket; move to waiting screen if correct code
-            socket.emit("player:join-lobby", gameCode, (response) => {
+            socket.emit("player:join", gameCode, (response) => {
                 if (response.success) { // Joined game
                     setConnected(true)
                     console.log("Successfully joined game")
