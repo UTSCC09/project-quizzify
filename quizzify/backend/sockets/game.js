@@ -84,11 +84,12 @@ module.exports = (io) => {
                 const existingGame = await Game.findOne({
                     "host.userId": userId, 
                     quiz: {_id: quizId}, 
-                    active: false
+                    active: false,
+                    end: false
                 })
                 const game = (existingGame ?? await Game.create(socket.id, userId, quizId))
                 if (!game) 
-                    throw Error
+                    throw Error("Game not found")
                 
                 if (existingGame) { // Clear previously connected players
                     game.players = []
@@ -117,7 +118,8 @@ module.exports = (io) => {
                 var game = await Game.findOne({
                     "host.userId": userId, 
                     joinCode: joinCode, 
-                    active: false
+                    active: false,
+                    end: false
                 }).populate("quiz")
                 if (!game) 
                     throw Error("Game not found")
@@ -140,12 +142,17 @@ module.exports = (io) => {
         nextQuestion: async function (callback) {
             const socket = this
             try {
-                var game = await Game.findOne({"hostId.socketId": socket.id, active: true, end: false})
+                var game = await Game.findOne({
+                    "host.socketId": socket.id, 
+                    active: true, 
+                    end: false
+                }).populate("quiz")
                 if (!game) 
-                    throw Error
+                    throw Error("Game not found")
                 
                 const numQuestions = game.quiz.questions.length
-                if (numQuestions <= game.currQuestionIndex+1) { // No more questions
+                if (numQuestions <= game.currQuestion.index+1) { // No more questions
+                    game.active = false
                     game.end = true
                     await game.save()
                     callback({ 
@@ -182,7 +189,7 @@ module.exports = (io) => {
             try {
                 const game = await Game.findOne({joinCode: joinCode})
                 if (!game)
-                    throw Error
+                    throw Error("Game not found")
                 
                 // Update players in game
                 socket.join(joinCode)

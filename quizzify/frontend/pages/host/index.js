@@ -90,12 +90,12 @@ export default function Host() {
     // Source: https://stackoverflow.com/a/62110789
     const [question, setQuestion] = useState({})
     const [questionStart, setQuestionStart] = useState(false)
-    const TIMER_DEFAULT_SECONDS = 30
+    const TIMER_DEFAULT_SECONDS = 15 // TODO: Short/medium/long
     const [timerSeconds, setTimerSeconds] = useState(TIMER_DEFAULT_SECONDS)
     const startQuestion = (question) => {
         setQuestion(question)
         setQuestionStart(true)
-        timerSeconds(TIMER_DEFAULT_SECONDS)
+        setTimerSeconds(TIMER_DEFAULT_SECONDS)
     }
     const intervalRef = useRef()
     useEffect(() => {
