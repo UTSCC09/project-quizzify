@@ -7,7 +7,7 @@ import { LoadingPage } from "@/components/LoadingPage";
 
 var socket;
 
-export default function Join() {    
+export default function Play() {    
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
     const [socketConnected, setSocketConnected] = useState(false)

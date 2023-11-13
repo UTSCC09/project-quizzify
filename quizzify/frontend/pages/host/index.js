@@ -7,7 +7,6 @@ import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
 
 import * as USER_API from "@/api/users";
-import * as QUIZ_API from "@/api/quizzes";
 
 var socket;
 
