@@ -9,6 +9,7 @@ import {
 import { useAuth0 } from '@auth0/auth0-react';
 import * as USER_API from "@/api/users";
 import * as QUIZ_API from "@/api/quizzes";
+import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 
 export default function Home() {
   const {
@@ -31,7 +32,7 @@ export default function Home() {
 
   return (
     <>
-      {!isAuthenticated ? <LoginButton/> :
+      {!isAuthenticated ? <AuthenticationGuard/> :
         <MainNavBar>
           <Box>This is the profile page. Can put list of user quizzes and other stuff</Box>
           <h2>Quizzes:</h2>

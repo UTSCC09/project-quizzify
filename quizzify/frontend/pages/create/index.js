@@ -13,6 +13,7 @@ import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
 import { SAMPLE_QUIZ } from "@/constants/testingConstants";
 import { PRIVATE, PUBLIC } from "@/constants";
+import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 
 export default function Home() {
   const {
@@ -53,7 +54,7 @@ export default function Home() {
 
   return (
     <>
-      {!isAuthenticated ? <LoginButton/> :
+      {!isAuthenticated ? <AuthenticationGuard/> :
         <MainNavBar>
           <Flex px={4} py={2} flexDirection={'column'} gap={8}>
             <Box gap={4}>

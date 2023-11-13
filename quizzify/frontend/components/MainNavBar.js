@@ -27,6 +27,7 @@ import { AiFillApi, AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai
 import { FaUser } from 'react-icons/fa'
 import { IoIosCreate } from 'react-icons/io'
 import LoginButton from './Buttons/Auth/LoginButton'
+import { AuthenticationGuard } from './AuthenticationGuard'
 
 const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
@@ -146,7 +147,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <Flex alignItems={'center'}>
-          {!isAuthenticated ? <LoginButton/> :
+          {!isAuthenticated ? <AuthenticationGuard/>  :
             <Menu>
               <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
                   <HStack>
