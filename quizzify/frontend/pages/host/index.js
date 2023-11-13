@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
 
 import * as USER_API from "@/api/users";
+import { SOCKET_EVENTS } from "@/constants";
 
 var socket;
 
@@ -54,7 +55,7 @@ export default function Host() {
     useEffect(() => {
         const createNewGame = async () => {
             if (isAuthenticated && socket && selectedQuizId) {
-                socket.emit("host:create", { 
+                socket.emit(SOCKET_EVENTS.HOST.create, { 
                     userId: user.sub, 
                     quizId: selectedQuizId // "655178c500eefa1cf8c1c5b9" // TODO: Select quizId
                 }, (response) => {
@@ -71,7 +72,7 @@ export default function Host() {
 
     const startGame = async () => {
         if (isAuthenticated && gameCode && players.length > 0) {
-            socket.emit("host:start", { 
+            socket.emit(SOCKET_EVENTS.HOST.start, { 
                 userId: user.sub, 
                 joinCode: gameCode
             }, (response) => {
@@ -111,7 +112,7 @@ export default function Host() {
         if (timerSeconds === 0) {
           clearInterval(intervalRef.current);
           setQuestionStart(false);
-          socket.emit("host:nextQuestion", (response) => {
+          socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
                 if (response.success) {
                     if (response.gameOver) { // No more questions
                         console.log("No more questions")

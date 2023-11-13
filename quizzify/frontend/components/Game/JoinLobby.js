@@ -1,5 +1,6 @@
 import CustomPinInput from "@/components/CustomPinInput";
 import JoinNavBar from "@/components/JoinNavBar";
+import { SOCKET_EVENTS } from "@/constants";
 import { PinInput, Flex, HStack, Text } from "@chakra-ui/react";
 
 export default function JoinLobby({
@@ -20,7 +21,7 @@ export default function JoinLobby({
             console.log("Already connected to a game")
         else {
             // Call WebSocket; move to waiting screen if correct code
-            socket.emit("player:join", gameCode, (response) => {
+            socket.emit(SOCKET_EVENTS.PLAYER.join, gameCode, (response) => {
                 if (response.success) { // Joined game
                     setConnected(true)
                     console.log("Successfully joined game")
