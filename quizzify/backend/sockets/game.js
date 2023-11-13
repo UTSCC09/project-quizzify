@@ -137,21 +137,22 @@ module.exports = (io) => {
                 socketLog(this, "Host failed to start game", joinCode)
             }
         },
-        nextQuestion: async function (payload, callback) {
+        nextQuestion: async function (callback) {
             const socket = this
-            const { userId, joinCode } = payload
             try {
-                var game = await Game.findOne({hostId: userId, joinCode: joinCode, active: false})
+                var game = await Game.findOne({"hostId.socketId": socket.id, active: true, end: false})
                 if (!game) 
                     throw Error
                 
                 const numQuestions = game.quiz.questions.length
                 if (numQuestions <= game.currQuestionIndex+1) { // No more questions
+                    game.end = true
+                    await game.save()
                     callback({ 
                         success: true,
                         gameOver: true 
                     })
-                    socketLog(this, `Host sent game over`, joinCode)
+                    socketLog(this, `Host sent game over`, game.joinCode)
                 } else { // Send next question
                     game.currQuestion.index++
                     game.currQuestion.numPlayersAnswered = 0
@@ -162,11 +163,11 @@ module.exports = (io) => {
                         question: game.quiz.questions[game.currQuestion.index],
                         gameOver: false
                     })
-                    socketLog(this, `Host sent next question`, joinCode)
+                    socketLog(this, `Host sent next question`, game.joinCode)
                 }
             } catch (error) {
                 callback({ success: false })
-                socketLog(this, "Host failed to send next question", joinCode)
+                socketLog(this, "Host failed to send next question")
             }
         },
         questionTimerExpired: function () {

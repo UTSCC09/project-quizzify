@@ -4,6 +4,7 @@ const { Quiz } = require("./quiz")
 const GameSchema = new mongoose.Schema({
   joinCode: {type: String, required: true, index: true, unique: true},
   active: {type: Boolean, required: true, default: false},
+  end: {type: Boolean, required: true, default: false},
   host: {
     userId: {type: String, required: true, index: true},
     socketId: {type: String, required: true},

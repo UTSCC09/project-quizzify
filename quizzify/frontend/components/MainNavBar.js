@@ -23,17 +23,18 @@ import {
   FiChevronDown,
 } from 'react-icons/fi'
 
-import { AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
+import { AiFillApi, AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
 import { FaUser } from 'react-icons/fa'
 import { IoIosCreate } from 'react-icons/io'
 import LoginButton from './Buttons/Auth/LoginButton'
 
 const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
-  { name: 'Profile', icon: FaUser, href: "/profile", authenticated: true },
-  { name: 'Play', icon: AiFillStar, href: "/join" },
-  { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},
+  { name: 'Play', icon: AiFillApi, href: "/join" },
+  { name: 'Host', icon: AiFillStar, href: "/host", authenticated: true },
   { name: 'Discover', icon: AiFillCompass, href: "/discover"},
+  { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},
+  { name: 'Profile', icon: FaUser, href: "/profile", authenticated: true },
 ]
 
 const SidebarContent = ({ onClose, ...rest }) => {

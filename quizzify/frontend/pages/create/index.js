@@ -87,7 +87,7 @@ export default function Home() {
                 </GridItem>
               </Grid>
             </Flex>
-            <Button onClick={createQuiz}>Create Quiz</Button>
+            <Button onClick={createQuiz} isDisabled={questionsList.length <= 0}>Create Quiz</Button>
           </Flex>
         </MainNavBar>
       }

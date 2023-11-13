@@ -26,6 +26,18 @@ router.get('/', validateAccessToken(false), async (req, res, next) => {
 // POST /quizzes
 router.post('/', validateAccessToken(), async (req, res, next) => {
     try {
+        req.body.questions.forEach((question, questionIndex) => {
+            let questionHasAnswer = false
+            question.responses.forEach((response, responseIndex) => {
+                questionHasAnswer = questionHasAnswer || response.isAnswer
+                if (!response.response)
+                    throw Error(`Response ${responseIndex+1} of question ${questionIndex+1} must not be empty`)
+
+            })
+            // if (!questionHasAnswer)
+            //     throw Error(`Question ${questionIndex+1} must have a response marked as answer`)
+        })
+
         const quiz = {
             userId: req.auth.payload.sub,
             name: req.body.name,
