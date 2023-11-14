@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem } from "@chakra-ui/react";
+import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex, Box, IconButton } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
 import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
@@ -8,6 +8,7 @@ import * as USER_API from "@/api/users";
 import { SOCKET_EVENTS } from "@/constants";
 import BubbleWrapper from "./BubbleWrapper";
 import { ChevronDownIcon } from "@chakra-ui/icons";
+import { LuCopy } from "react-icons/lu";
 
 var socket;
 
@@ -145,31 +146,48 @@ export default function Host() {
     return (
         <>
             <BubbleWrapper>
-                <Menu>
-                    <MenuButton as={Button} rightIcon={<ChevronDownIcon />} transition="all 0.3s">
-                        {selectedQuizId ? quizzes.find((e) => e._id === selectedQuizId).name : "Click to select quiz"}
-                    </MenuButton>
-                    <MenuList
-                        bg={'white'}
-                        color={'primary.400'}
-                        borderColor={'gray.200'}>
-                        {quizzes.map(quiz => <MenuItem onClick={() => setSelectedQuizId(quiz._id)}>{quiz.name}</MenuItem>)}
-                    </MenuList>
-                </Menu>
+                {
+                    Object.keys(question).length === 0 &&
+                    <Flex gap={'10px'} mb={2}>
+                        <Menu>
+                            <MenuButton as={Button} rightIcon={<ChevronDownIcon />} transition="all 0.3s">
+                                {selectedQuizId ? quizzes.find((e) => e._id === selectedQuizId).name : "Click to select quiz"}
+                            </MenuButton>
+                            <MenuList
+                                bg={'white'}
+                                color={'primary.400'}
+                                borderColor={'gray.200'}>
+                                {quizzes.map(quiz => <MenuItem onClick={() => setSelectedQuizId(quiz._id)}>{quiz.name}</MenuItem>)}
+                            </MenuList>
+                        </Menu>
+                        {
+                            gameCode &&
+                            <Button onClick={startGame} isDisabled={players.length <= 0}>Start Game</Button>
+                        }
+                    </Flex>
+                }
 
-                {gameCode ? <>
-                    <Text>Game PIN: {gameCode.toUpperCase()}</Text>
-                    <h1>{players.length} Players</h1>
-                    <Grid>
-                        {players.map((player, i) => 
-                            <GridItem key={i}>
-                                {player.socketId} ({player.points} points)
-                            </GridItem>
-                        )}
-                    </Grid>
-                    <Button onClick={startGame} isDisabled={players.length <= 0}>Start Game</Button>
-                </> : null}
+                {/* TODO: Style the leaderboard */}
+                {
+                    gameCode && 
+                    <Flex flexDirection={'column'}>
+                        <Flex alignItems={'center'} justifyContent={'center'} gap={2}>
+                            <Text>Game PIN: {gameCode.toUpperCase()}</Text>
+                            <IconButton variant={'unstyled'} color={'white'} icon={<LuCopy />} 
+                                onClick={()=>navigator.clipboard.writeText(gameCode.toLowerCase())}/>
+                        </Flex>
+                        <h1>{players.length} Players</h1>
+                        <Grid>
+                            {players.map((player, i) => 
+                                <GridItem key={i}>
+                                    {player.socketId} ({player.points} points)
+                                </GridItem>
+                            )}
+                        </Grid>
+                    </Flex>
+                }
                 
+                {/* TODO: Style questions */}
                 {Object.keys(question).length > 0 ? <>
                     {!gameEnd ? <>
                             <h1>Question: {question.question}</h1>
