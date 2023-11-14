@@ -3,7 +3,7 @@ var router = express.Router();
 
 const mongoose = require("mongoose")
 const { Quiz } = require("../models/quiz");
-const { getUsers, getUserById, validateAccessToken } = require('../utils/auth');
+const { getUsers, getUserById } = require('../utils/auth');
 
 const stripUserFields = (user) => {
     return {
@@ -49,9 +49,9 @@ router.get('/:userId', async (req, res, next) => {
 });
 
 // GET /users/:userId/quizzes
-router.get('/:userId/quizzes', validateAccessToken(false), async (req, res, next) => {
+router.get('/:userId/quizzes', async (req, res, next) => {
     try {
-        const authedUserId = req.auth?.payload.sub
+        const authedUserId = "TODO"
         // TODO: Paginate
         const quizzes = (await Quiz.find({
             userId: req.params.userId,

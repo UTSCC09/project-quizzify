@@ -27,8 +27,9 @@ router.get('/', validateAccessToken(false), async (req, res, next) => {
 router.post('/', validateAccessToken(), async (req, res, next) => {
     try {
         req.body.questions.forEach((question, questionIndex) => {
-            let questionAnswers = 0
+            let questionHasAnswer = false
             question.responses.forEach((response, responseIndex) => {
+                questionHasAnswer = questionHasAnswer || response.isAnswer
                 if (!response.response)
                     throw Error(`Response ${responseIndex+1} of question ${questionIndex+1} must not be empty`)
                 if (response.isAnswer)
@@ -43,11 +44,10 @@ router.post('/', validateAccessToken(), async (req, res, next) => {
         const quiz = {
             userId: req.auth.payload.sub,
             name: req.body.name,
-            description: req.body.description,
             private: req.body.private,
             questions: req.body.questions,
         }
-        const newQuiz = await Quiz.create(quiz.userId, quiz.name, quiz.description, quiz.private, quiz.questions)
+        const newQuiz = await Quiz.create(quiz.userId, quiz.name, quiz.private, quiz.questions)
         res.send(newQuiz)
     } catch (error) {
         res.status(500).send(error)
@@ -66,7 +66,7 @@ router.get('/templates', async (req, res, next) => {
 // GET /quizzes/:quizId
 router.get('/:quizId', validateAccessToken(false), async (req, res, next) => {
     try {
-        const authedUserId = req.auth?.payload.sub
+        const authedUserId = req.auth.payload.sub
         const quiz = (await Quiz.findById(req.params.quizId))
             .hideQuestionsFromNonOwner(authedUserId)
 

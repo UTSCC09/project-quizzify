@@ -86,10 +86,12 @@ io.on("connection", (socket) => {
   socket.on(eventNames.HOST.create, host.create)
   socket.on(eventNames.HOST.start, host.start)
   socket.on(eventNames.HOST.nextQuestion, host.nextQuestion)
+  socket.on(eventNames.HOST.questionTimerExpired, host.questionTimerExpired)
   
   // Player
   socket.on(eventNames.PLAYER.join, player.join)
   socket.on(eventNames.PLAYER.answer, player.answer)
+  socket.on(eventNames.PLAYER.getScore, player.getScore)
 })
 
 
