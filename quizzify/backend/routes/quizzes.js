@@ -32,10 +32,13 @@ router.post('/', validateAccessToken(), async (req, res, next) => {
                 questionHasAnswer = questionHasAnswer || response.isAnswer
                 if (!response.response)
                     throw Error(`Response ${responseIndex+1} of question ${questionIndex+1} must not be empty`)
-
+                if (response.isAnswer)
+                    questionAnswers++
             })
-            // if (!questionHasAnswer)
+            // if (questionAnswers == 0)
             //     throw Error(`Question ${questionIndex+1} must have a response marked as answer`)
+            // else if (question.TYPE == QUIZ_TYPES.SINGLE_CHOICE && questionAnswers != 1)
+            //     throw Error(`Question ${questionIndex+1} must have a single response marked as answer`)
         })
 
         const quiz = {
