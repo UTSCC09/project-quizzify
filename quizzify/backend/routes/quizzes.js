@@ -34,7 +34,6 @@ router.post('/', validateAccessToken(), async (req, res, next) => {
                 if (response.isAnswer)
                     questionAnswers++
             })
-
             // if (questionAnswers == 0)
             //     throw Error(`Question ${questionIndex+1} must have a response marked as answer`)
             // else if (question.TYPE == QUIZ_TYPES.SINGLE_CHOICE && questionAnswers != 1)
