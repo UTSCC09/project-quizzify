@@ -26,11 +26,11 @@ import {
 import { AiFillApi, AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
 import { FaUser } from 'react-icons/fa'
 import { IoIosCreate } from 'react-icons/io'
-import { AuthenticationGuard } from './AuthenticationGuard'
+import LoginButton from './Buttons/Auth/LoginButton'
 
 const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
-  { name: 'Play', icon: AiFillApi, href: "/play" },
+  { name: 'Play', icon: AiFillApi, href: "/join" },
   { name: 'Host', icon: AiFillStar, href: "/host", authenticated: true },
   { name: 'Discover', icon: AiFillCompass, href: "/discover"},
   { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},
@@ -146,7 +146,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <Flex alignItems={'center'}>
-          {!isAuthenticated ? <AuthenticationGuard/>  :
+          {!isAuthenticated ? <LoginButton/> :
             <Menu>
               <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
                   <HStack>
