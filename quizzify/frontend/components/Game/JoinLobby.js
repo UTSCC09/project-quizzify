@@ -11,7 +11,7 @@ export default function JoinLobby({
     setConnected,
 }) {
     const handleChange = (value) => {
-        setGameCode(value)
+        setGameCode(value.toLowerCase())
     }
 
     const handleComplete = (gameCode) => {
@@ -21,7 +21,7 @@ export default function JoinLobby({
             console.log("Already connected to a game")
         else {
             // Call WebSocket; move to waiting screen if correct code
-            socket.emit(SOCKET_EVENTS.PLAYER.join, gameCode, (response) => {
+            socket.emit(SOCKET_EVENTS.PLAYER.join, gameCode.toLowerCase(), (response) => {
                 if (response.success) { // Joined game
                     setConnected(true)
                     console.log("Successfully joined game")
