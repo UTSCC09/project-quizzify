@@ -13,9 +13,7 @@ Quizzify is an immersive, real-time quiz platform crafted to infuse interactivit
 - **User Registration & Login:** Securely sign up/log in with their Google account (via Auth0 + JWTs) and manage user profiles.
   - **User accounts**: Use avatar, display name, & email address (unique identifier) from Google auth. Display a list of user’s public quizzes on their profile page.
 - **Quiz Creation:** Users can create quizzes with questions and response options
-  - **Question types:** multiple choice, true/false, short answer, fill in the blank
-  - **Adjustable question timer presets:** short (10s), medium (40s), long (90s)
-with multiple-choice questions, set timer for each question, and add images or videos. 
+  - **Question types:** multiple choice, true/false, short answer
 - **Live Quiz Hosting:** Host a quiz where participants (non logged in users) can join using a unique code. Utilize web sockets for real-time interactions between host and clients
   - **Public quiz mode:** Shareable code/link (unique) that non-authenticated users can access
     - Users choose unique names
@@ -31,6 +29,7 @@ with multiple-choice questions, set timer for each question, and add images or v
   - Integrate Twilio SendGrid to send email notifications
 - **Different game modes:**
   - **Rapid-fire:** Accelerate question speed by a set multiplier (& award points by exponentially decreasing multiplier)
+    - **Adjustable question timer presets:** short (10s), medium (40s), long (90s)
   - **Last one standing:** Three errors and you are out of the game.
 - **Quiz templates:** Users can take inspiration from public quiz templates and create a copy to modify on their own
 - **Account history:** User history shows total/percentage of wins and past quizzes played
