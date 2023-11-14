@@ -3,9 +3,8 @@ const mongoose = require("mongoose")
 const SINGLE_CHOICE = "SINGLE_CHOICE"
 const MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
 const TRUE_OR_FALSE= "TRUE_OR_FALSE"
-const FILL_BLANK = "FILL_BLANK"
 
-const QUIZ_TYPES = {SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_OR_FALSE, FILL_BLANK}
+const QUIZ_TYPES = {SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_OR_FALSE}
 
 const QuizSchema = new mongoose.Schema({
   userId: {type: String, required: true, index: true},

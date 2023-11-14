@@ -27,7 +27,6 @@ router.get('/', validateAccessToken(false), async (req, res, next) => {
 router.post('/', validateAccessToken(), async (req, res, next) => {
     try {
         req.body.questions.forEach((question, questionIndex) => {
-            // TODO: Handle fill in the blank
             let questionAnswers = 0
             question.responses.forEach((response, responseIndex) => {
                 if (!response.response)

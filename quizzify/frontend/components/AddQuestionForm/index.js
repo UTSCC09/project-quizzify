@@ -83,7 +83,6 @@ export default function AddQuestionForm({
                         <option value={QUIZ_TYPES.SINGLE_CHOICE}>Single Choice</option>
                         <option value={QUIZ_TYPES.MULTIPLE_CHOICE}>Multiple Choice</option>
                         <option value={QUIZ_TYPES.TRUE_OR_FALSE}>True/False</option>
-                        <option value={QUIZ_TYPES.FILL_BLANK}>Fill in the blank</option>
                     </FormSelect>
                     <Box maxH={'300px'} overflowY={'scroll'}>
                         <Grid gridGap={'20px'} templateColumns='repeat(2, 1fr)' mt={4}>

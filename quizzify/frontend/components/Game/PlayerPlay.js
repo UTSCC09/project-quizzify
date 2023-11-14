@@ -83,8 +83,6 @@ export default function PlayerPlay({
                 return "Select one or more answers"
             case QUIZ_TYPES.TRUE_OR_FALSE:
                 return "True or False?"
-            case QUIZ_TYPES.FILL_BLANK:
-                return "Fill in the blank"
         }
     }
 
