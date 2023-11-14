@@ -10,7 +10,7 @@ export default function PlayerPlay({
 }) {
     const [showAns, setShowAns] = useState(false); // TODO: sync with timer
     const [selectedAnswers, setSelectedAnswers] = useState([]);
-    const [actualAnswer, setActualAnswer] = useState([]); // TODO: this is just internal logic, will be enforced with api calls
+    const [actualAnswers, setActualAnswers] = useState([]); // TODO: this is just internal logic, will be enforced with api calls
     
     const onSelect = (response, index) => {
         if (currQuestion) {
@@ -63,8 +63,9 @@ export default function PlayerPlay({
         if (!socket)
             console.log("Socket not connected")
         else {
-            socket.on(SOCKET_EVENTS.ROOM.questionEnd, (question) => {
+            socket.on(SOCKET_EVENTS.ROOM.questionEnd, (answerResponses) => {
                 setQuestionLive(false)
+                setActualAnswers(answerResponses.map(answer => answer.index))
             })
             socket.on(SOCKET_EVENTS.ROOM.questionNext, (question) => {
                 resetQuizQuestion()
@@ -77,11 +78,11 @@ export default function PlayerPlay({
     const questionTypeToDisplayString = (type) => {
         switch (type) {
             case QUIZ_TYPES.SINGLE_CHOICE:
-                return "Single Choice"
+                return "Select an answer"
             case QUIZ_TYPES.MULTIPLE_CHOICE:
-                return "Multiple Choice"
+                return "Select one or more answers"
             case QUIZ_TYPES.TRUE_OR_FALSE:
-                return "True/False"
+                return "True or False?"
             case QUIZ_TYPES.FILL_BLANK:
                 return "Fill in the blank"
         }

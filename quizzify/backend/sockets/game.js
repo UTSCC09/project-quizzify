@@ -29,7 +29,7 @@ const eventNames = {
         questionNext: `${eventNamePrefixes.ROOM}:question-next`,
     }
 }
-const PLAYER_QUESTION_SEND_DELAY = 1000 // 1s
+const PLAYER_QUESTION_SEND_DELAY = 1500 // ms
 
 const socketLog = (socket, message, joinCode="") => {
     var socketIdentifier = `id=${socket.id}`
@@ -129,7 +129,7 @@ const start = async function (socket, io, payload, callback) {
         setTimeout(() => { // Send first question after 2s
             const quizHiddenAnswers = game.quiz.hideResponseAnswers()
             io.to(joinCode).emit(eventNames.ROOM.questionNext, quizHiddenAnswers.questions[game.currQuestion.index])
-        }, PLAYER_QUESTION_SEND_DELAY*2)
+        }, PLAYER_QUESTION_SEND_DELAY)
         socketLog(socket, `Host sent first question`, joinCode)
 
     } catch (error) {
@@ -150,39 +150,49 @@ const hostNextQuestion = async function (socket, io, callback) {
             throw Error("Game not found")
         
         // End question
-        io.to(game.joinCode).emit(eventNames.ROOM.questionEnd)
-        io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
-        const numQuestions = game.quiz.questions.length
-        if (numQuestions <= game.currQuestion.index+1) { // No more questions
-            game.active = false
-            game.end = true
-            await game.save()
-            callback({ 
-                success: true,
-                gameOver: true 
+        const answerResponses = game.quiz.questions[game.currQuestion.index].responses
+            .map((resp, index) => {
+                return {
+                    response: resp.response,
+                    isAnswer: resp.isAnswer,
+                    index: index
+                }
             })
-            io.to(game.joinCode).emit(eventNames.ROOM.end)
-            socketLog(socket, `Host sent game over`, game.joinCode)
-        } else { // Send next question
-            game.currQuestion.index++
-            game.currQuestion.numPlayersAnswered = 0
-            await game.save()
-            
-            const quizHiddenAnswers = game.quiz.hideResponseAnswers()
-            setTimeout(() => { // Send question to host after 3s
+            .filter(response => response.isAnswer)
+        io.to(game.joinCode).emit(eventNames.ROOM.questionEnd, answerResponses)
+        io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+
+        const numQuestions = game.quiz.questions.length
+        setTimeout(async () => { // Wait 6s after question end to send next question
+            if (numQuestions <= game.currQuestion.index+1) { // No more questions
+                game.active = false
+                game.end = true
+                await game.save()
+                callback({ 
+                    success: true,
+                    gameOver: true 
+                })
+                io.to(game.joinCode).emit(eventNames.ROOM.end)
+                socketLog(socket, `Host sent game over`, game.joinCode)
+            } else { // Send next question
+                game.currQuestion.index++
+                game.currQuestion.numPlayersAnswered = 0
+                await game.save()
+                
+                const quizHiddenAnswers = game.quiz.hideResponseAnswers()
                 callback({ 
                     success: true,
                     question: quizHiddenAnswers.questions[game.currQuestion.index],
                     gameOver: false
                 })
                 
-                setTimeout(() => { // Send question to player after 1s
+                setTimeout(() => { // Send question to player after PLAYER_QUESTION_SEND_DELAY seconds
                     io.to(game.joinCode).emit(eventNames.ROOM.questionNext, quizHiddenAnswers.questions[game.currQuestion.index])
                 }, PLAYER_QUESTION_SEND_DELAY)
-            }, 3000)
-
-            socketLog(socket, `Host sent next question`, game.joinCode)
-        }
+                
+                socketLog(socket, `Host sent next question`, game.joinCode)
+            }
+        }, 6000)
         io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
     } catch (error) {
         console.log(error)

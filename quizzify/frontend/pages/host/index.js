@@ -30,6 +30,11 @@ export default function Host() {
         socket.on(SOCKET_EVENTS.ROOM.updatePlayers, (players) => {
             setPlayers(players.sort(sortPlayersByScore))
         })
+        socket.on(SOCKET_EVENTS.ROOM.questionEnd, (answerResponses) => {
+            setQuestionLive(false)
+            console.log(answerResponses)
+            setAnswerResponses(answerResponses)
+        })
 
         // Clean up the socket connection on unmount
         return () => { 
@@ -78,8 +83,8 @@ export default function Host() {
             }, (response) => {
                 if (response.success) { // Created game
                     setQuestion(response.question)
-                    setQuestionStart(true)
-                    console.log("Starting game!", question)
+                    setQuestionLive(true)
+                    console.log("Starting game!")
                 } else // Failed to create game
                     console.log("Failed to start game!")
             })
@@ -89,18 +94,20 @@ export default function Host() {
     // TODO: Move to another file
     // Source: https://stackoverflow.com/a/62110789
     const [question, setQuestion] = useState({})
-    const [questionStart, setQuestionStart] = useState(false)
+    const [answerResponses, setAnswerResponses] = useState([])
+    const [questionLive, setQuestionLive] = useState(false)
     const [gameEnd, setGameEnd] = useState(false)
     const TIMER_DEFAULT_SECONDS = 25+3 // TODO: Short/medium/long (+3 for 2s loading time for players)
     const [timerSeconds, setTimerSeconds] = useState(TIMER_DEFAULT_SECONDS)
     const startQuestion = (question) => {
         setQuestion(question)
-        setQuestionStart(true)
+        setQuestionLive(true)
+        setAnswerResponses([])
         setTimerSeconds(TIMER_DEFAULT_SECONDS)
     }
     const intervalRef = useRef()
     useEffect(() => {
-        if (questionStart) {
+        if (questionLive) {
             const tick = () => setTimerSeconds(t => Math.max(t-1, 0));
             intervalRef.current = setInterval(tick, 1000)
         } else {
@@ -108,16 +115,16 @@ export default function Host() {
         }
         
         return () => clearInterval(intervalRef.current)
-    }, [questionStart])
+    }, [questionLive])
     useEffect(() => {
         if (timerSeconds === 0) {
             clearInterval(intervalRef.current);
-            setQuestionStart(false);
+            setQuestionLive(false);
             socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
                 if (response.success) {
                     if (response.gameOver) { // No more questions
                         console.log("No more questions")
-                        setQuestionStart(false)
+                        setQuestionLive(false)
                         setGameEnd(true)
                     } else { // Next question
                         console.log("Updated next question")
@@ -159,13 +166,16 @@ export default function Host() {
             
             {Object.keys(question).length > 0 ? <>
                 {!gameEnd ? <>
-                    <h1>Question: {question.question}</h1>
-                    {question.responses.map(response => <div>- {response.response}</div>)}
-                    
-                    ? <h2>Timer: {timerSeconds} seconds left</h2>
-                    </> 
-                    :
-                    <>
+                        <h1>Question: {question.question}</h1>
+                        {question.responses.map(resp => <div>- {resp.response}</div>)}
+                        
+                        {questionLive ? <h2>Timer: {timerSeconds} seconds left</h2> : 
+                            <>
+                                <h1>Answers:</h1>
+                                {answerResponses.map(resp => <div>- {resp.response}</div> )}
+                            </>
+                        }
+                    </> : <>
                         <h2>Game over!</h2>
                         <div>{players[0]?.socketId} won with {players[0]?.points} points</div>
                     </>
