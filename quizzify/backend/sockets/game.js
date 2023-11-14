@@ -25,7 +25,8 @@ const eventNames = {
         updatePlayers: `${eventNamePrefixes.ROOM}:updatePlayers`,
         start: `${eventNamePrefixes.ROOM}:start`,
         end: `${eventNamePrefixes.ROOM}:end`,
-        nextQuestion: `${eventNamePrefixes.ROOM}:nextQuestion`,
+        questionEnd: `${eventNamePrefixes.ROOM}:question-end`,
+        questionNext: `${eventNamePrefixes.ROOM}:question-next`,
     }
 }
 const PLAYER_QUESTION_SEND_DELAY = 1000 // 1s
@@ -127,7 +128,7 @@ const start = async function (socket, io, payload, callback) {
         
         setTimeout(() => { // Send first question after 2s
             const quizHiddenAnswers = game.quiz.hideResponseAnswers()
-            io.to(joinCode).emit(eventNames.ROOM.nextQuestion, quizHiddenAnswers.questions[game.currQuestion.index])
+            io.to(joinCode).emit(eventNames.ROOM.questionNext, quizHiddenAnswers.questions[game.currQuestion.index])
         }, PLAYER_QUESTION_SEND_DELAY*2)
         socketLog(socket, `Host sent first question`, joinCode)
 
@@ -148,6 +149,9 @@ const hostNextQuestion = async function (socket, io, callback) {
         if (!game) 
             throw Error("Game not found")
         
+        // End question
+        io.to(game.joinCode).emit(eventNames.ROOM.questionEnd)
+        io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
         const numQuestions = game.quiz.questions.length
         if (numQuestions <= game.currQuestion.index+1) { // No more questions
             game.active = false
@@ -165,14 +169,18 @@ const hostNextQuestion = async function (socket, io, callback) {
             await game.save()
             
             const quizHiddenAnswers = game.quiz.hideResponseAnswers()
-            callback({ 
-                success: true,
-                question: quizHiddenAnswers.questions[game.currQuestion.index],
-                gameOver: false
-            })
-            setTimeout(() => { // Send next question after 1s
-                io.to(game.joinCode).emit(eventNames.ROOM.nextQuestion, quizHiddenAnswers.questions[game.currQuestion.index])
-            }, PLAYER_QUESTION_SEND_DELAY)
+            setTimeout(() => { // Send question to host after 3s
+                callback({ 
+                    success: true,
+                    question: quizHiddenAnswers.questions[game.currQuestion.index],
+                    gameOver: false
+                })
+                
+                setTimeout(() => { // Send question to player after 1s
+                    io.to(game.joinCode).emit(eventNames.ROOM.questionNext, quizHiddenAnswers.questions[game.currQuestion.index])
+                }, PLAYER_QUESTION_SEND_DELAY)
+            }, 3000)
+
             socketLog(socket, `Host sent next question`, game.joinCode)
         }
         io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
@@ -242,8 +250,6 @@ const answer = async function (socket, io, payload, callback) {
 
         callback({ success: true })
         socketLog(socket, "Player answered to game", joinCode)
-
-        // TODO: If all players answered, call nextQuestion()
     } catch (error) {
         console.log(error)
         callback({ success: false })

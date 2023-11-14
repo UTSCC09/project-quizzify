@@ -34,6 +34,7 @@ export const SOCKET_EVENTS = {
         updatePlayers: `${eventNamePrefixes.ROOM}:updatePlayers`,
         start: `${eventNamePrefixes.ROOM}:start`,
         end: `${eventNamePrefixes.ROOM}:end`,
-        nextQuestion: `${eventNamePrefixes.ROOM}:nextQuestion`,
+        questionEnd: `${eventNamePrefixes.ROOM}:question-end`,
+        questionNext: `${eventNamePrefixes.ROOM}:question-next`,
     }
 }

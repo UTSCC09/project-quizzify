@@ -57,14 +57,19 @@ export default function PlayerPlay({
         })
     }
 
+    const [questionLive, setQuestionLive] = useState(false)
     const [currQuestion, setCurrQuestion] = useState({})
     useEffect(() => {
         if (!socket)
             console.log("Socket not connected")
         else {
-            socket.on(SOCKET_EVENTS.ROOM.nextQuestion, (question) => {
+            socket.on(SOCKET_EVENTS.ROOM.questionEnd, (question) => {
+                setQuestionLive(false)
+            })
+            socket.on(SOCKET_EVENTS.ROOM.questionNext, (question) => {
                 resetQuizQuestion()
                 setCurrQuestion(question)
+                setQuestionLive(true)
             })
         }
     }, [])
@@ -83,34 +88,39 @@ export default function PlayerPlay({
     }
 
     return (
-        Object.keys(currQuestion).length <= 0 ? "No question yet" : <>
+        <>
             <Container w={'600px'}>
-            <Flex flexDirection={'column'} height={'100vh'} justifyContent={'center'}>
-                <Box>
-                    <Text>Question Type: {questionTypeToDisplayString(currQuestion.type)}</Text>
-                    <Text>Question: {currQuestion.question}</Text>
-                </Box>
-                <Grid
-                    padding={5}
-                    h={'500px'}
-                    w={'600px'}
-                    gridGap={'25px'}
-                    templateColumns='repeat(2, 1fr)'>
-                    {currQuestion.responses.map((response, index) => (
-                            <QuizButton 
-                                key={index} 
-                                showAns={submitted}//{showAns} 
-                                response={response}
-                                index={index} 
-                                selectedAnswers={selectedAnswers}
-                                onSelect={onSelect}
-                                />
-                        ))
-                    }
-                </Grid>
-                <Flex gap={'10px'}>
-                    <TextButton text={'Submit'} isDisabled={submitted} onClick={handleSubmit} />
-                </Flex>
+            <Flex flexDirection={'column'} height={'100vh'} justifyContent={'center'} alignItems={'center'}>
+                {!questionLive ? 
+                    <Text color={'background.400'} fontSize={'md'}>Waiting for next question...</Text> 
+                    : <>
+                        <Box>
+                            <Text color={'background.400'} fontWeight="bold">{questionTypeToDisplayString(currQuestion.type)}:</Text>
+                            <Text color={'background.400'} fontSize="2xl">{currQuestion.question}</Text>
+                        </Box>
+                        <Grid
+                            padding={5}
+                            h={'500px'}
+                            w={'600px'}
+                            gridGap={'25px'}
+                            templateColumns='repeat(2, 1fr)'>
+                            {currQuestion.responses.map((response, index) => (
+                                    <QuizButton 
+                                        key={index} 
+                                        showAns={submitted}//{showAns} 
+                                        response={response}
+                                        index={index} 
+                                        selectedAnswers={selectedAnswers}
+                                        onSelect={onSelect}
+                                        />
+                                ))
+                            }
+                        </Grid>
+                        <Flex gap={'10px'}>
+                            <TextButton text={'Submit'} isDisabled={submitted} onClick={handleSubmit} />
+                        </Flex>
+                    </>
+                }
             </Flex>
         </Container>
         </>
