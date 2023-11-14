@@ -26,7 +26,6 @@ import {
 import { AiFillApi, AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
 import { FaUser } from 'react-icons/fa'
 import { IoIosCreate } from 'react-icons/io'
-import LoginButton from './Buttons/Auth/LoginButton'
 import { AuthenticationGuard } from './AuthenticationGuard'
 
 const LinkItems = [

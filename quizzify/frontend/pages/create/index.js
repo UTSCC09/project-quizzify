@@ -11,9 +11,9 @@ import ShortInput from "@/components/Forms/ShortInput";
 import FormSelect from "@/components/Forms/FormSelect";
 import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
-import { SAMPLE_QUIZ } from "@/constants/testingConstants";
 import { PRIVATE, PUBLIC } from "@/constants";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const {
@@ -26,6 +26,7 @@ export default function Home() {
   const [permissionsInput, setPermissionsInput] = useState('');
   const [questionsList, setQuestionsList] = useState([]);
 
+  const router = useRouter()
   const createQuiz = useCallback(() => {
     const createNewQuiz = async () => {
       if (isAuthenticated) {
@@ -38,9 +39,10 @@ export default function Home() {
 
         const accessToken = await getAccessTokenSilently();
         const response = await QUIZ_API.createQuiz(accessToken, quiz);
-        if (response[0].status == 200)
+        if (response[0].status == 200) {
           console.log("Created quiz!", response[1])
-        else
+          router.push("/profile")
+        } else
           console.log("Failed to create quiz")
       }
     }

@@ -68,7 +68,7 @@ router.get('/templates', async (req, res, next) => {
 // GET /quizzes/:quizId
 router.get('/:quizId', validateAccessToken(false), async (req, res, next) => {
     try {
-        const authedUserId = req.auth.payload.sub
+        const authedUserId = req.auth?.payload.sub
         const quiz = (await Quiz.findById(req.params.quizId))
             .hideQuestionsFromNonOwner(authedUserId)
 

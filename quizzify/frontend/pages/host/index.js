@@ -57,7 +57,7 @@ export default function Host() {
             if (isAuthenticated && socket && selectedQuizId) {
                 socket.emit(SOCKET_EVENTS.HOST.create, { 
                     userId: user.sub, 
-                    quizId: selectedQuizId // "655178c500eefa1cf8c1c5b9" // TODO: Select quizId
+                    quizId: selectedQuizId
                 }, (response) => {
                     if (response.success) {// Created game
                         setGameCode(response.joinCode)
@@ -91,7 +91,7 @@ export default function Host() {
     const [question, setQuestion] = useState({})
     const [questionStart, setQuestionStart] = useState(false)
     const [gameEnd, setGameEnd] = useState(false)
-    const TIMER_DEFAULT_SECONDS = 20+3 // TODO: Short/medium/long (+3 for 2s loading time for players)
+    const TIMER_DEFAULT_SECONDS = 25+3 // TODO: Short/medium/long (+3 for 2s loading time for players)
     const [timerSeconds, setTimerSeconds] = useState(TIMER_DEFAULT_SECONDS)
     const startQuestion = (question) => {
         setQuestion(question)
@@ -124,7 +124,7 @@ export default function Host() {
                         startQuestion(response.question)
                     }
                 } else // Failed to create game
-                    console.log("Failed to get next quesiton!")
+                    console.log("Failed to get next question!")
           })
           console.log("Timer expired; next question");
         }
