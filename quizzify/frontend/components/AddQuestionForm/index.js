@@ -12,7 +12,7 @@ import {
     ModalOverlay, 
     useDisclosure 
 } from '@chakra-ui/react'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ShortInput from '../Forms/ShortInput';
 import FormSelect from '../Forms/FormSelect';
 import CustomResponseInput from '../CustomResponseInput';
@@ -26,32 +26,32 @@ export default function AddQuestionForm({
     const [questionInput, setQuestionInput] = useState('');
     const [typeInput, setTypeInput] = useState(QUIZ_TYPES.SINGLE_CHOICE); // Default: SINGLE_CHOICE
     const [responsesListInput, setResponsesListInput] = useState([defaultResponse]);
-    const [savedResponseList, setSavedResponseList] = useState([defaultResponse]);
 
     const [responseReset, setResponseReset] = useState(false);
 
-    const onResponseListChange = (value, index) => {
+    const onResponseListChange = (value, isAnswerValue, innerText, index) => {
         const newResponseList = [...responsesListInput]
-        newResponseList[index] = {response: value, isAnswer: false}
+        newResponseList[index] = {response: value, isAnswer: isAnswerValue}
         setResponsesListInput(newResponseList)
     }
 
     const onTypeChange = (value) => {
         setTypeInput(value)
-
-        if (value === QUIZ_TYPES.TRUE_OR_FALSE) setSavedResponseList(responsesListInput)
-        onResetResponseList()
-        setResponsesListInput(value === QUIZ_TYPES.TRUE_OR_FALSE ? 
-            [
-                {response: 'True', isAnswer: false},
-                {response: 'False', isAnswer: false},
-            ]
-            : savedResponseList)
     }
 
     const onResetResponseList = () => {
         setResponseReset(!responseReset);
     }
+
+    useEffect(() => {
+        onResetResponseList()
+        setResponsesListInput(typeInput === QUIZ_TYPES.TRUE_OR_FALSE ? 
+            [
+                {response: 'True', isAnswer: false},
+                {response: 'False', isAnswer: false},
+            ]
+            : [defaultResponse])
+    }, [typeInput]);
 
     const handleSubmit = () => {
         onAddQuestion({
@@ -59,6 +59,7 @@ export default function AddQuestionForm({
             type: typeInput,
             responses: responsesListInput
         }, onClose)
+        setResponsesListInput([defaultResponse])
     }
 
     return (
