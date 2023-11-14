@@ -13,10 +13,10 @@ const GameSchema = new mongoose.Schema({
   currQuestion: {
     index: {type: Number, required: true, default: 0},
     numPlayersAnswered: {type: Number, required: true, default: 0},
+    active: {type: Number, required: true, default: 0},
   },
   players: [{
-    socketId: {type: String, required: true},
-    points: {type: Number, required: true, default: 0},
+    socketId: {type: String, required: true}
   }],
   createdAt: {
     type: Date,

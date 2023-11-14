@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Flex, Input } from '@chakra-ui/react';
-import { QUIZ_TYPES } from '@/constants';
+import React, { useEffect, useRef } from 'react';
+import { Box, Button, Input } from '@chakra-ui/react';
+import { TRUE_OR_FALSE } from '@/constants';
 
 export default function CustomResponseInput({
     type,
@@ -10,53 +10,23 @@ export default function CustomResponseInput({
     onChange
 }) {
   const ref = useRef(null);
-  const isAnswerRef = useRef(null);
-  const [isAnswerSelect, setIsAnswerSelect] = useState(false);
 
   useEffect(() => {
     ref.current.value = response.response;
   }, [responseReset]);
 
-  const setIsAnswer = () => {
-    setIsAnswerSelect(!isAnswerSelect) // TODO: only allow one answer to be selected if type is SINGLE_CHOICE
-  }
-
-  useEffect(() =>{
-    onChange(ref.current.value, isAnswerSelect, isAnswerRef.current.innerText, index)
-  }, [isAnswerSelect])
-
   return (
-    <Box w={'100%'} position={'relative'}>
-    <Flex
-      ref={isAnswerRef}
-      bg={isAnswerSelect ? 'correctAccent.100' : 'wrongAccent.100'}
-      borderRadius={'full'}
-      position={'absolute'}
-      w={'25px'} h={'25px'}
-      fontSize={'xs'}
-      justifyContent={'center'} alignItems={'center'}
-      zIndex={2}
-      mt={'5px'} mr={'6px'}
-      top={0} right= {0}
-      cursor={'pointer'}
-      onClick={setIsAnswer} onDoubleClick={setIsAnswer}
-    >
-      {isAnswerSelect ? '✅' : '❌'}
-    </Flex>
-    <Box as={Button}
-        h={'75px'}
-        w={'100%'}
+    <Box as={Button} 
+        h={'75px'} w={'100%'}
+        border={'1px solid #cacfdb'}
         bg={'white'}
-        borderRadius={'15px'} border={'1px solid #cacfdb'}
-        _hover={{bg: 'none', opacity: 0.7}}
-        _focusVisible={{boxShadow: '0px 0px 0px 2px #6e5cec5c'}}
-        onClick={()=>{ref.current.focus()}}
-        onDoubleClick={setIsAnswer}>
+        borderRadius={'15px'}
+        onClick={()=>ref.current.focus()}>
         <Input
           ref={ref}
-          isDisabled={type===QUIZ_TYPES.TRUE_OR_FALSE}
+          isDisabled={type===TRUE_OR_FALSE}
           value={response.response}
-          onChange={(e)=>{onChange(e.target.value, false, isAnswerRef.current.innerText, index)}}
+          onChange={(e)=>{onChange(e.target.value, index)}}
           fontSize={14}
           padding={2}
           cursor={'pointer'}
@@ -68,7 +38,6 @@ export default function CustomResponseInput({
           bg={'transparent'}
           _focus={{borderColor: 'unset', boxShadow: 'unset'}}
         />
-    </Box>
     </Box>
   );
 }
