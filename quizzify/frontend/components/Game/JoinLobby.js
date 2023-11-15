@@ -1,7 +1,20 @@
 import CustomPinInput from "@/components/CustomPinInput";
 import JoinNavBar from "@/components/JoinNavBar";
 import { SOCKET_EVENTS } from "@/constants";
-import { PinInput, Flex, HStack, Text } from "@chakra-ui/react";
+import { PinInput, Flex, HStack, Text, Input } from "@chakra-ui/react";
+import { useState } from "react";
+
+const randomDisplayName = () => [
+        'Adorable', 'Bouncy', 'Cuddly', 'Dazzling', 'Enchanting',
+        'Fluffy', 'Giggly', 'Happy', 'Iridescent', 'Jolly',
+        'Kooky', 'Lively', 'Merry', 'Nifty', 'Perky',
+        'Quirky', 'Rosy', 'Sunny', 'Twinkly', 'Upbeat'
+    ][Math.floor(Math.random() * 20)] + [
+        'Snugglepuff', 'Wobblewing', 'Squishytail', 'Nibblekins', 'Fuzzywhisker',
+        'Twinkletoes', 'Puddlejumper', 'Whiskerfritz', 'Bumblefluff', 'Sparklebeak',
+        'Gigglesnout', 'Puffysnore', 'Jollyhopper', 'Munchkinpaws', 'Twirltail',
+        'Fluffernutter', 'Wigglebuns', 'Squeakymuffin', 'Doodlebug', 'Blinkyboo'
+    ][Math.floor(Math.random() * 20)]
 
 export default function JoinLobby({
     socket,
@@ -10,6 +23,8 @@ export default function JoinLobby({
     connected,
     setConnected,
 }) {
+
+    const [displayName, setDisplayName] = useState(randomDisplayName())
     const handleChange = (value) => {
         setGameCode(value.toLowerCase())
     }
@@ -19,9 +34,11 @@ export default function JoinLobby({
             console.log("Socket not connected")
         else if (connected)
             console.log("Already connected to a game")
+        else if (displayName === '')
+            console.log("Display name is invalid")
         else {
             // Call WebSocket; move to waiting screen if correct code
-            socket.emit(SOCKET_EVENTS.PLAYER.join, gameCode.toLowerCase(), (response) => {
+            socket.emit(SOCKET_EVENTS.PLAYER.join, gameCode.toLowerCase(), displayName, (response) => {
                 if (response.success) { // Joined game
                     setConnected(true)
                     console.log("Successfully joined game")
@@ -42,10 +59,11 @@ export default function JoinLobby({
                     justifyContent={'center'}
                     alignItems={'center'}
                     flexDirection={'column'}
+                    color={'background.400'}
                     gap={4}>
                     {!connected ? <>
-                        <Text color={'background.400'} fontSize={'md'}>Enter the 6 digit Code to join  🎉</Text>
-                        <HStack padding={'20px'} borderRadius={'15px'} bg={'#ffffff38'}>
+                        <Text fontSize={'md'}>Enter the 6 digit Code to join  🎉</Text>
+                        <HStack padding={'20px'} borderRadius={'15px'} bg={'#ffffff38'} w={'365px'}>
                             <PinInput 
                                 type="alphanumeric"
                                 autoFocus
@@ -60,9 +78,15 @@ export default function JoinLobby({
                                 <CustomPinInput />
                             </PinInput>
                         </HStack>
+                        <Text fontSize={'md'}>Display name</Text>
+                        <Input value={displayName} onChange={(e)=>setDisplayName(e.target.value)}
+                            isInvalid={displayName === ''}
+                            textAlign={'center'} border={'none'} _hover={{border: 'none'}} 
+                            _focusVisible={{borderColor:'none', boxShadow: 'none'}}
+                            padding={'20px'} borderRadius={'15px'} bg={'#ffffff38'} w={'365px'}/>
                     </> : <>
-                        <Text color={'background.400'} fontSize={'md'}>Connected to {gameCode}</Text>
-                        <Text color={'background.400'} fontSize={'md'}>Waiting for host to start...</Text>
+                        <Text fontSize={'md'}>Connected to {gameCode.toUpperCase()}</Text>
+                        <Text fontSize={'md'}>Waiting for host to start...</Text>
                     </>}
                 </Flex>
             </Flex>

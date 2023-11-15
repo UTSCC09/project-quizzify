@@ -180,7 +180,7 @@ export default function Host() {
                         <Grid>
                             {players.map((player, i) => 
                                 <GridItem key={i}>
-                                    {player.socketId} ({player.points} points)
+                                    {player.displayName} ({player.points} points)
                                 </GridItem>
                             )}
                         </Grid>
@@ -201,7 +201,7 @@ export default function Host() {
                             }
                         </> : <>
                             <h2>Game over!</h2>
-                            <div>{players[0]?.socketId} won with {players[0]?.points} points</div>
+                            <div>{players[0]?.displayName} won with {players[0]?.points} points</div>
                         </>
                     }
                 </> : null}

@@ -204,16 +204,22 @@ const hostNextQuestion = async function (socket, io, callback) {
 /* ------------------------------------------------------------------------- */
 // Player
 
-const join = async function (socket, io, joinCode, callback) {
+const join = async function (socket, io, joinCode, displayName, callback) {
     try {
         const game = await Game.findOne({joinCode: joinCode})
         if (!game)
             throw Error("Game not found")
-    
+        
+        if (game.players.some(player => player.displayName == displayName)) {
+            callback({success: false})
+            socketLog(socket, "Player failed to join game: display name taken", joinCode)
+            return;
+        }
+
         // Update players in game
         socket.join(joinCode)
         if (!game.players.some(player => player.socketId == socket.id)) {
-            game.players.push({ socketId: socket.id })
+            game.players.push({ socketId: socket.id, displayName: displayName })
             await game.save()
         }
         io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
@@ -285,7 +291,7 @@ module.exports = (io) => {
     
     // Player
     const player = {
-        join: function (joinCode, callback) { join(this, io, joinCode, callback) },
+        join: function (joinCode, displayName, callback) { join(this, io, joinCode, displayName, callback) },
         answer: function (payload, callback) { answer(this, io, payload, callback) },
     }
 
