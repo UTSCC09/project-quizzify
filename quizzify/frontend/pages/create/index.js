@@ -11,8 +11,9 @@ import ShortInput from "@/components/Forms/ShortInput";
 import FormSelect from "@/components/Forms/FormSelect";
 import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
-import { SAMPLE_QUIZ } from "@/constants/testingConstants";
 import { PRIVATE, PUBLIC } from "@/constants";
+import { AuthenticationGuard } from "@/components/AuthenticationGuard";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const {
@@ -25,19 +26,24 @@ export default function Home() {
   const [permissionsInput, setPermissionsInput] = useState('');
   const [questionsList, setQuestionsList] = useState([]);
 
+  const router = useRouter()
   const createQuiz = useCallback(() => {
     const createNewQuiz = async () => {
       if (isAuthenticated) {
         const quiz = {
           name: titleInput,
-          // description: descriptionInput,
+          description: descriptionInput,
           private: permissionsInput === PRIVATE,
           questions: questionsList,
         }
 
         const accessToken = await getAccessTokenSilently();
         const response = await QUIZ_API.createQuiz(accessToken, quiz);
-        console.log("quiz created: ", response)
+        if (response[0].status == 200) {
+          console.log("Created quiz!", response[1])
+          router.push("/profile")
+        } else
+          console.log("Failed to create quiz")
       }
     }
     if (questionsList.length !== 0) createNewQuiz();
@@ -50,7 +56,7 @@ export default function Home() {
 
   return (
     <>
-      {!isAuthenticated ? <LoginButton/> :
+      {!isAuthenticated ? <AuthenticationGuard/> :
         <MainNavBar>
           <Flex px={4} py={2} flexDirection={'column'} gap={8}>
             <Box gap={4}>
