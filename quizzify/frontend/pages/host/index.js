@@ -157,7 +157,7 @@ export default function Host() {
                                 bg={'white'}
                                 color={'primary.400'}
                                 borderColor={'gray.200'}>
-                                {quizzes.map(quiz => <MenuItem onClick={() => setSelectedQuizId(quiz._id)}>{quiz.name}</MenuItem>)}
+                                {quizzes.map((quiz,i) => <MenuItem key={i} onClick={() => setSelectedQuizId(quiz._id)}>{quiz.name}</MenuItem>)}
                             </MenuList>
                         </Menu>
                         {
