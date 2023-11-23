@@ -6,6 +6,7 @@ const QuizButton = ({
     showAns = false, // this becomes true when timer runs up. will be changed dynamically
     response,
     index,
+    actualAnswers, // will be empty list in the beginning until showAns == true
     selectedAnswers,
     onSelect,
     onClick
@@ -40,17 +41,19 @@ const QuizButton = ({
 
     // TODO: convert to useEffect
     // override colors if answer should be shown
-    if (showAns) {
-        // if (response.isAnswer){
-        //     resultBG = correctStyle.BG
-        //     resultBS = selected ? selectedBSParams + correctStyle.BS : resultBS
-        //     resultColor = 'white'
-        // }
-        // else if (selected && !response.isAnswer){
-        //     resultBG = wrongStyle.BG
-        //     resultBS = selected ? selectedBSParams + wrongStyle.BS : resultBS
-        //     resultColor = 'white'
-        // }
+    if (showAns && actualAnswers.length > 0) {
+        // this button is the actual answer, so mark as correct
+        if (actualAnswers.includes(index)){
+            resultBG = correctStyle.BG
+            resultBS = selected ? selectedBSParams + correctStyle.BS : resultBS
+            resultColor = 'white'
+        }
+        // this button is not the actual answer but is selected, so mark as wrong
+        else if (selected && !actualAnswers.includes(index)){
+            resultBG = wrongStyle.BG
+            resultBS = selected ? selectedBSParams + wrongStyle.BS : resultBS
+            resultColor = 'white'
+        }
     }
 
     useEffect(() => {

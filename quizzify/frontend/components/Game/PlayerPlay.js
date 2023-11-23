@@ -64,7 +64,7 @@ export default function PlayerPlay({
             console.log("Socket not connected")
         else {
             socket.on(SOCKET_EVENTS.ROOM.questionEnd, (answerResponses) => {
-                setQuestionLive(false)
+                setShowAns(true)
                 setActualAnswers(answerResponses.map(answer => answer.index))
             })
             socket.on(SOCKET_EVENTS.ROOM.questionNext, (question) => {
@@ -90,7 +90,7 @@ export default function PlayerPlay({
         <>
             <Container w={'600px'}>
             <Flex flexDirection={'column'} height={'100vh'} justifyContent={'center'} alignItems={'center'}>
-                {!questionLive ? 
+            {!questionLive ? 
                     <Text color={'background.400'} fontSize={'md'}>Waiting for next question...</Text> 
                     : <>
                         <Box>
@@ -106,9 +106,10 @@ export default function PlayerPlay({
                             {currQuestion.responses.map((response, index) => (
                                     <QuizButton 
                                         key={index} 
-                                        showAns={submitted}//{showAns} 
+                                        showAns={showAns} 
                                         response={response}
                                         index={index} 
+                                        actualAnswers={actualAnswers}
                                         selectedAnswers={selectedAnswers}
                                         onSelect={onSelect}
                                         />

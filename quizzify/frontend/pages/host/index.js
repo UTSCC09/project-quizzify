@@ -100,6 +100,7 @@ export default function Host() {
     const [gameEnd, setGameEnd] = useState(false)
     const TIMER_DEFAULT_SECONDS = 25+3 // TODO: Short/medium/long (+3 for 2s loading time for players)
     const [timerSeconds, setTimerSeconds] = useState(TIMER_DEFAULT_SECONDS)
+    const [timerPause, setTimerPause] = useState(false);
 
     const startQuestion = (question) => {
         setQuestion(question)
@@ -109,35 +110,46 @@ export default function Host() {
     }
     const intervalRef = useRef()
 
+    const endTimer = () => clearInterval(intervalRef.current)
+
+    const toggleTimer = () => setTimerPause(!timerPause)
+
+    const moveNextQuestion = () => {
+        socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
+            if (response.success) {
+                if (response.gameOver) { // No more questions
+                    console.log("No more questions")
+                    setQuestionLive(false)
+                    setGameEnd(true)
+                } else { // Next question
+                    console.log("Updated next question")
+                    startQuestion(response.question)
+                }
+            } else // Failed to create game
+            console.log("Failed to get next question!")
+        })
+        console.log("Timer expired; next question");
+    }
+
+    const intervalTick = () => {
+        if (!timerPause) setTimerSeconds(t => Math.max(t-1, 0))
+    }
+
     useEffect(() => {
         if (questionLive) {
-            const tick = () => setTimerSeconds(t => Math.max(t-1, 0));
-            intervalRef.current = setInterval(tick, 1000)
+            intervalRef.current = setInterval(intervalTick, 1000)
         } else {
-            clearInterval(intervalRef.current)
+            endTimer();
         }
         
-        return () => clearInterval(intervalRef.current)
-    }, [questionLive])
+        return () => endTimer();
+    }, [timerPause, questionLive])
 
     useEffect(() => {
         if (timerSeconds === 0) {
-            clearInterval(intervalRef.current);
+            endTimer();
             setQuestionLive(false);
-            socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
-                if (response.success) {
-                    if (response.gameOver) { // No more questions
-                        console.log("No more questions")
-                        setQuestionLive(false)
-                        setGameEnd(true)
-                    } else { // Next question
-                        console.log("Updated next question")
-                        startQuestion(response.question)
-                    }
-                } else // Failed to create game
-                    console.log("Failed to get next question!")
-          })
-          console.log("Timer expired; next question");
+            moveNextQuestion();
         }
     }, [timerSeconds]);
     
@@ -193,7 +205,13 @@ export default function Host() {
                             <h1>Question: {question.question}</h1>
                             {question.responses.map(resp => <div>- {resp.response}</div>)}
                             
-                            {questionLive ? <h2>Timer: {timerSeconds} seconds left</h2> : 
+                            {questionLive ? 
+                                <>
+                                    <h2>Timer: {timerSeconds} seconds left</h2>
+                                    <Button onClick={toggleTimer}>Toggle Timer</Button>
+                                    <Button onClick={()=>{endTimer(); moveNextQuestion();}}>End Timer</Button>
+                                </>
+                                : 
                                 <>
                                     <h1>Answers:</h1>
                                     {answerResponses.map(resp => <div>- {resp.response}</div> )}
