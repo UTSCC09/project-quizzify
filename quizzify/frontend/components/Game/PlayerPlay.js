@@ -64,8 +64,11 @@ export default function PlayerPlay({
             console.log("Socket not connected")
         else {
             socket.on(SOCKET_EVENTS.ROOM.questionEnd, (answerResponses) => {
+                // submits current answer if something is chosen
+                if (selectedAnswers.length > 0 && !submitted) handleSubmit()
                 setShowAns(true)
                 setActualAnswers(answerResponses.map(answer => answer.index))
+                setQuestionLive(false)
             })
             socket.on(SOCKET_EVENTS.ROOM.questionNext, (question) => {
                 resetQuizQuestion()
@@ -90,8 +93,8 @@ export default function PlayerPlay({
         <>
             <Container w={'600px'}>
             <Flex flexDirection={'column'} height={'100vh'} justifyContent={'center'} alignItems={'center'}>
-            {!questionLive ? 
-                    <Text color={'background.400'} fontSize={'md'}>Waiting for next question...</Text> 
+                {
+                    !currQuestion.responses ? <Text color={'background.400'} fontSize={'md'}>Waiting for question...</Text>
                     : <>
                         <Box>
                             <Text color={'background.400'} fontWeight="bold">{questionTypeToDisplayString(currQuestion.type)}:</Text>
@@ -103,7 +106,7 @@ export default function PlayerPlay({
                             w={'600px'}
                             gridGap={'25px'}
                             templateColumns='repeat(2, 1fr)'>
-                            {currQuestion.responses.map((response, index) => (
+                            {currQuestion.responses && currQuestion.responses.map((response, index) => (
                                     <QuizButton 
                                         key={index} 
                                         showAns={showAns} 
@@ -117,7 +120,7 @@ export default function PlayerPlay({
                             }
                         </Grid>
                         <Flex gap={'10px'}>
-                            <TextButton text={'Submit'} isDisabled={submitted} onClick={handleSubmit} />
+                            <TextButton text={'Submit'} isDisabled={submitted || !questionLive} onClick={handleSubmit} />
                         </Flex>
                     </>
                 }
