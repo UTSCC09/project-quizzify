@@ -16,7 +16,7 @@ export default function HostGameWaitingRoom({
         <>
             <BubbleWrapper>
                 {
-                    Object.keys(question).length === 0 &&
+                    question && Object.keys(question).length === 0 &&
                     <Flex gap={'10px'} mb={2}>
                         <Menu>
                             <MenuButton as={Button} rightIcon={<ChevronDownIcon />} transition="all 0.3s">

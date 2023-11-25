@@ -1,4 +1,4 @@
-import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex, Box, IconButton } from "@chakra-ui/react";
+import { Button, Box } from "@chakra-ui/react";
 
 export default function HostGameLive({
     question,
@@ -11,8 +11,8 @@ export default function HostGameLive({
 }) {
     return (
         <>
-            <h1>Question: {question.question}</h1>
-            {question.responses.map((resp, i) => <Box key={i}>- {resp.response}</Box>)}
+            <h1>Question: {question?.question}</h1>
+            {question?.responses.map((resp, i) => <Box key={i}>- {resp.response}</Box>)}
 
             {questionLive ?
                 <>
@@ -23,7 +23,7 @@ export default function HostGameLive({
                 :
                 <>
                     <h1>Answers:</h1>
-                    {answerResponses.map((resp, i) => <Box key={i}>- {resp.response}</Box>)}
+                    {answerResponses?.map((resp, i) => <Box key={i}>- {resp.response}</Box>)}
                 </>
             }
         </>

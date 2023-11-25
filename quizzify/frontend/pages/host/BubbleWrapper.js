@@ -6,7 +6,7 @@ export default function BubbleWrapper({
             <div className="bubbles-wrapper">
                 <div className="bubbles-container">
                     <div className="bubbles-container-element">
-                        {...otherProps.children}
+                        {{...otherProps}.children}
                     </div>
                 </div>
                 <ul className="bg-bubbles">
