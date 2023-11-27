@@ -131,12 +131,12 @@ export default function Host() {
     }
 
     const intervalTick = () => {
-        if (!timerPause) setTimerSeconds(t => Math.max(t - 1, 0))
+        if (!timerPause) setTimerSeconds(t => Math.max(t - 0.01, 0))
     }
 
     useEffect(() => {
         if (questionLive) {
-            intervalRef.current = setInterval(intervalTick, 1000)
+            intervalRef.current = setInterval(intervalTick, 10)
         } else {
             endTimer();
         }

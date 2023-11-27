@@ -23,7 +23,7 @@ export default function CustomIconButton({
                 px={px ? px : '8px'}
                 py={py ? py : '8px'}
                 borderRadius={'full'}
-                color={'background.400'}
+                color={color? color : 'background.400'}
                 {...otherProps} // other props can be passed into here
             >
                 {icon}
