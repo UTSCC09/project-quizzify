@@ -39,7 +39,7 @@ Quizzify is an immersive, real-time quiz platform crafted to infuse interactivit
 ### Technology Stack Used to Build and Deploy
 - **Backend:** Express.js (Node.js), MongoDB, Socket.IO, Auth0, Twilio SendGrid
 - **Frontend:** React, Next.js, Chakra UI
-- **Deployment:** Docker, Heroku
+- **Deployment:** Docker, Google Compute Engine, Nginx, Let's Encrypt
 
 ### Top 5 Technical Challenges
 1. **Real-time Synchronization**: Utilize web sockets to ensure all participants see all actions at the same time (ex. questions/answers, updated leaderboards, real-time, timer) + handle effects of possible network latency
