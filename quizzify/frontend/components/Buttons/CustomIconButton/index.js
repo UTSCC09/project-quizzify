@@ -16,8 +16,9 @@ export default function CustomIconButton({
     href,
     ...otherProps
 }) {
-    return (
-        <ButtonLinkWrapper display={display} href={href} isExternal={isExternal}>
+    if (href) {
+        return (
+            <ButtonLinkWrapper display={display} href={href} isExternal={isExternal}>
             <Box
                 as='button'
                 px={px ? px : '8px'}
@@ -28,6 +29,19 @@ export default function CustomIconButton({
             >
                 {icon}
             </Box>
-        </ButtonLinkWrapper>
+            </ButtonLinkWrapper>
+        )
+    }
+    return (
+        <Box
+            as='button'
+            px={px ? px : '4px'}
+            py={py ? py : '4px'}
+            borderRadius={'full'}
+            color={color? color : 'background.400'}
+            {...otherProps} // other props can be passed into here
+        >
+            {icon}
+        </Box>
     );
 }

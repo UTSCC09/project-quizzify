@@ -104,8 +104,8 @@ export default function PlayerPlay({
                             padding={5}
                             h={'500px'}
                             w={'600px'}
-                            gridGap={'25px'}
-                            templateColumns='repeat(2, 1fr)'>
+                            gridGap={'20px'}
+                            templateColumns={{base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'}}>
                             {currQuestion.responses && currQuestion.responses.map((response, index) => (
                                     <QuizButton 
                                         key={index} 

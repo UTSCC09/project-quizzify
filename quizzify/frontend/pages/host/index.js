@@ -123,6 +123,7 @@ export default function Host() {
                 } else { // Next question
                     console.log("Updated next question")
                     startQuestion(response.question)
+                    setTimerPause(false)
                 }
             } else // Failed to create game
                 console.log("Failed to get next question!")
@@ -174,6 +175,7 @@ export default function Host() {
                                     question={question}
                                     questionLive={questionLive}
                                     timerSeconds={timerSeconds}
+                                    timerPause={timerPause}
                                     toggleTimer={toggleTimer}
                                     endTimer={endTimer}
                                     moveNextQuestion={moveNextQuestion}
