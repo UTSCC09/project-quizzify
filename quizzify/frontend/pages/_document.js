@@ -6,6 +6,7 @@ export default function Document() {
   return (
     <Html lang='en'>
         <Head>
+            <title>Quizzify</title>
             {/* add libraries here */}
         </Head>
         <body>

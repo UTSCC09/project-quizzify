@@ -1,9 +1,12 @@
-FROM node:18-alpine
-ENV PORT 5000
-WORKDIR /backend
-COPY ./package.json ./
+FROM --platform=linux/amd64 node:lts-slim as build
 
+RUN mkdir -p /app
+WORKDIR /app
+COPY . /app
 RUN npm install
-COPY . ./
+
+FROM --platform=linux/amd64 node:lts-slim as main
+WORKDIR /app
+COPY --from=build /app /app
 EXPOSE 5000
-CMD ["npm", "run", "start"]
+CMD ["npm","run","prod"]

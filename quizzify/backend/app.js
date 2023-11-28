@@ -1,4 +1,4 @@
-var https = require('https');
+var http = require('http');
 var fs = require('fs');
 
 var express = require('express');
@@ -12,7 +12,10 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 const dotenv = require("dotenv");
-dotenv.config();
+if (process.env.NODE_ENV === "production")
+  dotenv.config();
+else
+  dotenv.config({path: '.env.development.local'});
 
 var app = express();
 
@@ -59,13 +62,10 @@ async function connectToMongoDB() {
   console.log("Connected to MongoDB")
 }
 
-const privateKey = fs.readFileSync("server.key");
-const certificate = fs.readFileSync("server.crt");
-const config = { key: privateKey, cert: certificate };
 const port = process.env.PORT ?? '5000'
 
 // Sockets
-const server = https.createServer(config, app)
+const server = http.createServer(app)
 const io = socketIO(server, {
   cors: corsOptions
 })
@@ -95,6 +95,6 @@ io.on("connection", (socket) => {
 
 server.listen(port, function (err) {
   if (err) console.log(err);
-  else console.log("HTTPS server on https://localhost:%s", port);
+  else console.log("HTTP server on http://localhost:%s", port);
 });
 

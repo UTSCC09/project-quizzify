@@ -15,14 +15,11 @@
 
 # misc
 .DS_Store
-.env.local
 .env.development.local
-.env.test.local
-.env.production.local
 /quizzify/backend/.env
-/quizzify/backend/.env.production
-/quizzify/backend/.env.development
+/quizzify/backend/.env.development.local
 /quizzify/frontend/.env
+/quizzify/frontend/.env.development.local
 .idea
 .vscode
 
