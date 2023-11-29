@@ -3,6 +3,7 @@ import TextButton from "@/components/Buttons/TextButton";
 import { QUIZ_TYPES, SOCKET_EVENTS } from "@/constants";
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Container, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, Spinner, Text, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import CustomPointTag from "../CustomPointTag";
 
 export default function PlayerPlay({
     socket,
@@ -159,10 +160,7 @@ export default function PlayerPlay({
                                 {
                                     pointsEarned === 100 ? <Text>Good job!</Text> : <Text>Sorry, Your answer is not correct</Text>
                                 }
-                                <Text fontSize={20} fontWeight={900} px={2}
-                                    py={'1px'} bg={'white'} borderRadius={'10px'} color={'brand.400' }>
-                                    +{pointsEarned}
-                                </Text> 
+                                <CustomPointTag text={`+${pointsEarned}`} />
                             </Flex>
                             <Box as={Flex} gap={2} alignItems={'center'} justifyContent={'center'} 
                                 fontWeight={600} color={'white'} bg={'whiteAlpha.500'} padding={4} borderRadius={'15px'}>

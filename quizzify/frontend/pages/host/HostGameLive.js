@@ -1,11 +1,14 @@
 import CustomIconButton from "@/components/Buttons/CustomIconButton";
 import HGQuizButton from "@/components/Buttons/HostGame/HGQuizButton";
-import { Button, Grid, Flex, Box, Progress, Image, Text } from "@chakra-ui/react";
+import { Leaderboard } from "@/components/Leaderboard";
+import { Button, Grid, Flex, Box, Progress, Image, Text, useDisclosure } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaCirclePause, FaCirclePlay, FaCircleStop } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
+import { MdLeaderboard } from "react-icons/md";
 
 export default function HostGameLive({
+    socket,
     question,
     questionLive,
     timerSeconds,
@@ -13,13 +16,17 @@ export default function HostGameLive({
     toggleTimer,
     endTimer,
     moveNextQuestion,
-    answerResponses
+    answerResponses,
+    players
 }) {
+    const { isOpen, onOpen, onClose } = useDisclosure()
+
     return (
         <Flex flexDirection={'column'} padding={8}>
             <Flex gap={2} alignItems={'center'} justifyContent={'center'}>
                 <CustomIconButton color={'secondary.400'} icon={<IoMdCloseCircle size={20} />} href='/' isExternal={false}/>
                 <Progress w={'100%'} borderRadius={'full'} height={2} value={(timerSeconds/28)*100} colorScheme={'brand'} bgColor={'#d8dbe2'}/>
+                <CustomIconButton color={'brand.400'} icon={<MdLeaderboard size={20}/>} onClick={onOpen}/>
                 {questionLive &&
                     <>
                         <CustomIconButton color={'brand.400'}
@@ -43,6 +50,7 @@ export default function HostGameLive({
                     ))}
                 </Grid>
             </Flex>
+            <Leaderboard socket={socket} isOpen={isOpen} onClose={onClose} players={players}/>
         </Flex>
     )
 }

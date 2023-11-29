@@ -1,5 +1,5 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex, Box, IconButton } from "@chakra-ui/react";
+import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex, Box, IconButton, useDisclosure } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
 import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
@@ -8,6 +8,7 @@ import * as USER_API from "@/api/users";
 import { SOCKET_EVENTS } from "@/constants";
 import HostGameWaitingRoom from "./HostGameWaitingRoom";
 import HostGameLive from "./HostGameLive";
+import { Leaderboard } from "@/components/Leaderboard";
 
 var socket;
 
@@ -153,7 +154,7 @@ export default function Host() {
         }
     }, [timerSeconds]);
 
-    const sortPlayersByScore = (a, b) => { b.score - a.score }
+    const sortPlayersByScore = (a, b) => { b.points - a.points }
 
     return (
         <>
@@ -172,6 +173,7 @@ export default function Host() {
                         {
                             !gameEnd ? 
                                 <HostGameLive
+                                    socket={socket}
                                     question={question}
                                     questionLive={questionLive}
                                     timerSeconds={timerSeconds}
@@ -180,9 +182,9 @@ export default function Host() {
                                     endTimer={endTimer}
                                     moveNextQuestion={moveNextQuestion}
                                     answerResponses={answerResponses}
+                                    players={players}
                                 /> : <>
-                                    <h2>Game over!</h2>
-                                    <div>{players[0]?.displayName} won with {players[0]?.points} points</div>
+                                    <Leaderboard socket={socket} isOpen={true} onClose={()=>{setQuestion([]);setPlayers([])}} players={players}/>
                                 </>
                         }
                     </>
