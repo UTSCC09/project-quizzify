@@ -46,7 +46,6 @@ export default function PlayerPlay({
     }
 
     const handleSubmit = () => {
-        setSubmitted2(true);
         socket.emit(SOCKET_EVENTS.PLAYER.answer, {
             joinCode: gameCode.toLowerCase(), 
             selectedAnswers: selectedAnswers
