@@ -18,6 +18,7 @@ const GameSchema = new mongoose.Schema({
     socketId: {type: String, required: true},
     displayName: {type: String, required: false},
     points: {type: Number, required: true, default: 0},
+    currQuestionPoints: {type: Number, required: true, default: 0}, // points received for the current question
   }],
   createdAt: {
     type: Date,

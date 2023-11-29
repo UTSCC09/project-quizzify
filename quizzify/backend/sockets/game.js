@@ -177,6 +177,11 @@ const hostNextQuestion = async function (socket, io, callback) {
             } else { // Send next question
                 game.currQuestion.index++
                 game.currQuestion.numPlayersAnswered = 0
+                
+                game.players.forEach((player, index)=>{
+                    game.players[index].currQuestionPoints = 0
+                })
+
                 await game.save()
                 
                 const quizHiddenAnswers = game.quiz.hideResponseAnswers()
@@ -260,6 +265,7 @@ const answer = async function (socket, io, payload, callback) {
         const points = Math.floor(100 * (numCorrect / responses.length))
         game.quiz.questions[game.currQuestion.index].responses
         game.players[playerIndex].points += points
+        game.players[playerIndex].currQuestionPoints = points
 
         game.currQuestion.numPlayersAnswered++
         await game.save()
