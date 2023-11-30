@@ -9,6 +9,7 @@ import { SOCKET_EVENTS } from "@/constants";
 import HostGameWaitingRoom from "./HostGameWaitingRoom";
 import HostGameLive from "./HostGameLive";
 import { Leaderboard } from "@/components/Leaderboard";
+import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 
 var socket;
 const PLAYER_LOADING_TIME = 3;
@@ -178,7 +179,7 @@ export default function Host() {
 
     return (
         <>
-            {
+            {!isAuthenticated ? <AuthenticationGuard/> :
                 Object.keys(question).length === 0 ?
                     <HostGameWaitingRoom
                         question={question}
