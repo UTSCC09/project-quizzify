@@ -122,7 +122,7 @@ const start = async function (socket, io, payload, callback) {
         io.to(joinCode).emit(eventNames.ROOM.start)
         callback({ 
             success: true,
-            question: game.quiz.questions[game.currQuestion.index] 
+            question: game.quiz.questions[game.currQuestion.index]
         })
         socketLog(socket, `Host started game`, joinCode)
         

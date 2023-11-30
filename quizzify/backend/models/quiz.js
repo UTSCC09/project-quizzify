@@ -6,10 +6,35 @@ const TRUE_OR_FALSE= "TRUE_OR_FALSE"
 
 const QUIZ_TYPES = {SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_OR_FALSE}
 
+const DEFAULT = "DEFAULT"
+const RAPID_FIRE = "RAPID_FIRE"
+const LAST_MAN = "LAST_MAN"
+
+const QUIZ_MODES = {DEFAULT, RAPID_FIRE, LAST_MAN}
+
+// in seconds
+const RAPID = 5
+const SHORT = 10
+const MEDIUM = 25
+const LONG = 90
+const QUIZ_TIMERS = {RAPID, SHORT, MEDIUM, LONG}
+
 const QuizSchema = new mongoose.Schema({
   userId: {type: String, required: true, index: true},
   name: {type: String, required: true, index: true},
   description: {type: String, default: ""},
+  defaultTimer: {
+    type: Number, 
+    required: true,
+    // enum: Object.keys(QUIZ_TIMERS), // user can set to any time
+    default: MEDIUM
+  },
+  mode: {
+    type: String, 
+    required: true, 
+    enum: Object.keys(QUIZ_MODES),
+    default: DEFAULT
+  },
   private: {
     type: Boolean, 
     required: true, 
@@ -72,6 +97,14 @@ QuizSchema.statics = {
     return quiz.save()
   }
 }
+
+QuizSchema.pre('save', function(next) {
+  // If the mode is set to RAPID_FIRE, set the defaultTimer to RAPID
+  if (this.mode === RAPID_FIRE) {
+    this.defaultTimer = RAPID;
+  }
+  next();
+});
 
 const Quiz = mongoose.model("Quiz", QuizSchema)
 module.exports = {

@@ -17,6 +17,7 @@ export default function HostGameLive({
     endTimer,
     moveNextQuestion,
     answerResponses,
+    gameDefaultTimer,
     players
 }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -25,7 +26,7 @@ export default function HostGameLive({
         <Flex flexDirection={'column'} padding={8}>
             <Flex gap={2} alignItems={'center'} justifyContent={'center'}>
                 <CustomIconButton color={'secondary.400'} icon={<IoMdCloseCircle size={20} />} href='/' isExternal={false}/>
-                <Progress w={'100%'} borderRadius={'full'} height={2} value={(timerSeconds/28)*100} colorScheme={'brand'} bgColor={'#d8dbe2'}/>
+                <Progress w={'100%'} borderRadius={'full'} height={2} value={(timerSeconds/gameDefaultTimer)*100} colorScheme={'brand'} bgColor={'#d8dbe2'}/>
                 <CustomIconButton color={'brand.400'} icon={<MdLeaderboard size={20}/>} onClick={onOpen}/>
                 {questionLive &&
                     <>

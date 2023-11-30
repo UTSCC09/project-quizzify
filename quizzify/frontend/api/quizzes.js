@@ -9,3 +9,7 @@ export const getQuizzes = async (accessToken) => {
 export const createQuiz = async (accessToken, data) => {
   return await postRequest(BASE_API_URL, accessToken, data)
 }
+
+export const getQuizById = async (accessToken, selectedQuizId) => {
+  return await getRequest(`${BASE_API_URL}/${selectedQuizId}`, accessToken)
+}

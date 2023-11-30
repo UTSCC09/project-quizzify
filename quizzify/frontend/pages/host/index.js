@@ -1,16 +1,18 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex, Box, IconButton, useDisclosure } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
 import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
 
 import * as USER_API from "@/api/users";
+import * as QUIZ_API from "@/api/quizzes";
 import { SOCKET_EVENTS } from "@/constants";
 import HostGameWaitingRoom from "./HostGameWaitingRoom";
 import HostGameLive from "./HostGameLive";
 import { Leaderboard } from "@/components/Leaderboard";
 
 var socket;
+const PLAYER_LOADING_TIME = 3;
+const DEFAULT_TIMER = 25;
 
 export default function Host() {
     const {
@@ -22,6 +24,7 @@ export default function Host() {
 
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
+    const [quizInfo, setQuizInfo] = useState({})
     const [players, setPlayers] = useState([])
 
     useEffect(() => {
@@ -33,7 +36,6 @@ export default function Host() {
         })
         socket.on(SOCKET_EVENTS.ROOM.questionEnd, (answerResponses) => {
             setQuestionLive(false)
-            console.log(answerResponses)
             setAnswerResponses(answerResponses)
         })
 
@@ -56,6 +58,18 @@ export default function Host() {
         }
         getUserQuizzes()
     }, [user, isAuthenticated, getAccessTokenSilently])
+
+    useEffect(() => {
+        const getQuiz = async () => {
+            if (isAuthenticated){
+                const accessToken = await getAccessTokenSilently();
+                const response = await QUIZ_API.getQuizById(accessToken, selectedQuizId)
+                setQuizInfo(response[1])
+                setTimerDefaultSeconds(response[1].defaultTimer + PLAYER_LOADING_TIME || DEFAULT_TIMER + PLAYER_LOADING_TIME);
+            }
+        }
+        getQuiz()
+    }, [selectedQuizId]);
 
     // Create Game
     useEffect(() => {
@@ -98,15 +112,17 @@ export default function Host() {
     const [answerResponses, setAnswerResponses] = useState([])
     const [questionLive, setQuestionLive] = useState(false)
     const [gameEnd, setGameEnd] = useState(false)
-    const TIMER_DEFAULT_SECONDS = 25 + 3 // TODO: Short/medium/long (+3 for 2s loading time for players)
-    const [timerSeconds, setTimerSeconds] = useState(TIMER_DEFAULT_SECONDS)
+
+    // DEFAULT_TIMER + PLAYER_LOADING_TIME for 2s loading time for players
+    const [timerDefaultSeconds, setTimerDefaultSeconds] = useState(DEFAULT_TIMER + PLAYER_LOADING_TIME);
+    const [timerSeconds, setTimerSeconds] = useState(timerDefaultSeconds)
     const [timerPause, setTimerPause] = useState(false);
 
     const startQuestion = (question) => {
         setQuestion(question)
         setQuestionLive(true)
         setAnswerResponses([])
-        setTimerSeconds(TIMER_DEFAULT_SECONDS)
+        setTimerSeconds(timerDefaultSeconds)
     }
     const intervalRef = useRef()
 
@@ -135,6 +151,10 @@ export default function Host() {
     const intervalTick = () => {
         if (!timerPause) setTimerSeconds(t => Math.max(t - 0.01, 0))
     }
+
+    useEffect(() => {
+        setTimerSeconds(timerDefaultSeconds)
+    }, [timerDefaultSeconds]);
 
     useEffect(() => {
         if (questionLive) {
@@ -182,6 +202,7 @@ export default function Host() {
                                     endTimer={endTimer}
                                     moveNextQuestion={moveNextQuestion}
                                     answerResponses={answerResponses}
+                                    gameDefaultTimer={timerDefaultSeconds}
                                     players={players}
                                 /> : <>
                                     <Leaderboard socket={socket} isOpen={true} onClose={()=>{setQuestion([]);setPlayers([])}} players={players}/>
