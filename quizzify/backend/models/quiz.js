@@ -92,8 +92,8 @@ QuizSchema.methods = {
 }
 
 QuizSchema.statics = {
-  create: function(userId, name, description, private, questions) {
-    const quiz = new this({ userId, name, description, private, questions })
+  create: function(userId, name, description, private, questions, defaultTimer, mode) {
+    const quiz = new this({ userId, name, description, private, questions, defaultTimer, mode })
     return quiz.save()
   }
 }

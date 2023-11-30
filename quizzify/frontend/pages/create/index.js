@@ -1,5 +1,4 @@
-import LoginButton from "@/components/Buttons/Auth/LoginButton";
-import { Box, Button, Flex, Text, Container, GridItem, Grid } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, GridItem, Grid } from "@chakra-ui/react";
 import MainNavBar from "@/components/MainNavBar";
 
 import { 
@@ -11,9 +10,10 @@ import ShortInput from "@/components/Forms/ShortInput";
 import FormSelect from "@/components/Forms/FormSelect";
 import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
-import { PRIVATE, PUBLIC } from "@/constants";
+import { PRIVATE, PUBLIC, QUIZ_MODES, QUIZ_TIMERS } from "@/constants";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 import { useRouter } from "next/navigation";
+import NumInput from "@/components/Forms/NumberInput";
 
 export default function Home() {
   const {
@@ -24,6 +24,8 @@ export default function Home() {
   const [titleInput, setTitleInput] = useState('');
   const [descriptionInput, setDescriptionInput] = useState('');
   const [permissionsInput, setPermissionsInput] = useState('');
+  const [modeInput, setModeInput] = useState(QUIZ_MODES.DEFAULT);
+  const [defaultTimerInput, setDefaultTimerInput] = useState(QUIZ_TIMERS.MEDIUM);
   const [questionsList, setQuestionsList] = useState([]);
 
   const router = useRouter()
@@ -35,6 +37,8 @@ export default function Home() {
           description: descriptionInput,
           private: permissionsInput === PRIVATE,
           questions: questionsList,
+          defaultTimer: defaultTimerInput,
+          mode: modeInput,
         }
 
         const accessToken = await getAccessTokenSilently();
@@ -65,11 +69,19 @@ export default function Home() {
             </Box>
             <Flex flexDirection={'column'} gap={2}>
               <ShortInput label='Title' placeholder='Enter Title' inputValue={titleInput} handleInputChange={setTitleInput} />
-              <Flex flexDirection={'row'} gap={4}>
+              <Flex gap={4}>
                 <ShortInput label='Description' placeholder='Enter Description' inputValue={descriptionInput} handleInputChange={setDescriptionInput} />
                 <FormSelect label='Visibility of Quiz' inputValue={permissionsInput} handleInputChange={setPermissionsInput}>
                   <option value={PUBLIC}>Public</option>
                   <option value={PRIVATE}>Private</option>
+                </FormSelect>
+              </Flex>
+              <Flex gap={4}>
+                <NumInput label={'Question Timer (Seconds)'} inputValue={defaultTimerInput} handleInputChange={setDefaultTimerInput} />
+                <FormSelect label='Mode' inputValue={modeInput} handleInputChange={setModeInput}>
+                  <option value={QUIZ_MODES.DEFAULT}>Classic</option>
+                  <option value={QUIZ_MODES.RAPID_FIRE}>Rapid fire 🔥</option>
+                  <option value={QUIZ_MODES.LAST_MAN}>Last Man Standing 🧍‍♂️</option>
                 </FormSelect>
               </Flex>
             </Flex>

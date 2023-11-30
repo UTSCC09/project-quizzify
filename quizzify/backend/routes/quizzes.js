@@ -47,8 +47,11 @@ router.post('/', validateAccessToken(), async (req, res, next) => {
             description: req.body.description,
             private: req.body.private,
             questions: req.body.questions,
+            defaultTimer: req.body.defaultTimer,
+            mode: req.body.mode,
         }
-        const newQuiz = await Quiz.create(quiz.userId, quiz.name, quiz.description, quiz.private, quiz.questions)
+        const newQuiz = await Quiz.create(quiz.userId, quiz.name, quiz.description, quiz.private, quiz.questions,
+                                          quiz.defaultTimer, quiz.mode)
         res.send(newQuiz)
     } catch (error) {
         res.status(500).send(error)

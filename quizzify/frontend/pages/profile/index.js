@@ -37,8 +37,9 @@ export default function Home() {
           <Flex flexDirection={'column'} gap={2}>
               <Text fontWeight={700} fontSize={20}>Your Quizzes</Text>
               <Grid gridGap={'20px'} templateColumns='repeat(2, 1fr)'>
-                {quizzes.map(quiz => 
+                {quizzes.map((quiz, i) => 
                   <Flex
+                    key={i}
                     maxW="100%"
                     maxH="200px"
                     bg="white"

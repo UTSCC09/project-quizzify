@@ -8,6 +8,19 @@ export const QUIZ_TYPES = {SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_OR_FALSE}
 export const PUBLIC = "PUBLIC"
 export const PRIVATE = "PRIVATE"
 
+const DEFAULT = "DEFAULT"
+const RAPID_FIRE = "RAPID_FIRE"
+const LAST_MAN = "LAST_MAN"
+
+export const QUIZ_MODES = {DEFAULT, RAPID_FIRE, LAST_MAN}
+
+// in seconds
+const RAPID = 5
+const SHORT = 10
+const MEDIUM = 25
+const LONG = 90
+export const QUIZ_TIMERS = {RAPID, SHORT, MEDIUM, LONG}
+
 // Socket events
 const eventNamePrefixes = {
     UTILS: "utils",
