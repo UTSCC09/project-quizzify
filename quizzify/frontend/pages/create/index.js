@@ -24,7 +24,7 @@ export default function Home() {
   const [titleInput, setTitleInput] = useState('');
   const [descriptionInput, setDescriptionInput] = useState('');
   const [permissionsInput, setPermissionsInput] = useState('');
-  const [modeInput, setModeInput] = useState(QUIZ_MODES.DEFAULT);
+  const [modeInput, setModeInput] = useState(QUIZ_MODES.DEFAULT.BE);
   const [defaultTimerInput, setDefaultTimerInput] = useState(QUIZ_TIMERS.MEDIUM);
   const [questionsList, setQuestionsList] = useState([]);
 
@@ -79,9 +79,9 @@ export default function Home() {
               <Flex gap={4}>
                 <NumInput label={'Question Timer (Seconds)'} inputValue={defaultTimerInput} handleInputChange={setDefaultTimerInput} />
                 <FormSelect label='Mode' inputValue={modeInput} handleInputChange={setModeInput}>
-                  <option value={QUIZ_MODES.DEFAULT}>Classic</option>
-                  <option value={QUIZ_MODES.RAPID_FIRE}>Rapid fire 🔥</option>
-                  <option value={QUIZ_MODES.LAST_MAN}>Last Man Standing 🧍‍♂️</option>
+                  <option value={QUIZ_MODES.DEFAULT.BE}>{QUIZ_MODES.DEFAULT.FE}</option>
+                  <option value={QUIZ_MODES.RAPID_FIRE.BE}>{QUIZ_MODES.RAPID_FIRE.FE}</option>
+                  <option value={QUIZ_MODES.LAST_MAN.BE}>{QUIZ_MODES.LAST_MAN.FE}</option>
                 </FormSelect>
               </Flex>
             </Flex>

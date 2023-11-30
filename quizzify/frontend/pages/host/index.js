@@ -182,6 +182,7 @@ export default function Host() {
             {!isAuthenticated ? <AuthenticationGuard/> :
                 Object.keys(question).length === 0 ?
                     <HostGameWaitingRoom
+                        quizInfo={quizInfo}
                         question={question}
                         selectedQuizId={selectedQuizId}
                         setSelectedQuizId={setSelectedQuizId}

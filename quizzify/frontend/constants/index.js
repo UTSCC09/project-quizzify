@@ -12,7 +12,29 @@ const DEFAULT = "DEFAULT"
 const RAPID_FIRE = "RAPID_FIRE"
 const LAST_MAN = "LAST_MAN"
 
-export const QUIZ_MODES = {DEFAULT, RAPID_FIRE, LAST_MAN}
+export const QUIZ_MODES = {
+    DEFAULT:{
+        FE: "Classic ⭐",
+        BE: DEFAULT
+    }, 
+    RAPID_FIRE: {
+        FE: "Last Man Standing 🧍‍♂️",
+        BE: RAPID_FIRE
+    }, 
+    LAST_MAN: {
+        FE: "Rapid fire 🔥",
+        BE: LAST_MAN
+    }, 
+}
+
+export function convertBEtoFEMode(beMode) {
+    for (const mode in QUIZ_MODES) {
+        if (QUIZ_MODES[mode].BE === beMode) {
+            return QUIZ_MODES[mode].FE;
+        }
+    }
+    return "Unknown mode"; // Return this if the mode is not found
+}
 
 // in seconds
 const RAPID = 5

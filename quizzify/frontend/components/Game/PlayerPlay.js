@@ -19,6 +19,7 @@ export default function PlayerPlay({
     const [submitted, setSubmitted] = useState(false)
     
     const onSelect = (response, index) => {
+        if (submitted) return
         if (currQuestion) {
             let maxSelection = 1
             switch (currQuestion.type) {
@@ -47,6 +48,7 @@ export default function PlayerPlay({
     }
 
     const handleSubmit = () => {
+        if (submitted) return;
         socket.emit(SOCKET_EVENTS.PLAYER.answer, {
             joinCode: gameCode.toLowerCase(), 
             selectedAnswers: selectedAnswers
