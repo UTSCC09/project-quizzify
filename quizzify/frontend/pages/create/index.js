@@ -2,7 +2,7 @@ import { Box, Button, Flex, Text, GridItem, Grid } from "@chakra-ui/react";
 import MainNavBar from "@/components/MainNavBar";
 
 import { 
-  useCallback, useState,
+  useCallback, useEffect, useState,
 } from "react";
 import { useAuth0 } from '@auth0/auth0-react';
 import * as QUIZ_API from "@/api/quizzes";
@@ -58,6 +58,12 @@ export default function Home() {
     callback();
   }
 
+  useEffect(() => {
+    if (modeInput === QUIZ_MODES.RAPID_FIRE.BE) {
+      setDefaultTimerInput(QUIZ_TIMERS.RAPID)
+    }
+  }, [modeInput]);
+
   return (
     <>
       {!isAuthenticated ? <AuthenticationGuard/> :
@@ -77,7 +83,9 @@ export default function Home() {
                 </FormSelect>
               </Flex>
               <Flex gap={4}>
-                <NumInput label={'Question Timer (Seconds)'} inputValue={defaultTimerInput} handleInputChange={setDefaultTimerInput} />
+                <NumInput
+                  isDisabled={modeInput === QUIZ_MODES.RAPID_FIRE.BE} label={'Question Timer (Seconds)'} 
+                  inputValue={defaultTimerInput} handleInputChange={setDefaultTimerInput} />
                 <FormSelect label='Mode' inputValue={modeInput} handleInputChange={setModeInput}>
                   <option value={QUIZ_MODES.DEFAULT.BE}>{QUIZ_MODES.DEFAULT.FE}</option>
                   <option value={QUIZ_MODES.RAPID_FIRE.BE}>{QUIZ_MODES.RAPID_FIRE.FE}</option>

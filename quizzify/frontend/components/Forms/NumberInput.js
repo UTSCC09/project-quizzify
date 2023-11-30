@@ -5,12 +5,14 @@ import { QUIZ_TIMERS } from '@/constants'
 export default function NumInput({
     label,
     inputValue,
-    handleInputChange
+    handleInputChange,
+    isDisabled
 }) {
   return (
     <>
       <FormWrapper label={label}>
         <NumberInput
+          isDisabled={isDisabled}
           value={inputValue} onChange={(e)=>{handleInputChange(e)}}
           step={5} defaultValue={QUIZ_TIMERS.MEDIUM} min={QUIZ_TIMERS.RAPID} max={QUIZ_TIMERS.LONG}
           variant='flushed'

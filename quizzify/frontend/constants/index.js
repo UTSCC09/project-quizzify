@@ -18,11 +18,11 @@ export const QUIZ_MODES = {
         BE: DEFAULT
     }, 
     RAPID_FIRE: {
-        FE: "Last Man Standing 🧍‍♂️",
+        FE: "Rapid fire 🔥",
         BE: RAPID_FIRE
     }, 
     LAST_MAN: {
-        FE: "Rapid fire 🔥",
+        FE: "Last Man Standing 🧍‍♂️",
         BE: LAST_MAN
     }, 
 }
