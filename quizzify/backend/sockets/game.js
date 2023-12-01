@@ -1,5 +1,5 @@
 const Game = require("../models/game");
-const { Quiz } = require("../models/quiz");
+const { Quiz, QUIZ_MODES, QUIZ_TIMERS } = require("../models/quiz");
 
 const eventNamePrefixes = {
     UTILS: "utils",
@@ -176,6 +176,7 @@ const hostNextQuestion = async function (socket, io, callback) {
                 socketLog(socket, `Host sent game over`, game.joinCode)
             } else { // Send next question
                 game.currQuestion.index++
+                game.currQuestion.timeIndexUpdated = Date.now()
                 game.currQuestion.numPlayersAnswered = 0
                 
                 game.players.forEach((player, index)=>{
@@ -262,7 +263,20 @@ const answer = async function (socket, io, payload, callback) {
         })
     
         // Calculate points (max 100)
-        const points = Math.floor(100 * (numCorrect / responses.length))
+        let points = Math.floor(100 * (numCorrect / responses.length))
+
+        // Rapid fire mode multiplier
+        if (game.quiz.mode === QUIZ_MODES.RAPID_FIRE){
+            const currQuestionStartTime = game.currQuestion.timeIndexUpdated;
+            const differenceInSeconds = (Date.now() - currQuestionStartTime) / 1000; // Convert milliseconds to seconds
+            const MULTI_CAP = 3
+            const multi = Math.min(1 + (15 - differenceInSeconds)/10, MULTI_CAP) // Cap multiplier
+
+            // difference should not be negative as it can be assumed that Date.now() > currQuestionStartTime
+            // if past MULTI_CAP, then differenceInSeconds is too high
+            if (differenceInSeconds > 0 && multi < MULTI_CAP) points = Math.round(points * multi);
+        }
+
         game.quiz.questions[game.currQuestion.index].responses
         game.players[playerIndex].points += points
         game.players[playerIndex].currQuestionPoints = points

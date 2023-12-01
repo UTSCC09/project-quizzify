@@ -100,6 +100,27 @@ export default function PlayerPlay({
         }
     }
     
+    useEffect(() => {
+        const keyDownHandler = event => {
+            if (submitted || !questionLive) return;
+            if (event.key === 'Enter') {
+                handleSubmit();
+            }
+
+            // Check if the key is a number and within the range of responses
+            const numberKeyPressed = parseInt(event.key);
+            if (!isNaN(numberKeyPressed) && numberKeyPressed >= 1 && numberKeyPressed <= currQuestion.responses.length) {
+                onSelect(null, numberKeyPressed - 1); // number pressed will start at 1
+            }
+        };
+    
+        document.addEventListener('keydown', keyDownHandler);
+    
+        return () => {
+            document.removeEventListener('keydown', keyDownHandler);
+        };
+      }, [selectedAnswers, currQuestion.responses, submitted, questionLive]);
+
     return (
         <>
             <Container w={'600px'}>

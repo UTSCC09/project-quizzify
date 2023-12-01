@@ -109,5 +109,7 @@ QuizSchema.pre('save', function(next) {
 const Quiz = mongoose.model("Quiz", QuizSchema)
 module.exports = {
   Quiz,
-  QUIZ_TYPES
+  QUIZ_TYPES,
+  QUIZ_MODES,
+  QUIZ_TIMERS
 }

@@ -13,6 +13,10 @@ const GameSchema = new mongoose.Schema({
   currQuestion: {
     index: {type: Number, required: true, default: 0},
     numPlayersAnswered: {type: Number, required: true, default: 0},
+    timeIndexUpdated: {
+      type: Date,
+      default: () => Date.now(),
+    }
   },
   players: [{
     socketId: {type: String, required: true},
