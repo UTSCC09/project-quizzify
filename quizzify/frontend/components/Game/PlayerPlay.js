@@ -128,7 +128,7 @@ export default function PlayerPlay({
         };
       }, [selectedAnswers, currQuestion.responses, submitted, questionLive]);
 
-    if (triesLeft <= 0 && playerOut)
+    if (triesLeft <= 0)
       return <GameOver />
 
     return (
