@@ -1,19 +1,23 @@
 import QuizButton from "@/components/Buttons/QuizButton";
 import TextButton from "@/components/Buttons/TextButton";
-import { QUIZ_TYPES, SOCKET_EVENTS } from "@/constants";
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Container, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, Flex, Grid, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+import { QUIZ_MODES, QUIZ_TYPES, SOCKET_EVENTS } from "@/constants";
+import { Alert, Box, Container, Drawer, DrawerContent, Flex, Grid, Spinner, Text, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import CustomPointTag from "../CustomPointTag";
+import GameOver from "./GameOver";
 
 export default function PlayerPlay({
     socket,
+    quizInfo,
     gameCode
 }) {
-    const [showAns, setShowAns] = useState(false); // TODO: sync with timer
+    const [showAns, setShowAns] = useState(false);
     const [selectedAnswers, setSelectedAnswers] = useState([]);
-    const [actualAnswers, setActualAnswers] = useState([]); // TODO: this is just internal logic, will be enforced with api calls
+    const [actualAnswers, setActualAnswers] = useState([]);
     const [pointsEarned, setPointsEarned] = useState(0)
     const [userCorrect, setUserCorrect] = useState(false);
+    const [playerOut, setPlayerOut] = useState(false);
+    const [triesLeft, setTriesLeft] = useState(3);
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -50,16 +54,16 @@ export default function PlayerPlay({
 
     const handleSubmit = () => {
         if (submitted) return;
+        setSubmitted(true)
         socket.emit(SOCKET_EVENTS.PLAYER.answer, {
             joinCode: gameCode.toLowerCase(), 
             selectedAnswers: selectedAnswers
         }, (response) => {
             if (response.success) { // Submitted answer
-                setSubmitted(true)
                 console.log("Submitted answer!")
-            } else { // Failed to submit game
-                setSubmitted(false)
-                console.log("Failed to submit answer!")
+            } 
+            else if (response.playerOutOfGame){
+                setPlayerOut(true)
             }
         })
     }
@@ -81,6 +85,7 @@ export default function PlayerPlay({
                 const pointsEarned = players[playerIndex].currQuestionPoints
                 setPointsEarned(pointsEarned)
                 setUserCorrect(players[playerIndex].currQuestionResult)
+                setTriesLeft(players[playerIndex].tries)
             })
             socket.on(SOCKET_EVENTS.ROOM.questionNext, (question) => {
                 onClose();
@@ -123,6 +128,9 @@ export default function PlayerPlay({
         };
       }, [selectedAnswers, currQuestion.responses, submitted, questionLive]);
 
+    if (triesLeft <= 0 && playerOut)
+      return <GameOver />
+
     return (
         <>
             <Container w={'600px'}>
@@ -159,7 +167,7 @@ export default function PlayerPlay({
                         </>
                     }
                 </Flex>
-                <Drawer placement={'bottom'} onClose={onClose} isOpen={isOpen}>
+                <Drawer closeOnOverlayClick={false} placement={'bottom'} onClose={onClose} isOpen={isOpen}>
                     <DrawerContent>
                         <Alert
                             status={userCorrect ? 'success' : 'error'}
@@ -191,8 +199,9 @@ export default function PlayerPlay({
                                 fontWeight={600} color={'white'} bg={'whiteAlpha.500'} padding={4} borderRadius={'15px'}>
                                 
                                 {
-                                    userCorrect ? 
-                                        'Amazing! Waiting for the next question' : 'Aw, better luck next time'
+                                    userCorrect ?
+                                        'Amazing! Waiting for the next question' : 
+                                        `${quizInfo.mode === QUIZ_MODES.LAST_MAN.BE ?  `${triesLeft} attempts left` : 'Aw'}, better luck next time!`
                                 }
                                 <Spinner />
                             </Box>

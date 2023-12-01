@@ -123,7 +123,12 @@ const start = async function (socket, io, payload, callback) {
         
         game.active = true
         await game.save()
-        io.to(joinCode).emit(eventNames.ROOM.start)
+        io.to(joinCode).emit(eventNames.ROOM.start, {
+            name: game.quiz.name,
+            description: game.quiz.description,
+            defaultTimer: game.quiz.defaultTimer,
+            mode: game.quiz.mode,
+        })
         callback({ 
             success: true,
             question: game.quiz.questions[game.currQuestion.index]
@@ -259,6 +264,8 @@ const answer = async function (socket, io, payload, callback) {
         if (playerIndex == -1)
             throw Error("Player not found in game")
         
+        if (game.players[playerIndex].tries <= 0) callback({ success: false, playerOutOfGame: true })
+
         const responses = game.quiz.questions[game.currQuestion.index].responses
         let numCorrect = 0
         responses.forEach((response, index) => {
@@ -286,6 +293,18 @@ const answer = async function (socket, io, payload, callback) {
         game.players[playerIndex].points += points
         game.players[playerIndex].currQuestionPoints = points
         game.players[playerIndex].currQuestionResult = numCorrect === responses.length
+
+        // Last man mode logic
+        if (game.quiz.mode === QUIZ_MODES.LAST_MAN) {
+            if (numCorrect !== responses.length) game.players[playerIndex].tries--
+    
+            if (game.players[playerIndex].tries <= 0) {
+                await game.save()
+                callback({ success: false, playerOutOfGame: true })
+                socketLog(socket, "Player out of game", game.players[playerIndex].displayName)
+                return;
+            }
+        }
 
         game.currQuestion.numPlayersAnswered++
         await game.save()
