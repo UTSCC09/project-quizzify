@@ -38,6 +38,10 @@ const socketLog = (socket, message, joinCode="") => {
     console.log(`[SOCKET] (${socketIdentifier}): ${message}`)
 }
 
+const updatePlayersSorted = (io, joinCode, game) => {
+    io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players.sort((a, b) => { b.points - a.points }))
+}
+
 /* ------------------------------------------------------------------------- */
 // Utils
 const disconnecting = async function (socket, io) {
@@ -53,7 +57,7 @@ const disconnecting = async function (socket, io) {
                     } else { // Player (leave game)
                         game.players = game.players.filter(player => player.socketId !== socket.id)
                         await game.save()
-                        io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+                        updatePlayersSorted(io, joinCode, game)
                         socketLog(socket, "Player left game", joinCode)
                     }
                 }
@@ -87,7 +91,7 @@ const create = async function (socket, io, payload, callback) {
         if (existingGame) { // Clear previously connected players
             game.players = []
             await game.save()
-            io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+            updatePlayersSorted(io, game.joinCode, game)
         }
 
         socket.join(game.joinCode)
@@ -160,7 +164,7 @@ const hostNextQuestion = async function (socket, io, callback) {
             })
             .filter(response => response.isAnswer)
         io.to(game.joinCode).emit(eventNames.ROOM.questionEnd, answerResponses)
-        io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+        updatePlayersSorted(io, game.joinCode, game)
 
         const numQuestions = game.quiz.questions.length
         setTimeout(async () => { // Wait 6s after question end to send next question
@@ -181,6 +185,7 @@ const hostNextQuestion = async function (socket, io, callback) {
                 
                 game.players.forEach((player, index)=>{
                     game.players[index].currQuestionPoints = 0
+                    game.players[index].currQuestionResult = false
                 })
 
                 await game.save()
@@ -199,7 +204,7 @@ const hostNextQuestion = async function (socket, io, callback) {
                 socketLog(socket, `Host sent next question`, game.joinCode)
             }
         }, 6000)
-        io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+        updatePlayersSorted(io, game.joinCode, game)
     } catch (error) {
         console.log(error)
         callback({ success: false })
@@ -228,7 +233,7 @@ const join = async function (socket, io, joinCode, displayName, callback) {
             game.players.push({ socketId: socket.id, displayName: displayName })
             await game.save()
         }
-        io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+        updatePlayersSorted(io, game.joinCode, game)
         callback({ success: true })
         
         socketLog(socket, "Player connected to game", joinCode)
@@ -280,6 +285,7 @@ const answer = async function (socket, io, payload, callback) {
         game.quiz.questions[game.currQuestion.index].responses
         game.players[playerIndex].points += points
         game.players[playerIndex].currQuestionPoints = points
+        game.players[playerIndex].currQuestionResult = numCorrect === responses.length
 
         game.currQuestion.numPlayersAnswered++
         await game.save()

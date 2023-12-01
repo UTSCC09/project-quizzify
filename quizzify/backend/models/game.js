@@ -23,6 +23,7 @@ const GameSchema = new mongoose.Schema({
     displayName: {type: String, required: false},
     points: {type: Number, required: true, default: 0},
     currQuestionPoints: {type: Number, required: true, default: 0}, // points received for the current question
+    currQuestionResult: {type: Boolean, required: true, default: false}, // if player is correct for the current question
   }],
   createdAt: {
     type: Date,

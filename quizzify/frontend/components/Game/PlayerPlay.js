@@ -13,6 +13,7 @@ export default function PlayerPlay({
     const [selectedAnswers, setSelectedAnswers] = useState([]);
     const [actualAnswers, setActualAnswers] = useState([]); // TODO: this is just internal logic, will be enforced with api calls
     const [pointsEarned, setPointsEarned] = useState(0)
+    const [userCorrect, setUserCorrect] = useState(false);
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -79,6 +80,7 @@ export default function PlayerPlay({
                 const playerIndex = players.findIndex(p => p.socketId == socket.id);
                 const pointsEarned = players[playerIndex].currQuestionPoints
                 setPointsEarned(pointsEarned)
+                setUserCorrect(players[playerIndex].currQuestionResult)
             })
             socket.on(SOCKET_EVENTS.ROOM.questionNext, (question) => {
                 onClose();
@@ -160,7 +162,7 @@ export default function PlayerPlay({
                 <Drawer placement={'bottom'} onClose={onClose} isOpen={isOpen}>
                     <DrawerContent>
                         <Alert
-                            status={pointsEarned === 100 ? 'success' : 'error'}
+                            status={userCorrect ? 'success' : 'error'}
                             variant='subtle'
                             flexDirection='column'
                             alignItems='center'
@@ -168,7 +170,7 @@ export default function PlayerPlay({
                             textAlign='center'
                             height='200px'
                             color={'white'}
-                            bg={pointsEarned === 100 ? 
+                            bg={userCorrect ? 
                                 'linear-gradient(0deg, #4ABA57 0%, #58cb65 100%)' : 
                                 'linear-gradient(0deg, #f56767 0%, #EA3839 100%)'
                             }
@@ -181,7 +183,7 @@ export default function PlayerPlay({
                                 fontSize={24}
                                 fontWeight={700}>
                                 {
-                                    pointsEarned === 100 ? <Text>Good job!</Text> : <Text>Sorry, Your answer is not correct</Text>
+                                    userCorrect ? <Text>Good job!</Text> : <Text>Sorry, Your answer is not correct</Text>
                                 }
                                 <CustomPointTag text={`+${pointsEarned}`} />
                             </Flex>
@@ -189,7 +191,7 @@ export default function PlayerPlay({
                                 fontWeight={600} color={'white'} bg={'whiteAlpha.500'} padding={4} borderRadius={'15px'}>
                                 
                                 {
-                                    pointsEarned === 100 ? 
+                                    userCorrect ? 
                                         'Amazing! Waiting for the next question' : 'Aw, better luck next time'
                                 }
                                 <Spinner />
