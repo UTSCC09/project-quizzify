@@ -7,9 +7,12 @@ import {
 } from "react";
 import { useAuth0 } from '@auth0/auth0-react';
 import * as USER_API from "@/api/users";
+import * as QUIZ_API from "@/api/quizzes";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 import { AiFillLock, AiFillUnlock } from "react-icons/ai";
 import { convertBEtoFEMode } from "@/constants";
+import { CopyIcon } from "@chakra-ui/icons";
+import { Tooltip } from "@chakra-ui/react";
 
 export default function Home() {
   const {
@@ -19,22 +22,35 @@ export default function Home() {
   } = useAuth0();
 
   const [quizzes, setQuizzes] = useState([])
-  useEffect(() => {
-    const getUserQuizzes = async () => {
-      if (isAuthenticated) {
-        const accessToken = await getAccessTokenSilently();
-        const response = await USER_API.getQuizzesByUserId(accessToken, user.sub)
-        setQuizzes(response[1])
-      }
+  const getUserQuizzes = async () => {
+    if (isAuthenticated) {
+      const accessToken = await getAccessTokenSilently();
+      const response = await USER_API.getQuizzesByUserId(accessToken, user.sub)
+      setQuizzes(response[1])
     }
+  }
+  useEffect(() => {
     getUserQuizzes()
   }, [user, isAuthenticated, getAccessTokenSilently])
+
+  const handleCopyQuiz = async (quizId) => {
+    console.log(quizId)
+    if (isAuthenticated) {
+      const accessToken = await getAccessTokenSilently();
+      const response = await QUIZ_API.copyQuizById(accessToken, quizId);
+      if (response[0].status == 200) {
+        console.log("Copied quiz!", response[1])
+        getUserQuizzes()
+      } else
+        console.log("Failed to copy quiz")
+    }
+  }
 
   return (
     <>
       {!isAuthenticated ? <AuthenticationGuard/> :
         <MainNavBar>
-          <Box>This is the profile page. Can put list of user quizzes and other stuff</Box>
+          {/* <Box>This is the profile page. Can put list of user quizzes and other stuff</Box> */}
           <Flex flexDirection={'column'} gap={2}>
               <Text fontWeight={700} fontSize={20}>Your Quizzes</Text>
               <Grid gridGap={'20px'} templateColumns='repeat(2, 1fr)'>
@@ -49,9 +65,13 @@ export default function Home() {
                     overflow="hidden">
                     <Box p={4}>
                       <chakra.h1 fontSize="lg" fontWeight="600">{quiz.name}</chakra.h1>
+                      <Tooltip label="Use Quiz Template">
+                        <CopyIcon cursor={'pointer'} onClick={() => { handleCopyQuiz(quiz._id) } }/>
+                      </Tooltip>
                       <Box mt={2} fontSize="sm" color="gray.600">
                         <chakra.h2 fontSize="md" fontWeight="500">{quiz.description}</chakra.h2>
                         <HStack spacing={{ base: '1' }}>
+                          <Text fontWeight="bold">Visibility:</Text>
                           {quiz.private ? <>
                             <Text>Private</Text>
                             <AiFillLock/>
@@ -60,8 +80,14 @@ export default function Home() {
                             <AiFillUnlock/>
                           </>}
                         </HStack>
-                        <Text>Mode: {convertBEtoFEMode(quiz.mode)}</Text>
-                        <Text>Created {new Date(quiz.createdAt).toLocaleDateString()}</Text>
+                        <HStack spacing={{ base: '1' }}>
+                            <Text fontWeight="bold">Mode:</Text>
+                            <Text>{convertBEtoFEMode(quiz.mode)}</Text>
+                        </HStack>
+                        <HStack spacing={{ base: '1' }}>
+                            <Text fontWeight="bold">Created on:</Text>
+                            <Text>{new Date(quiz.createdAt).toLocaleDateString()}</Text>
+                        </HStack>
                       </Box>
                     </Box>
                   </Flex>

@@ -125,6 +125,26 @@ router.delete('/:quizId', validateAccessToken(), async (req, res, next) => {
     }
 });
 
+// GET /quizzes/:quizId/copy
+router.get('/:quizId/copy', validateAccessToken(), async (req, res, next) => {
+    try {
+        const authedUserId = req.auth.payload.sub
+        var quiz = await Quiz.findById(req.params.quizId)
+
+        if (quiz === undefined) // Does not exist
+            res.sendStatus(404)
+        else if (quiz.private && quiz.userId !== authedUserId) // Only copy private quiz if owned by user
+            res.sendStatus(403)
+        else {
+            const newQuiz = await Quiz.create(authedUserId, `${quiz.name} [COPY]`, quiz.description, quiz.private, 
+                                              quiz.questions, quiz.defaultTimer, quiz.mode)
+            res.send(newQuiz)
+        }
+    } catch (error) {
+        res.status(500).send(error)
+    }
+});
+
 // POST /quizzes/:quizId/questions
 router.post('/:quizId/questions', validateAccessToken(), async (req, res, next) => {
     try {
@@ -186,26 +206,6 @@ router.delete('/:quizId/questions/:questionId', validateAccessToken(), async (re
             const deletedQuestionQuiz = await quiz.save() // TODO: Verify
             res.send(deletedQuestionQuiz)
         }
-    } catch (error) {
-        res.status(500).send(error)
-    }
-});
-
-/*  -------------------------------------------------------------------------
-        Web sockets 
-    ------------------------------------------------------------------------ */
-// POST /quizzes/:quizId/start
-router.post('/:quizId/start', validateAccessToken(), async (req, res, next) => {
-    try {
-        res.sendStatus(501) // TODO
-    } catch (error) {
-        res.status(500).send(error)
-    }
-});
-// POST /quizzes/:quizId/end
-router.post('/:quizId/end', validateAccessToken(), async (req, res, next) => {
-    try {
-        res.sendStatus(501) // TODO
     } catch (error) {
         res.status(500).send(error)
     }

@@ -13,3 +13,7 @@ export const createQuiz = async (accessToken, data) => {
 export const getQuizById = async (accessToken, selectedQuizId) => {
   return await getRequest(`${BASE_API_URL}/${selectedQuizId}`, accessToken)
 }
+
+export const copyQuizById = async (accessToken, selectedQuizId) => {
+  return await getRequest(`${BASE_API_URL}/${selectedQuizId}/copy`, accessToken)
+}
