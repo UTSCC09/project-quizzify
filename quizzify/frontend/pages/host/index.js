@@ -54,7 +54,10 @@ export default function Host() {
             if (isAuthenticated) {
                 const accessToken = await getAccessTokenSilently();
                 const response = await USER_API.getQuizzesByUserId(accessToken, user.sub)
-                setQuizzes(response[1])
+                if (response[0].status == 200)
+                    setQuizzes(response.length > 1 ? response[1] : [])
+                else
+                    console.log("Failed to get user quizzes")
             }
         }
         getUserQuizzes()
@@ -65,8 +68,11 @@ export default function Host() {
             if (isAuthenticated){
                 const accessToken = await getAccessTokenSilently();
                 const response = await QUIZ_API.getQuizById(accessToken, selectedQuizId)
-                setQuizInfo(response[1])
-                setTimerDefaultSeconds(response[1].defaultTimer + PLAYER_LOADING_TIME || DEFAULT_TIMER + PLAYER_LOADING_TIME);
+                if (response[0].status == 200 && response.length > 1) {
+                    setQuizInfo(response[1])
+                    setTimerDefaultSeconds(response[1].defaultTimer + PLAYER_LOADING_TIME || DEFAULT_TIMER + PLAYER_LOADING_TIME);
+                } else
+                    console.log("Failed to get quiz")
             }
         }
         getQuiz()

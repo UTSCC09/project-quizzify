@@ -26,7 +26,10 @@ export default function Home() {
     if (isAuthenticated) {
       const accessToken = await getAccessTokenSilently();
       const response = await USER_API.getQuizzesByUserId(accessToken, user.sub)
-      setQuizzes(response[1])
+      if (response[0].status == 200)
+        setQuizzes(response.length > 1 ? response[1] : [])
+      else
+        console.log("Failed to get user quizzes")
     }
   }
   useEffect(() => {
