@@ -25,7 +25,7 @@ export default function Home() {
   const getUserQuizzes = async () => {
     if (isAuthenticated) {
       const accessToken = await getAccessTokenSilently();
-      const response = await USER_API.getQuizzesByUserId(accessToken, "google-oauth2|117807812742447239434") // user.sub)
+      const response = await USER_API.getQuizzesByUserId(accessToken, user.sub)
       if (response[0].status == 200)
         setQuizzes(response.length > 1 ? response[1] : [])
       else
