@@ -158,6 +158,13 @@ const hostNextQuestion = async function (socket, io, callback) {
         if (!game) 
             throw Error("Game not found")
         
+        // Last man mode logic
+        if (game.quiz.mode === QUIZ_MODES.LAST_MAN) {
+            game.players.forEach((player, index)=>{
+                if (game.players[index].currQuestionAnswered === false) game.players[index].tries--
+            })
+        }
+
         // End question
         const answerResponses = game.quiz.questions[game.currQuestion.index].responses
             .map((resp, index) => {
@@ -191,6 +198,7 @@ const hostNextQuestion = async function (socket, io, callback) {
                 game.players.forEach((player, index)=>{
                     game.players[index].currQuestionPoints = 0
                     game.players[index].currQuestionResult = false
+                    game.players[index].currQuestionAnswered = false
                 })
 
                 await game.save()
@@ -293,6 +301,7 @@ const answer = async function (socket, io, payload, callback) {
         game.players[playerIndex].points += points
         game.players[playerIndex].currQuestionPoints = points
         game.players[playerIndex].currQuestionResult = numCorrect === responses.length
+        game.players[playerIndex].currQuestionAnswered = true
 
         // Last man mode logic
         if (game.quiz.mode === QUIZ_MODES.LAST_MAN) {
