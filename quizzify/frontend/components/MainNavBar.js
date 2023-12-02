@@ -26,14 +26,12 @@ import {
 import { AiFillApi, AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
 import { FaUser } from 'react-icons/fa'
 import { IoIosCreate } from 'react-icons/io'
-import { AuthenticationGuard } from './AuthenticationGuard'
 import LoginButton from './Buttons/Auth/LoginButton'
 
 const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
   { name: 'Play', icon: AiFillApi, href: "/play" },
   { name: 'Host', icon: AiFillStar, href: "/host", authenticated: true },
-  { name: 'Discover', icon: AiFillCompass, href: "/discover"},
   { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},
   { name: 'Profile', icon: FaUser, href: "/profile", authenticated: true },
 ]
