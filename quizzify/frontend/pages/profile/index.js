@@ -1,9 +1,9 @@
-import { Box, Flex, Grid, HStack, Text, chakra } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Grid, HStack, Text, VStack, chakra } from "@chakra-ui/react";
 import MainNavBar from "@/components/MainNavBar";
 
 import {
-    useEffect, 
-    useState, 
+  useEffect,
+  useState,
 } from "react";
 import { useAuth0 } from '@auth0/auth0-react';
 import * as USER_API from "@/api/users";
@@ -51,13 +51,49 @@ export default function Home() {
 
   return (
     <>
-      {!isAuthenticated ? <AuthenticationGuard/> :
+      {!isAuthenticated ? <AuthenticationGuard /> :
         <MainNavBar>
-          {/* <Box>This is the profile page. Can put list of user quizzes and other stuff</Box> */}
-          <Flex flexDirection={'column'} gap={2}>
-              <Text fontWeight={700} fontSize={20}>Your Quizzes</Text>
+          <Flex px={4} py={2} flexDirection={'column'} gap={8}>
+            <Box gap={4}>
+              <Text fontWeight={700} fontSize={24}>Profile</Text>
+              <Flex
+                maxW="100%"
+                maxH="200px"
+                bg="white"
+                shadow="sm"
+                rounded="lg"
+                overflow="hidden">
+                <Box p={4}>
+                  <HStack>
+                    <Avatar
+                      size={'2xl'}
+                      src={user.picture}
+                    />
+                    <VStack
+                      display={{ base: 'none', md: 'flex' }}
+                      alignItems="flex-start"
+                      spacing="1px"
+                      ml="2">
+                      <Text fontSize="3xl">{user.name}</Text>
+                      <Text fontSize="l" color="gray.600">
+                        {user.email}
+                      </Text>
+                      <HStack spacing={{ base: '1' }}>
+                        <Text fontSize="xs" color="gray.600" fontWeight="bold">User ID:</Text>
+                        <Text fontSize="xs" color="gray.600">
+                          {user.sub}
+                        </Text>
+                      </HStack>
+                    </VStack>
+                  </HStack>
+                </Box>
+              </Flex>
+            </Box>
+
+            <Flex flexDirection={'column'} gap={2}>
+              <Text fontWeight={700} fontSize={20}>Quizzes ({quizzes.length})</Text>
               <Grid gridGap={'20px'} templateColumns='repeat(2, 1fr)'>
-                {quizzes.map((quiz, i) => 
+                {quizzes.map((quiz, i) =>
                   <Flex
                     key={i}
                     maxW="100%"
@@ -69,7 +105,7 @@ export default function Home() {
                     <Box p={4}>
                       <chakra.h1 fontSize="lg" fontWeight="600">{quiz.name}</chakra.h1>
                       <Tooltip label="Use Quiz Template">
-                        <CopyIcon cursor={'pointer'} onClick={() => { handleCopyQuiz(quiz._id) } }/>
+                        <CopyIcon cursor={'pointer'} onClick={() => { handleCopyQuiz(quiz._id) }} />
                       </Tooltip>
                       <Box mt={2} fontSize="sm" color="gray.600">
                         <chakra.h2 fontSize="md" fontWeight="500">{quiz.description}</chakra.h2>
@@ -77,25 +113,26 @@ export default function Home() {
                           <Text fontWeight="bold">Visibility:</Text>
                           {quiz.private ? <>
                             <Text>Private</Text>
-                            <AiFillLock/>
+                            <AiFillLock />
                           </> : <>
                             <Text>Public</Text>
-                            <AiFillUnlock/>
+                            <AiFillUnlock />
                           </>}
                         </HStack>
                         <HStack spacing={{ base: '1' }}>
-                            <Text fontWeight="bold">Mode:</Text>
-                            <Text>{convertBEtoFEMode(quiz.mode)}</Text>
+                          <Text fontWeight="bold">Mode:</Text>
+                          <Text>{convertBEtoFEMode(quiz.mode)}</Text>
                         </HStack>
                         <HStack spacing={{ base: '1' }}>
-                            <Text fontWeight="bold">Created on:</Text>
-                            <Text>{new Date(quiz.createdAt).toLocaleDateString()}</Text>
+                          <Text fontWeight="bold">Created on:</Text>
+                          <Text>{new Date(quiz.createdAt).toLocaleDateString()}</Text>
                         </HStack>
                       </Box>
                     </Box>
                   </Flex>
                 )}
               </Grid>
+            </Flex>
           </Flex>
         </MainNavBar>
       }
