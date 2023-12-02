@@ -15,7 +15,7 @@ export const Leaderboard = ({
             <ModalCloseButton mt={12} mr={8}/>
             <ModalBody>
                 <Flex flexDirection={'column'} alignItems={'center'} justifyContent={'center'}>
-                    {players.map((player, i) =>
+                    {players?.map((player, i) =>
                         <Box key={i} py={4} width={{base: '100%', md: '500px'}}>
                             <Flex alignItems={'center'} justifyContent={'space-between'}>
                                 <Flex alignItems={'center'} justifyContent={'center'} gap={4}>

@@ -39,7 +39,7 @@ export default function Home() {
   const handleCopyQuiz = async (quizId) => {
     if (isAuthenticated) {
       const accessToken = await getAccessTokenSilently();
-      const response = await QUIZ_API.copyQuzById(accessToken, quizId);
+      const response = await QUIZ_API.copyQuizById(accessToken, quizId);
       if (response[0].status == 200) {
         console.log("Copied quiz!", response[1])
         getUserQuizzes()
