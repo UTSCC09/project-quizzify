@@ -76,7 +76,7 @@ router.get('/:quizId', validateAccessToken(false), async (req, res, next) => {
 
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== authedUserId)// Only return private quiz if owned by user
+        else if (quiz.private && quiz.userId !== authedUserId) // Only return private quiz if owned by user
             res.sendStatus(403)
         else
             res.send(quiz)
@@ -92,7 +92,7 @@ router.put('/:quizId', validateAccessToken(), async (req, res, next) => {
 
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== authedUserId) // Only update private quiz if owned by user
+        else if (quiz.userId !== authedUserId) // Only update quiz if owned by user
             res.sendStatus(403)
         else {
             if (req.body.name)
@@ -114,10 +114,10 @@ router.delete('/:quizId', validateAccessToken(), async (req, res, next) => {
 
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== authedUserId) // Only deleted private quiz if owned by user
+        else if (quiz.userId !== authedUserId) // Only delete quiz if owned by user
             res.sendStatus(403)
         else {
-            const deletedQuiz = await Quiz.delete(quiz) // TODO: Verify
+            const deletedQuiz = await Quiz.deleteOne(quiz)
             res.send(deletedQuiz)
         }
     } catch (error) {
@@ -152,7 +152,7 @@ router.post('/:quizId/questions', validateAccessToken(), async (req, res, next) 
         
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== userId)// Only return private quiz if owned by user
+        else if (quiz.userId !== userId) // Only create questions if quiz if owned by user
             res.sendStatus(403)
         else {
             quiz.questions = req.body.questions
@@ -170,7 +170,7 @@ router.put('/:quizId/questions/:questionId', validateAccessToken(), async (req, 
         
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== userId)// Only return private quiz if owned by user
+        else if (quiz.userId !== userId) // Only update quiz if owned by user
             res.sendStatus(403)
         else {
             const questionIndex = quiz.questions.findIndex(question => question._id == req.params.questionId)
@@ -199,7 +199,7 @@ router.delete('/:quizId/questions/:questionId', validateAccessToken(), async (re
         
         if (quiz === undefined) // Does not exist
             res.sendStatus(404)
-        else if (quiz.private && quiz.userId !== userId)// Only deleted private quiz if owned by user
+        else if (quiz.userId !== userId) // Only deleted quiz question if owned by user
             res.sendStatus(403)
         else {
             quiz = quiz.questions.filter((question) => question.questionId !== req.params.questionId)

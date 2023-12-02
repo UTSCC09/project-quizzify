@@ -17,3 +17,7 @@ export const getQuizById = async (accessToken, selectedQuizId) => {
 export const copyQuizById = async (accessToken, selectedQuizId) => {
   return await getRequest(`${BASE_API_URL}/${selectedQuizId}/copy`, accessToken)
 }
+
+export const deleteQuizById = async (accessToken, selectedQuizId) => {
+  return await deleteRequest(`${BASE_API_URL}/${selectedQuizId}`, accessToken)
+}
