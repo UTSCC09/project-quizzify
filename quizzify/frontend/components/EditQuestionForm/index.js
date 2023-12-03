@@ -44,24 +44,21 @@ export default function EditQuestionForm({
         if (responseId) newResponseList[index]._id = responseId
         setResponsesListInput(newResponseList)
     }
-
-    const onTypeChange = (value) => {
-        setTypeInput(value)
-    }
-
+    
     const onResetResponseList = () => {
         setResponseReset(!responseReset);
     }
 
-    // useEffect(() => {
-    //     onResetResponseList()
-    //     setResponsesListInput(typeInput === QUIZ_TYPES.TRUE_OR_FALSE ? 
-    //         [
-    //             {response: 'True', isAnswer: false},
-    //             {response: 'False', isAnswer: false},
-    //         ]
-    //         : [defaultResponse])
-    // }, [typeInput]);
+    const onTypeChange = (value) => {
+        onResetResponseList()
+        setResponsesListInput(value === QUIZ_TYPES.TRUE_OR_FALSE ? 
+            [
+                {response: 'True', isAnswer: false},
+                {response: 'False', isAnswer: false},
+            ]
+            : [defaultResponse])
+        setTypeInput(value)
+    }
 
     const handleSubmit = () => {
         onEditQuestion(index, {
@@ -80,6 +77,7 @@ export default function EditQuestionForm({
           onClose={onClose}
           isOpen={isOpen}
           motionPreset='slideInBottom'
+          closeOnOverlayClick={false}
         >
           <ModalOverlay />
           <ModalContent py={4}>
@@ -117,7 +115,7 @@ export default function EditQuestionForm({
                 </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button color={'white'} bg='brand.400' onClick={handleSubmit}>Update Question</Button>
+              <Button color={'white'} bg='brand.400' isDisabled={responsesListInput.find((resp)=>resp.response === '')} onClick={handleSubmit}>Update Question</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
