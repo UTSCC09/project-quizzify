@@ -105,6 +105,10 @@ router.put('/:quizId', validateAccessToken(), async (req, res, next) => {
                 quiz.defaultTimer = req.body.defaultTimer
             if (req.body.mode)
                 quiz.mode = req.body.mode
+            if (req.body.questions && Array.isArray(req.body.questions)) {
+                quiz.questions = req.body.questions
+            }
+
             const updatedQuiz = await quiz.save() // TODO: Verify
             res.send(updatedQuiz)
         }

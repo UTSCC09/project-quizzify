@@ -11,7 +11,7 @@ export default function CustomResponseInput({
 }) {
   const ref = useRef(null);
   const isAnswerRef = useRef(null);
-  const [isAnswerSelect, setIsAnswerSelect] = useState(false);
+  const [isAnswerSelect, setIsAnswerSelect] = useState(response.isAnswer);
 
   useEffect(() => {
     ref.current.value = response.response;
@@ -22,7 +22,7 @@ export default function CustomResponseInput({
   }
 
   useEffect(() =>{
-    onChange(ref.current.value, isAnswerSelect, isAnswerRef.current.innerText, index)
+    onChange(ref.current.value, isAnswerSelect, isAnswerRef.current.innerText, index, response._id)
   }, [isAnswerSelect])
 
   return (

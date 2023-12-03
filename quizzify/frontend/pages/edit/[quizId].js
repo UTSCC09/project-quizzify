@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Text, GridItem, Grid } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, GridItem, Grid, useDisclosure } from "@chakra-ui/react";
 import MainNavBar from "@/components/MainNavBar";
 
 import { 
@@ -27,6 +27,7 @@ export default function Edit() {
   const [modeInput, setModeInput] = useState(QUIZ_MODES.DEFAULT.BE);
   const [defaultTimerInput, setDefaultTimerInput] = useState(QUIZ_TIMERS.MEDIUM);
   const [questionsList, setQuestionsList] = useState([]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const router = useRouter()
   const quizId = router.query.quizId
@@ -66,7 +67,7 @@ export default function Edit() {
         const quiz = response[1]
         setTitleInput(quiz.name)
         setDescriptionInput(quiz.description)
-        setPermissionsInput(quiz.private)
+        setPermissionsInput(quiz.private ? PRIVATE : PUBLIC )
         setQuestionsList(quiz.questions)
         setDefaultTimerInput(quiz.defaultTimer)
         setModeInput(quiz.mode)
@@ -78,6 +79,13 @@ export default function Edit() {
   
   const onAddQuestion = (questionToBeAdded, callback) =>{
     setQuestionsList([...questionsList, questionToBeAdded]);
+    callback();
+  }
+
+  const onEditQuestion = (index, data, callback) =>{
+    let updatedQuestions = [...questionsList];
+    updatedQuestions[index] = data;
+    setQuestionsList(updatedQuestions);
     callback();
   }
 
@@ -125,13 +133,19 @@ export default function Edit() {
                         index={i}
                         question={question}
                         // TODO: random image, will change
-                        img={`https://picsum.photos/id/${Math.floor(Math.random() * (100 - 1) ) + 1}/200/200`} 
+                        img={`https://picsum.photos/id/${Math.floor(Math.random() * (80 - 1) ) + 1}/200/200`}
+                        onEditQuestion={onEditQuestion}
                         />
                     </GridItem>
                   ))
                 }
                 <GridItem>
-                  <AddQuestionForm onAddQuestion={onAddQuestion}/>
+                  <AddQuestionForm
+                    isOpenQuestionForm={isOpen}
+                    onOpenQuestionForm={onOpen}
+                    onCloseQuestionForm={onClose}
+                    onAddQuestion={onAddQuestion}
+                  />
                 </GridItem>
               </Grid>
             </Flex>

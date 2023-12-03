@@ -17,22 +17,31 @@ import FormSelect from '../Forms/FormSelect';
 import CustomResponseInput from '../CustomResponseInput';
 import { QUIZ_TYPES } from '@/constants';
   
-export default function AddQuestionForm({
-    onAddQuestion,
-    isOpenQuestionForm,
-    onOpenQuestionForm,
-    onCloseQuestionForm
+export default function EditQuestionForm({
+    index,
+    onEditQuestion,
+    data,
+    isOpen,
+    onOpen,
+    onClose
 }) {
     const defaultResponse = {response: '', isAnswer: false};
-    const [questionInput, setQuestionInput] = useState('');
-    const [typeInput, setTypeInput] = useState(QUIZ_TYPES.SINGLE_CHOICE); // Default: SINGLE_CHOICE
-    const [responsesListInput, setResponsesListInput] = useState([defaultResponse]);
+    const [questionInput, setQuestionInput] = useState(data.question);
+    const [typeInput, setTypeInput] = useState(data.type); // Default: SINGLE_CHOICE
+    const [responsesListInput, setResponsesListInput] = useState(data.responses);
 
     const [responseReset, setResponseReset] = useState(false);
 
-    const onResponseListChange = (value, isAnswerValue, innerText, index) => {
+    useEffect(() => {
+        setQuestionInput(data.question)
+        setTypeInput(data.type)
+        setResponsesListInput(data.responses)
+    }, []);
+
+    const onResponseListChange = (value, isAnswerValue, innerText, index, responseId) => {
         const newResponseList = [...responsesListInput]
         newResponseList[index] = {response: value, isAnswer: isAnswerValue}
+        if (responseId) newResponseList[index]._id = responseId
         setResponsesListInput(newResponseList)
     }
 
@@ -44,38 +53,37 @@ export default function AddQuestionForm({
         setResponseReset(!responseReset);
     }
 
-    useEffect(() => {
-        onResetResponseList()
-        setResponsesListInput(typeInput === QUIZ_TYPES.TRUE_OR_FALSE ? 
-            [
-                {response: 'True', isAnswer: false},
-                {response: 'False', isAnswer: false},
-            ]
-            : [defaultResponse])
-    }, [typeInput]);
+    // useEffect(() => {
+    //     onResetResponseList()
+    //     setResponsesListInput(typeInput === QUIZ_TYPES.TRUE_OR_FALSE ? 
+    //         [
+    //             {response: 'True', isAnswer: false},
+    //             {response: 'False', isAnswer: false},
+    //         ]
+    //         : [defaultResponse])
+    // }, [typeInput]);
 
     const handleSubmit = () => {
-        onAddQuestion({
+        onEditQuestion(index, {
             question: questionInput,
             type: typeInput,
             responses: responsesListInput
-        }, onCloseQuestionForm)
+        }, onClose)
         setResponsesListInput([defaultResponse])
     }
 
     return (
       <div>
-        <Button onClick={onOpenQuestionForm}>Add a Question</Button>
         <Modal
           size={'lg'}
           isCentered
-          onClose={onCloseQuestionForm}
-          isOpen={isOpenQuestionForm}
+          onClose={onClose}
+          isOpen={isOpen}
           motionPreset='slideInBottom'
         >
           <ModalOverlay />
           <ModalContent py={4}>
-            <ModalHeader>Add a Question</ModalHeader>
+            <ModalHeader>Edit a Question</ModalHeader>
             <ModalBody>
                 {/* TODO: image upload option */}
                 <Flex flexDirection={'column'} gap={4}>
@@ -108,7 +116,7 @@ export default function AddQuestionForm({
                 </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button color={'white'} bg='brand.400' onClick={handleSubmit}>Add Question</Button>
+              <Button color={'white'} bg='brand.400' onClick={handleSubmit}>Edit Question</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

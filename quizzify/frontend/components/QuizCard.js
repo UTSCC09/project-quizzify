@@ -1,15 +1,19 @@
-import { Box, Flex, Text, chakra } from "@chakra-ui/react";
+import { Box, Flex, Text, chakra, useDisclosure } from "@chakra-ui/react";
+import EditQuestionForm from "./EditQuestionForm";
+import { EditIcon } from "@chakra-ui/icons";
 
 export default function QuizCard({
     index,
     question,
     img,
+    onEditQuestion
 }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <>
         <Flex
             maxW="100%"
-            maxH="200px"
+            maxH="100%"
             bg="white"
             shadow="sm"
             rounded="lg"
@@ -38,7 +42,13 @@ export default function QuizCard({
                     ))
                 }
             </Box>
+            <EditIcon cursor={'pointer'} onClick={onOpen} />
             </Box>
+            <EditQuestionForm
+                index={index}
+                onEditQuestion={onEditQuestion}
+                data={{question: question.question, type: question.type, responses: question.responses}} 
+                isOpen={isOpen} onOpen={onOpen} onClose={onClose}/>
         </Flex>
     </>
   )

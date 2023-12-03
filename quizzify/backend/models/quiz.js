@@ -54,7 +54,7 @@ const QuizSchema = new mongoose.Schema({
         isAnswer: {type: Boolean, required: true}
       }],
     }],
-    validate: [(val) => val.length > 0 && val.length <= 6, "Must have minimum one and maximum six questions"]
+    // validate: [(val) => val.length > 0 && val.length <= 6, "Must have minimum one and maximum six questions"]
   },
   createdAt: {
     type: Date,
