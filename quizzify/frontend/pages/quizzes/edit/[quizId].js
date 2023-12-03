@@ -84,7 +84,7 @@ export default function Edit() {
         console.log("Failed to get quiz")
       }
     }
-    if (quizId) getQuizById()
+    if (quizId && isAuthenticated) getQuizById()
   }, [router.query.quizId, user, isAuthenticated, getAccessTokenSilently]);
 
   const onAddQuestion = (questionToBeAdded, callback) => {

@@ -117,7 +117,7 @@ export default function EditQuestionForm({
                 </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button color={'white'} bg='brand.400' onClick={handleSubmit}>Edit Question</Button>
+              <Button color={'white'} bg='brand.400' onClick={handleSubmit}>Update Question</Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

@@ -20,12 +20,12 @@ export default function CustomResponseInput({
 
   const setIsAnswer = () => {
     let count = 0;
-    for(let i = 0; i < responsesListInput.length; ++i){
-        if(responsesListInput[i].isAnswer)
-            count++;
-    }
+    responsesListInput?.forEach(response => {
+      if (response.isAnswer) count++
+    })
+
     // only allow one answer to be selected if type is not MULTIPLE_CHOICE
-    if (type !== QUIZ_TYPES.MULTIPLE_CHOICE &&!isAnswerSelect && count + 1 >= 2) return;
+    if (type !== QUIZ_TYPES.MULTIPLE_CHOICE && !isAnswerSelect && count + 1 >= 2) return;
     setIsAnswerSelect(!isAnswerSelect)
   }
 

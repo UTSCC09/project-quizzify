@@ -14,7 +14,7 @@ import { convertBEtoFEMode } from "@/constants";
 import { CopyIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { Tooltip } from "@chakra-ui/react";
 
-export default function Home() {
+export default function Profile() {
   const {
     user,
     isAuthenticated,

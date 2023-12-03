@@ -6,6 +6,26 @@ const { checkRequiredPermissions, validateAccessToken } = require("../utils/auth
 const mongoose = require("mongoose")
 const { Quiz, QUIZ_TYPES } = require("../models/quiz");
 
+const validateQuestions = (questions) => {
+    questions?.forEach((question, questionIndex) => {
+        if (!question.question)
+            throw Error(`Question ${questionIndex+1} must not be empty`)
+
+        let questionAnswers = 0
+        question.responses.forEach((response, responseIndex) => {
+            if (!response.response)
+                throw Error(`Response ${responseIndex+1} of question ${questionIndex+1} must not be empty`)
+            if (response.isAnswer)
+                questionAnswers++
+        })
+
+        if (questionAnswers == 0)
+            throw Error(`Question ${questionIndex+1} must have a response marked as answer`)
+        else if ([QUIZ_TYPES.SINGLE_CHOICE, QUIZ_TYPES.TRUE_OR_FALSE].includes(question.type) && questionAnswers != 1)
+            throw Error(`Question ${questionIndex+1} must have a exactly one response marked as answer`)
+    })
+}
+
 
 // GET /quizzes
 router.get('/', validateAccessToken(false), async (req, res, next) => {
@@ -26,20 +46,7 @@ router.get('/', validateAccessToken(false), async (req, res, next) => {
 // POST /quizzes
 router.post('/', validateAccessToken(), async (req, res, next) => {
     try {
-        req.body.questions.forEach((question, questionIndex) => {
-            let questionAnswers = 0
-            question.responses.forEach((response, responseIndex) => {
-                if (!response.response)
-                    throw Error(`Response ${responseIndex+1} of question ${questionIndex+1} must not be empty`)
-                if (response.isAnswer)
-                    questionAnswers++
-            })
-
-            // if (questionAnswers == 0)
-            //     throw Error(`Question ${questionIndex+1} must have a response marked as answer`)
-            // else if (question.TYPE == QUIZ_TYPES.SINGLE_CHOICE && questionAnswers != 1)
-            //     throw Error(`Question ${questionIndex+1} must have a single response marked as answer`)
-        })
+        validateQuestions(req.body.questions)
 
         const quiz = {
             userId: req.auth.payload.sub,
@@ -78,6 +85,8 @@ router.get('/:quizId', validateAccessToken(false), async (req, res, next) => {
 // PUT /quizzes/:quizId
 router.put('/:quizId', validateAccessToken(), async (req, res, next) => {
     try {
+        validateQuestions(req.body.questions)
+
         const authedUserId = req.auth.payload.sub
         var quiz = await Quiz.findById(req.params.quizId)
 
@@ -100,7 +109,7 @@ router.put('/:quizId', validateAccessToken(), async (req, res, next) => {
                 quiz.questions = req.body.questions
             }
 
-            const updatedQuiz = await quiz.save() // TODO: Verify
+            const updatedQuiz = await quiz.save()
             res.send(updatedQuiz)
         }
     } catch (error) {
@@ -146,6 +155,7 @@ router.get('/:quizId/copy', validateAccessToken(), async (req, res, next) => {
     }
 });
 
+/*
 // POST /quizzes/:quizId/questions
 router.post('/:quizId/questions', validateAccessToken(), async (req, res, next) => {
     try {
@@ -211,5 +221,6 @@ router.delete('/:quizId/questions/:questionId', validateAccessToken(), async (re
         res.status(500).send(error)
     }
 });
+*/
 
 module.exports = router;
