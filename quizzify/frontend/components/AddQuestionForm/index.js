@@ -90,8 +90,9 @@ export default function AddQuestionForm({
                             {
                                 responsesListInput.map((response, i) => (
                                     <GridItem key={i}>
-                                        <CustomResponseInput 
-                                            index={i} response={response} responseReset={responseReset} type={typeInput}
+                                        <CustomResponseInput
+                                            index={i} response={response} responsesListInput={responsesListInput}
+                                            responseReset={responseReset} type={typeInput}
                                             onChange={onResponseListChange}/>
                                     </GridItem>
                                 ))
