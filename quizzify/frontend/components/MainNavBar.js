@@ -32,7 +32,7 @@ const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
   { name: 'Play', icon: AiFillApi, href: "/play" },
   { name: 'Host', icon: AiFillStar, href: "/host", authenticated: true },
-  { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},
+  { name: 'Create', icon: IoIosCreate, href: "/quizzes/create", authenticated: true},
   { name: 'Profile', icon: FaUser, href: "/profile", authenticated: true },
 ]
 

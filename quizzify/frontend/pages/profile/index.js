@@ -62,7 +62,7 @@ export default function Home() {
 
   const handleEditQuiz = async (quizId) => {
     if (isAuthenticated) {
-      window.location = `/edit/${quizId}`
+      window.location = `/quizzes/edit/${quizId}`
     }
   }
 
