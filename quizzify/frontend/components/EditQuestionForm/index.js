@@ -115,7 +115,12 @@ export default function EditQuestionForm({
                 </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button color={'white'} bg='brand.400' isDisabled={responsesListInput.find((resp)=>resp.response === '')} onClick={handleSubmit}>Update Question</Button>
+              <Button color={'white'} bg='brand.400' 
+                isDisabled={responsesListInput.some((resp)=>resp.response === '') ||
+                    !responsesListInput.some((resp)=>resp.isAnswer === true)} 
+                onClick={handleSubmit}>
+                Update Question
+              </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>

@@ -109,7 +109,12 @@ export default function AddQuestionForm({
                 </Flex>
             </ModalBody>
             <ModalFooter>
-              <Button color={'white'} bg='brand.400' onClick={handleSubmit}>Add Question</Button>
+              <Button color={'white'} bg='brand.400' 
+                isDisabled={responsesListInput.some((resp)=>resp.response === '') ||
+                    !responsesListInput.some((resp)=>resp.isAnswer === true)} 
+                onClick={handleSubmit}>
+                Add Question
+              </Button>
             </ModalFooter>
           </ModalContent>
         </Modal>
