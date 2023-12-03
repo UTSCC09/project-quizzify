@@ -62,7 +62,7 @@ export default function JoinLobby({
                     color={'background.400'}
                     gap={4}>
                     {!connected ? <>
-                        <Text fontSize={'md'}>Enter the 6 digit Code to join  🎉</Text>
+                        <Text fontSize={'md'}>Enter the 6 digit code to join  🎉</Text>
                         <HStack padding={'20px'} borderRadius={'15px'} bg={'#ffffff38'} w={'365px'}>
                             <PinInput 
                                 type="alphanumeric"
