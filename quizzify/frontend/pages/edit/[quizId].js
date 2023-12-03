@@ -17,6 +17,7 @@ import NumInput from "@/components/Forms/NumberInput";
 
 export default function Edit() {
   const {
+    user,
     isAuthenticated,
     getAccessTokenSilently,
   } = useAuth0();
@@ -55,7 +56,7 @@ export default function Edit() {
           console.log("Failed to create quiz")
       }
     }
-    if (questionsList.length !== 0) editQuizAsync();
+    if (questionsList?.length !== 0) editQuizAsync();
   }, [titleInput, descriptionInput, permissionsInput,
       questionsList, defaultTimerInput, modeInput,
       isAuthenticated, getAccessTokenSilently])
@@ -64,22 +65,27 @@ export default function Edit() {
     const getQuizById = async () => {
       const accessToken = await getAccessTokenSilently();
       const response = await QUIZ_API.getQuizById(accessToken, quizId);
-      if (response[0].status == 200) {
+      if (response[0].status == 200 && response.length > 1) {
         const quiz = response[1]
-        setTitleInput(quiz.name)
-        setDescriptionInput(quiz.description)
-        setPermissionsInput(quiz.private ? PRIVATE : PUBLIC )
-        setQuestionsList(quiz.questions)
-        setDefaultTimerInput(quiz.defaultTimer)
-        setModeInput(quiz.mode)
-        setQuizFound(true)
+        if (quiz.userId == user.sub) {
+          setTitleInput(quiz.name)
+          setDescriptionInput(quiz.description)
+          setPermissionsInput(quiz.private ? PRIVATE : PUBLIC)
+          setQuestionsList(quiz.questions)
+          setDefaultTimerInput(quiz.defaultTimer)
+          setModeInput(quiz.mode)
+          setQuizFound(true)
+        } else {
+          setQuizFound(false)
+          console.log("Failed to get quiz (not owned by user)")
+        }
       } else {
         setQuizFound(false)
-        console.log("Failed to find quiz")
+        console.log("Failed to get quiz")
       }
     }
     if (quizId) getQuizById()
-  }, [router.query.quizId]);
+  }, [router.query.quizId, user, getAccessTokenSilently]);
   
   const onAddQuestion = (questionToBeAdded, callback) =>{
     setQuestionsList([...questionsList, questionToBeAdded]);
