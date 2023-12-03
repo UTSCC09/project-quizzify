@@ -63,30 +63,28 @@ export default function Edit() {
 
   useEffect(() => {
     const getQuizById = async () => {
-      if (isAuthenticated) {
-        const accessToken = await getAccessTokenSilently();
-        const response = await QUIZ_API.getQuizById(accessToken, quizId);
-        if (response[0].status == 200 && response.length > 1) {
-          const quiz = response[1]
-          if (quiz.userId == user.sub) {
-            setTitleInput(quiz.name)
-            setDescriptionInput(quiz.description)
-            setPermissionsInput(quiz.private ? PRIVATE : PUBLIC)
-            setQuestionsList(quiz.questions)
-            setDefaultTimerInput(quiz.defaultTimer)
-            setModeInput(quiz.mode)
-            setQuizFound(true)
-          } else {
-            setQuizFound(false)
-            console.log("Failed to get quiz (not owned by user)")
-          }
+      const accessToken = await getAccessTokenSilently();
+      const response = await QUIZ_API.getQuizById(accessToken, quizId);
+      if (isAuthenticated && response[0].status == 200 && response.length > 1) {
+        const quiz = response[1]
+        if (quiz.userId == user.sub) {
+          setTitleInput(quiz.name)
+          setDescriptionInput(quiz.description)
+          setPermissionsInput(quiz.private ? PRIVATE : PUBLIC)
+          setQuestionsList(quiz.questions)
+          setDefaultTimerInput(quiz.defaultTimer)
+          setModeInput(quiz.mode)
+          setQuizFound(true)
         } else {
           setQuizFound(false)
-          console.log("Failed to get quiz")
+          console.log("Failed to get quiz (not owned by user)")
         }
+      } else {
+        setQuizFound(false)
+        console.log("Failed to get quiz")
       }
-      if (quizId) getQuizById()
     }
+    if (quizId) getQuizById()
   }, [router.query.quizId, user, isAuthenticated, getAccessTokenSilently]);
 
   const onAddQuestion = (questionToBeAdded, callback) => {
