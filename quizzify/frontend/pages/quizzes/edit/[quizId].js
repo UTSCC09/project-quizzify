@@ -51,7 +51,7 @@ export default function Edit() {
         const accessToken = await getAccessTokenSilently();
         const response = await QUIZ_API.editQuizById(accessToken, quizId, quiz);
         if (response[0].status == 200) {
-          console.log("EDIT QUIZ", response[1])
+          console.log("Edited quiz", response[1])
         } else
           console.log("Failed to create quiz")
       }

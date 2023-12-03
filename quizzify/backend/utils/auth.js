@@ -36,22 +36,40 @@ const checkRequiredPermissions = (requiredPermissions) => {
   };
 };
 
-const getUsers = () => {
+const getManagementToken = async () => {
+  if (process.env.AUTH0_MANAGEMENT_TOKEN)
+    return process.env.AUTH0_MANAGEMENT_TOKEN
+
+  let response = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
+    method: 'POST',
+    headers: { 
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      "client_id": process.env.AUTH0_API_EXPLORER_CLIENT_ID,
+      "client_secret": process.env.AUTH0_API_EXPLORER_CLIENT_SECRET,
+      "audience": `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
+      "grant_type": "client_credentials"})
+  })
+  return (await Promise.resolve(response.json()))["access_token"]
+}
+
+const getUsers = async () => {
   return fetch(`https://${process.env.AUTH0_DOMAIN}/api/v2/users`, {
     method: 'GET',
     headers: { 
       'Accept': 'application/json',
-      'Authorization': `Bearer ${process.env.AUTH0_MANAGEMENT_TOKEN}` 
+      'Authorization': `Bearer ${await getManagementToken()}` 
     }
   }).then(response => response.json())
 }
 
-const getUserById = (userId) => {
+const getUserById = async (userId) => {
   return fetch(`https://${process.env.AUTH0_DOMAIN}/api/v2/users/${userId}`, {
     method: 'GET',
     headers: { 
       'Accept': 'application/json',
-      'Authorization': `Bearer ${process.env.AUTH0_MANAGEMENT_TOKEN}` 
+      'Authorization': `Bearer ${await getManagementToken()}` 
     }
   }).then(response => response.json())
 }
