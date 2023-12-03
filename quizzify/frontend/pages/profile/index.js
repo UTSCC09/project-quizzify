@@ -60,6 +60,12 @@ export default function Home() {
     }
   }
 
+  const handleEditQuiz = async (quizId) => {
+    if (isAuthenticated) {
+      window.location = `/edit/${quizId}`
+    }
+  }
+
   return (
     <>
       {!isAuthenticated ? <AuthenticationGuard /> :
@@ -126,7 +132,7 @@ export default function Home() {
                         {/* {user.sub != profileUser.sub ? null : <> */}
                         {false ? null : <>
                           <Tooltip label="Edit">
-                            <EditIcon cursor={'pointer'} onClick={() => { console.log("TODO!") }} />
+                            <EditIcon cursor={'pointer'} onClick={() => { handleEditQuiz(quiz._id) }} />
                           </Tooltip>
                           <Tooltip label="Delete">
                             <DeleteIcon cursor={'pointer'} onClick={() => { handleDeleteQuiz(quiz._id) }} />

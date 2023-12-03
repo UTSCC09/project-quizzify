@@ -99,6 +99,12 @@ router.put('/:quizId', validateAccessToken(), async (req, res, next) => {
                 quiz.name = req.body.name
             if (req.body.private)
                 quiz.private = req.body.private
+            if (req.body.description)
+                quiz.description = req.body.description
+            if (req.body.defaultTimer)
+                quiz.defaultTimer = req.body.defaultTimer
+            if (req.body.mode)
+                quiz.mode = req.body.mode
             const updatedQuiz = await quiz.save() // TODO: Verify
             res.send(updatedQuiz)
         }

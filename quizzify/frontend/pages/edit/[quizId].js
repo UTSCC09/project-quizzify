@@ -12,10 +12,10 @@ import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
 import { PRIVATE, PUBLIC, QUIZ_MODES, QUIZ_TIMERS } from "@/constants";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import NumInput from "@/components/Forms/NumberInput";
 
-export default function Create() {
+export default function Edit() {
   const {
     isAuthenticated,
     getAccessTokenSilently,
@@ -29,8 +29,10 @@ export default function Create() {
   const [questionsList, setQuestionsList] = useState([]);
 
   const router = useRouter()
-  const createQuiz = useCallback(() => {
-    const createNewQuiz = async () => {
+  const quizId = router.query.quizId
+
+  const editQuiz = useCallback(() => {
+    const editQuizAsync = async () => {
       if (isAuthenticated) {
         const quiz = {
           name: titleInput,
@@ -40,19 +42,40 @@ export default function Create() {
           defaultTimer: defaultTimerInput,
           mode: modeInput,
         }
+        console.log(quizId, quiz)
 
+        // call edit endpoint
         const accessToken = await getAccessTokenSilently();
-        const response = await QUIZ_API.createQuiz(accessToken, quiz);
+        const response = await QUIZ_API.editQuizById(accessToken, quizId, quiz);
         if (response[0].status == 200) {
-          console.log("Created quiz!", response[1])
-          router.push("/profile")
+          console.log("EDIT QUIZ", response[1])
         } else
           console.log("Failed to create quiz")
       }
     }
-    if (questionsList.length !== 0) createNewQuiz();
-  }, [questionsList, isAuthenticated, getAccessTokenSilently])
+    if (questionsList.length !== 0) editQuizAsync();
+  }, [titleInput, descriptionInput, permissionsInput,
+      questionsList, defaultTimerInput, modeInput,
+      isAuthenticated, getAccessTokenSilently])
 
+  useEffect(() => {
+    const getQuizById = async () => {
+      const accessToken = await getAccessTokenSilently();
+      const response = await QUIZ_API.getQuizById(accessToken, quizId);
+      if (response[0].status == 200) {
+        const quiz = response[1]
+        setTitleInput(quiz.name)
+        setDescriptionInput(quiz.description)
+        setPermissionsInput(quiz.private)
+        setQuestionsList(quiz.questions)
+        setDefaultTimerInput(quiz.defaultTimer)
+        setModeInput(quiz.mode)
+      } else
+        console.log("Failed to find quiz")
+    }
+    if (quizId) getQuizById()
+  }, [router.query.quizId]);
+  
   const onAddQuestion = (questionToBeAdded, callback) =>{
     setQuestionsList([...questionsList, questionToBeAdded]);
     callback();
@@ -70,8 +93,7 @@ export default function Create() {
         <MainNavBar>
           <Flex px={4} py={2} flexDirection={'column'} gap={8}>
             <Box gap={4}>
-              <Text fontWeight={700} fontSize={24}>Create a New Quiz</Text>
-              <Text fontSize={16} color={'secondary.400'}>Choose from a selection of templates or create one from scratch!</Text>
+              <Text fontWeight={700} fontSize={24}>Edit Quiz</Text>
             </Box>
             <Flex flexDirection={'column'} gap={2}>
               <ShortInput label='Title' placeholder='Enter Title' inputValue={titleInput} handleInputChange={setTitleInput} />
@@ -113,7 +135,7 @@ export default function Create() {
                 </GridItem>
               </Grid>
             </Flex>
-            <Button onClick={createQuiz} isDisabled={questionsList.length <= 0}>Create Quiz</Button>
+            <Button onClick={editQuiz} isDisabled={questionsList.length <= 0}>Edit Quiz</Button>
           </Flex>
         </MainNavBar>
       }
