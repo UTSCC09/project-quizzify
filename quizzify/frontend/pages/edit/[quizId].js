@@ -27,6 +27,7 @@ export default function Edit() {
   const [modeInput, setModeInput] = useState(QUIZ_MODES.DEFAULT.BE);
   const [defaultTimerInput, setDefaultTimerInput] = useState(QUIZ_TIMERS.MEDIUM);
   const [questionsList, setQuestionsList] = useState([]);
+  const [quizFound, setQuizFound] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const router = useRouter()
@@ -71,8 +72,11 @@ export default function Edit() {
         setQuestionsList(quiz.questions)
         setDefaultTimerInput(quiz.defaultTimer)
         setModeInput(quiz.mode)
-      } else
+        setQuizFound(true)
+      } else {
+        setQuizFound(false)
         console.log("Failed to find quiz")
+      }
     }
     if (quizId) getQuizById()
   }, [router.query.quizId]);
@@ -101,55 +105,63 @@ export default function Edit() {
         <MainNavBar>
           <Flex px={4} py={2} flexDirection={'column'} gap={8}>
             <Box gap={4}>
-              <Text fontWeight={700} fontSize={24}>Edit Quiz</Text>
+              <Text fontWeight={700} fontSize={24}>{quizFound ? "Edit Quiz" : "Quiz not found"}</Text>
             </Box>
-            <Flex flexDirection={'column'} gap={2}>
-              <ShortInput label='Title' placeholder='Enter Title' inputValue={titleInput} handleInputChange={setTitleInput} />
-              <Flex gap={4}>
-                <ShortInput label='Description' placeholder='Enter Description' inputValue={descriptionInput} handleInputChange={setDescriptionInput} />
-                <FormSelect label='Visibility of Quiz' inputValue={permissionsInput} handleInputChange={setPermissionsInput}>
-                  <option value={PUBLIC}>Public</option>
-                  <option value={PRIVATE}>Private</option>
-                </FormSelect>
-              </Flex>
-              <Flex gap={4}>
-                <NumInput
-                  isDisabled={modeInput === QUIZ_MODES.RAPID_FIRE.BE} label={'Question Timer (Seconds)'} 
-                  inputValue={defaultTimerInput} handleInputChange={setDefaultTimerInput} />
-                <FormSelect label='Mode' inputValue={modeInput} handleInputChange={setModeInput}>
-                  <option value={QUIZ_MODES.DEFAULT.BE}>{QUIZ_MODES.DEFAULT.FE}</option>
-                  <option value={QUIZ_MODES.RAPID_FIRE.BE}>{QUIZ_MODES.RAPID_FIRE.FE}</option>
-                  <option value={QUIZ_MODES.LAST_MAN.BE}>{QUIZ_MODES.LAST_MAN.FE}</option>
-                </FormSelect>
-              </Flex>
-            </Flex>
-            <Flex flexDirection={'column'} gap={2}>
-              <Text fontWeight={700} fontSize={20}>Questions</Text>
-              <Grid gridGap={'20px'} templateColumns='repeat(2, 1fr)'>
-                {
-                  questionsList.map((question, i) => (
-                    <GridItem key={i}>
-                      <QuizCard
-                        index={i}
-                        question={question}
-                        // TODO: random image, will change
-                        img={`https://picsum.photos/id/${Math.floor(Math.random() * (80 - 1) ) + 1}/200/200`}
-                        onEditQuestion={onEditQuestion}
-                        />
+
+            {
+              quizFound && (
+                <>
+                <Flex flexDirection={'column'} gap={2}>
+                  <ShortInput label='Title' placeholder='Enter Title' inputValue={titleInput} handleInputChange={setTitleInput} />
+                  <Flex gap={4}>
+                    <ShortInput label='Description' placeholder='Enter Description' inputValue={descriptionInput} handleInputChange={setDescriptionInput} />
+                    <FormSelect label='Visibility of Quiz' inputValue={permissionsInput} handleInputChange={setPermissionsInput}>
+                      <option value={PUBLIC}>Public</option>
+                      <option value={PRIVATE}>Private</option>
+                    </FormSelect>
+                  </Flex>
+                  <Flex gap={4}>
+                    <NumInput
+                      isDisabled={modeInput === QUIZ_MODES.RAPID_FIRE.BE} label={'Question Timer (Seconds)'} 
+                      inputValue={defaultTimerInput} handleInputChange={setDefaultTimerInput} />
+                    <FormSelect label='Mode' inputValue={modeInput} handleInputChange={setModeInput}>
+                      <option value={QUIZ_MODES.DEFAULT.BE}>{QUIZ_MODES.DEFAULT.FE}</option>
+                      <option value={QUIZ_MODES.RAPID_FIRE.BE}>{QUIZ_MODES.RAPID_FIRE.FE}</option>
+                      <option value={QUIZ_MODES.LAST_MAN.BE}>{QUIZ_MODES.LAST_MAN.FE}</option>
+                    </FormSelect>
+                  </Flex>
+                </Flex>
+                <Flex flexDirection={'column'} gap={2}>
+                  <Text fontWeight={700} fontSize={20}>Questions</Text>
+                  <Grid gridGap={'20px'} templateColumns='repeat(2, 1fr)'>
+                    {
+                      questionsList?.map((question, i) => (
+                        <GridItem key={i}>
+                          <QuizCard
+                            index={i}
+                            question={question}
+                            // TODO: random image, will change
+                            img={`https://picsum.photos/id/${Math.floor(Math.random() * (80 - 1) ) + 1}/200/200`}
+                            onEditQuestion={onEditQuestion}
+                            />
+                        </GridItem>
+                      ))
+                    }
+                    <GridItem>
+                      <AddQuestionForm
+                        isOpenQuestionForm={isOpen}
+                        onOpenQuestionForm={onOpen}
+                        onCloseQuestionForm={onClose}
+                        onAddQuestion={onAddQuestion}
+                      />
                     </GridItem>
-                  ))
-                }
-                <GridItem>
-                  <AddQuestionForm
-                    isOpenQuestionForm={isOpen}
-                    onOpenQuestionForm={onOpen}
-                    onCloseQuestionForm={onClose}
-                    onAddQuestion={onAddQuestion}
-                  />
-                </GridItem>
-              </Grid>
-            </Flex>
-            <Button onClick={editQuiz} isDisabled={questionsList.length <= 0}>Edit Quiz</Button>
+                  </Grid>
+                </Flex>
+                <Button onClick={editQuiz} isDisabled={questionsList?.length <= 0}>Edit Quiz</Button>
+                </>
+              )
+            }
+
           </Flex>
         </MainNavBar>
       }
