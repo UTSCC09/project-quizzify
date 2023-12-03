@@ -1,4 +1,4 @@
-import { Box, Flex, Text, chakra, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Text, Tooltip, chakra, useDisclosure } from "@chakra-ui/react";
 import EditQuestionForm from "./EditQuestionForm";
 import { EditIcon } from "@chakra-ui/icons";
 
@@ -42,7 +42,9 @@ export default function QuizCard({
                     ))
                 }
             </Box>
-            <EditIcon cursor={'pointer'} onClick={onOpen} />
+            <Tooltip label="Edit">
+                <EditIcon cursor={'pointer'} onClick={onOpen} />
+            </Tooltip>
             </Box>
             <EditQuestionForm
                 index={index}
