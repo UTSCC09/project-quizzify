@@ -58,15 +58,6 @@ router.post('/', validateAccessToken(), async (req, res, next) => {
     }
 });
 
-// GET /quizzes/templates
-router.get('/templates', async (req, res, next) => {
-    try {
-        res.sendStatus(501) // TODO
-    } catch (error) {
-        res.status(500).send(error)
-    }
-});
-
 // GET /quizzes/:quizId
 router.get('/:quizId', validateAccessToken(false), async (req, res, next) => {
     try {

@@ -35,8 +35,8 @@ export default function CustomIconButton({
     return (
         <Box
             as='button'
-            px={px ? px : '4px'}
-            py={py ? py : '4px'}
+            px={px ? px : '8px'}
+            py={py ? py : '8px'}
             borderRadius={'full'}
             color={color? color : 'background.400'}
             {...otherProps} // other props can be passed into here

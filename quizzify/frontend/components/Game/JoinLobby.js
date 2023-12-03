@@ -1,5 +1,5 @@
 import CustomPinInput from "@/components/CustomPinInput";
-import JoinNavBar from "@/components/JoinNavBar";
+import LobbyNavBar from "@/components/Game/LobbyNavBar";
 import { SOCKET_EVENTS } from "@/constants";
 import { PinInput, Flex, HStack, Text, Input } from "@chakra-ui/react";
 import { useState } from "react";
@@ -53,7 +53,7 @@ export default function JoinLobby({
     return (
         <>
             <Flex height={'100vh'} flexDirection={'column'}>
-                <JoinNavBar />
+                <LobbyNavBar text={'Join Game'} />
                 <Flex 
                     height={'100vh'}
                     justifyContent={'center'}
