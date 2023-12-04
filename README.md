@@ -10,6 +10,22 @@ https://www.youtube.com/watch?v=Prm8TewCuQs
 
 Quizzify is an immersive, real-time quiz platform crafted to infuse interactivity into classrooms, gatherings, and informal assemblies. Inspired by industry-leading platforms such as Kahoot, Quizzify enables endless possibilities for everybody to create, host, and play fun quiz sessions in real-time with exciting features like quiz templates and special game modes!
 
+The main features we implemented to this project were:
+- **User Registration & Login:** Securely sign up/log in with their Google account (via Auth0 + JWTs) and manage user profiles.
+  - **User accounts**: Use avatar, display name, & email address from Google auth. Display a list of user’s public quizzes on their profile page.
+- **Quiz Creation:** Users can create quizzes with questions and response options
+  - **Question types:** single answer, multiple choice, true/false
+  - **Private quiz creation:** Create quizzes that are hidden from other users and only accessible to a logged-in user who created the quiz
+  - **Quiz templates:** Users can take inspiration from public quiz templates and create a copy to modify on their own
+- **Live Quiz Hosting:** Host a quiz where participants (non logged in users) can join using a unique code. Utilize web sockets for real-time interactions between host and clients
+  - **Public quiz mode:** Shareable code/link (unique) that non-authenticated users can access
+  - **Host:** Display timer, questions, response options, user leaderboard (updates real-time during the round)
+  - **Client:** Display questions & answer options
+  - **Different game modes:**
+    - **Classic:** Play quizzes with an standard timer that users can adjust
+    - **Rapid-fire:** Accelerate question speed by a set multiplier (& award points by exponentially decreasing multiplier)
+    - **Last one standing:** Three errors and you are out of the game
+
 ## Development
 
 **Task:** Leaving deployment aside, explain how the app is built. Please describe the overall code design and be specific about the programming languages, framework, libraries and third-party api that you have used. 
