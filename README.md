@@ -4,8 +4,7 @@
 https://quizzify.games/
 
 ## Project Video URL 
-
-**Task:** Provide the link to your youtube video. Please make sure the link works. 
+https://www.youtube.com/watch?v=Prm8TewCuQs
 
 ## Project Description
 
