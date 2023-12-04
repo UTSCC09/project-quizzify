@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Grid, HStack, Text, VStack, chakra } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Grid, HStack, Text, VStack, chakra, useToast } from "@chakra-ui/react";
 import MainNavBar from "@/components/MainNavBar";
 
 import {
@@ -10,7 +10,7 @@ import * as USER_API from "@/api/users";
 import * as QUIZ_API from "@/api/quizzes";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 import { AiFillLock, AiFillUnlock } from "react-icons/ai";
-import { convertBEtoFEMode } from "@/constants";
+import { convertBEtoFEMode, getToast } from "@/constants";
 import { CopyIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { Tooltip } from "@chakra-ui/react";
 
@@ -22,6 +22,8 @@ export default function Profile({
     isAuthenticated,
     getAccessTokenSilently,
   } = useAuth0();
+
+  const toast = useToast();
 
   const getCurrentUser = () => {
     return selectedUser !== undefined ? selectedUser : user

@@ -47,6 +47,10 @@ router.get('/', validateAccessToken(false), async (req, res, next) => {
 router.post('/', validateAccessToken(), async (req, res, next) => {
     try {
         validateQuestions(req.body.questions)
+        if (!req.body.name)
+            throw Error("Quiz name must not be empty")
+        if (!req.body.questions)
+            throw Error("Quiz must have questions")
 
         const quiz = {
             userId: req.auth.payload.sub,
