@@ -9,6 +9,7 @@ import Profile from ".";
 
 export default function ProfileActual() {
   const {
+    isAuthenticated,
     getAccessTokenSilently,
   } = useAuth0();
 
@@ -18,15 +19,15 @@ export default function ProfileActual() {
   const [selectedUser, setSelectedUser] = useState({})
   useEffect(() => {
     const getUser = async (userId) => {
-        const accessToken = await getAccessTokenSilently();
-        const response = await USER_API.getUserById(accessToken, userId)
-        if (response[0].status == 200 && response.length > 1) {
-            setSelectedUser(response[1])
-        } else
-            console.log("Failed to get user")
+      const accessToken = isAuthenticated ? await getAccessTokenSilently() : null
+      const response = await USER_API.getUserById(accessToken, userId)
+      if (response[0].status == 200 && response.length > 1) {
+        setSelectedUser(response[1])
+      } else
+        console.log("Failed to get user")
     }
     if (userId) getUser(userId)
-}, [router.query.userId])
+  }, [router.query.userId])
 
-  return <Profile selectedUser={selectedUser}/>
+  return <Profile selectedUser={selectedUser} />
 }

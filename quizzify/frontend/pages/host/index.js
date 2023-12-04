@@ -186,7 +186,7 @@ export default function Host() {
     return (
         <>
             {!isAuthenticated ? <AuthenticationGuard/> :
-                Object.keys(question).length === 0 ?
+                question && Object.keys(question).length === 0 ?
                     <HostGameWaitingRoom
                         quizInfo={quizInfo}
                         question={question}

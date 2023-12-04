@@ -24,19 +24,17 @@ export default function Profile({
   } = useAuth0();
 
   const getCurrentUser = () => {
-    return selectedUser && selectedUser.user_id !== user.sub ? selectedUser : user
+    return selectedUser !== undefined ? selectedUser : user
   }
 
   const [quizzes, setQuizzes] = useState([])
   const getUserQuizzes = async () => {
-    if (isAuthenticated) {
-      const accessToken = await getAccessTokenSilently();
-      const response = await USER_API.getQuizzesByUserId(accessToken, selectedUser ? selectedUser.user_id : user.sub)
-      if (response[0].status == 200)
-        setQuizzes(response.length > 1 ? response[1] : [])
-      else
-        console.log("Failed to get user quizzes")
-    }
+    const accessToken = isAuthenticated ? await getAccessTokenSilently() : null
+    const response = await USER_API.getQuizzesByUserId(accessToken, selectedUser ? selectedUser?.user_id : user?.sub)
+    if (response[0].status == 200)
+      setQuizzes(response.length > 1 ? response[1] : [])
+    else
+      console.log("Failed to get user quizzes")
   }
   useEffect(() => {
     getUserQuizzes()
@@ -74,7 +72,7 @@ export default function Profile({
 
   return (
     <>
-      {!isAuthenticated ? <AuthenticationGuard /> :
+      {!isAuthenticated && selectedUser == undefined ? <AuthenticationGuard /> :
         <MainNavBar>
           <Flex px={4} py={2} flexDirection={'column'} gap={8}>
             <Box gap={4}>
@@ -90,7 +88,7 @@ export default function Profile({
                   <HStack>
                     <Avatar
                       size={'2xl'}
-                      src={getCurrentUser().picture}
+                      src={getCurrentUser()?.picture}
                     />
 
                     <VStack
@@ -98,15 +96,15 @@ export default function Profile({
                       alignItems="flex-start"
                       spacing="1px"
                       ml="2">
-                      {Object.keys(selectedUser).length == 0 ? <Text fontSize="xl">User not found</Text> : <>
-                        <Text fontSize="3xl">{getCurrentUser().name}</Text>
+                      {Object.keys(getCurrentUser()).length == 0 ? <Text fontSize="xl">User not found</Text> : <>
+                        <Text fontSize="3xl">{getCurrentUser()?.name}</Text>
                         <Text fontSize="l" color="gray.600">
-                          {getCurrentUser().email}
+                          {getCurrentUser()?.email}
                         </Text>
                         <HStack spacing={{ base: '1' }}>
                           <Text fontSize="xs" color="gray.600" fontWeight="bold">User ID:</Text>
                           <Text fontSize="xs" color="gray.600">
-                            {getCurrentUser() == selectedUser ? selectedUser.user_id : user.sub}
+                            {getCurrentUser() == selectedUser ? selectedUser?.user_id : user?.sub}
                           </Text>
                         </HStack>
                       </>}
@@ -116,7 +114,7 @@ export default function Profile({
               </Flex>
             </Box>
 
-            {Object.keys(selectedUser).length > 0 && <Flex flexDirection={'column'} gap={2}>
+            {Object.keys(getCurrentUser()).length > 0 && <Flex flexDirection={'column'} gap={2}>
               <Text fontWeight={700} fontSize={20}>Quizzes ({quizzes.length})</Text>
               <Grid gridGap={'20px'} templateColumns='repeat(2, 1fr)'>
                 {quizzes.map((quiz, i) =>
@@ -133,11 +131,11 @@ export default function Profile({
                       <chakra.h2 fontSize="md" fontWeight="500">{quiz.description}</chakra.h2>
 
                       <HStack py={1} spacing={{ base: '2' }}>
-                        <Tooltip label="Copy Template">
+                        {isAuthenticated && <Tooltip label="Copy Template">
                           <CopyIcon cursor={'pointer'} onClick={() => { handleCopyQuiz(quiz._id) }} />
-                        </Tooltip>
+                        </Tooltip>}
 
-                        {selectedUser && selectedUser.user_id === user.sub && <>
+                        {selectedUser && selectedUser?.user_id === user?.sub && <>
                           <Tooltip label="Edit">
                             <EditIcon cursor={'pointer'} onClick={() => { handleEditQuiz(quiz._id) }} />
                           </Tooltip>
