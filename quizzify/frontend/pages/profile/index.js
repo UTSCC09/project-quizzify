@@ -47,7 +47,7 @@ export default function Profile({
       const accessToken = await getAccessTokenSilently();
       const response = await QUIZ_API.copyQuizById(accessToken, quizId);
       if (response[0].status == 200) {
-        toast(getToast('Quiz has been copied', true))
+        toast(getToast('Copied quiz', true))
         getUserQuizzes()
       } else
         toast(getToast('Failed to copy quiz', false))
