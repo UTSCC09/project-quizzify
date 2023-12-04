@@ -48,7 +48,7 @@ export function getToast(description, isSuccess) {
 export function stringToColorHex(str) {
     let hash = 0;
     // Generate a hash value from the string
-    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < str?.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
 
     // Convert the hash to a 6 digit hexadecimal code
     let color = '#';
