@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Text, GridItem, Grid, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, GridItem, Grid, useDisclosure, useToast } from "@chakra-ui/react";
 import MainNavBar from "@/components/MainNavBar";
 
 import {
@@ -10,7 +10,7 @@ import ShortInput from "@/components/Forms/ShortInput";
 import FormSelect from "@/components/Forms/FormSelect";
 import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
-import { PRIVATE, PUBLIC, QUIZ_MODES, QUIZ_TIMERS } from "@/constants";
+import { PRIVATE, PUBLIC, QUIZ_MODES, QUIZ_TIMERS, getToast } from "@/constants";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 import { useRouter } from "next/router";
 import NumInput from "@/components/Forms/NumberInput";
@@ -31,6 +31,8 @@ export default function Edit() {
   const [quizFound, setQuizFound] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const toast = useToast()
+
   const router = useRouter()
   const quizId = router.query.quizId
 
@@ -45,15 +47,15 @@ export default function Edit() {
           defaultTimer: defaultTimerInput,
           mode: modeInput,
         }
-        console.log(quizId, quiz)
 
         // call edit endpoint
         const accessToken = await getAccessTokenSilently();
         const response = await QUIZ_API.editQuizById(accessToken, quizId, quiz);
         if (response[0].status == 200) {
           console.log("Edited quiz", response[1])
+          toast(getToast('Editted quiz', true))
         } else
-          console.log("Failed to create quiz")
+          toast(getToast('Failed to edit quiz', false))
       }
     }
     if (questionsList?.length !== 0) editQuizAsync();
@@ -77,11 +79,11 @@ export default function Edit() {
           setQuizFound(true)
         } else {
           setQuizFound(false)
-          console.log("Failed to get quiz (not owned by user)")
+          toast(getToast('User does not have permissions to edit this quiz', false))
         }
       } else {
         setQuizFound(false)
-        console.log("Failed to get quiz")
+        toast(getToast('Failed to get quiz', false))
       }
     }
     if (quizId && isAuthenticated) getQuizById()

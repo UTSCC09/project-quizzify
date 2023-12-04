@@ -6,6 +6,8 @@ import * as USER_API from "@/api/users";
 
 import { useRouter } from "next/router";
 import Profile from ".";
+import { getToast } from "@/constants";
+import { useToast } from "@chakra-ui/react";
 
 export default function ProfileSelectedUser() {
   const {
@@ -16,6 +18,8 @@ export default function ProfileSelectedUser() {
   const router = useRouter()
   const userId = router.query.userId
 
+  const toast = useToast();
+
   const [selectedUser, setSelectedUser] = useState({})
   useEffect(() => {
     const getUser = async (userId) => {
@@ -24,7 +28,7 @@ export default function ProfileSelectedUser() {
       if (response[0].status == 200 && response.length > 1) {
         setSelectedUser(response[1])
       } else
-        console.log("Failed to get user")
+        toast(getToast('Failed to get user', false))
     }
     if (userId) getUser(userId)
   }, [router.query.userId])

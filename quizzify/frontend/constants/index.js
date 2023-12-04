@@ -36,6 +36,16 @@ export function convertBEtoFEMode(beMode) {
     return "Unknown mode"; // Return this if the mode is not found
 }
 
+export function getToast(description, isSuccess) {
+    return {
+        title: isSuccess ? 'Success' : 'Error',
+        description: description,
+        status: isSuccess ? 'success' : 'error',
+        duration: 2000,
+        isClosable: true,
+    }
+}
+
 // in seconds
 const RAPID = 5
 const SHORT = 10

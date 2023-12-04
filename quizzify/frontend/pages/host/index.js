@@ -5,11 +5,12 @@ import { io } from "socket.io-client";
 
 import * as USER_API from "@/api/users";
 import * as QUIZ_API from "@/api/quizzes";
-import { SOCKET_EVENTS } from "@/constants";
+import { SOCKET_EVENTS, getToast } from "@/constants";
 import HostGameWaitingRoom from "./HostGameWaitingRoom";
 import HostGameLive from "./HostGameLive";
 import { Leaderboard } from "@/components/Leaderboard";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
+import { useToast } from "@chakra-ui/react";
 
 var socket;
 const PLAYER_LOADING_TIME = 3;
@@ -27,6 +28,7 @@ export default function Host() {
     const [gameCode, setGameCode] = useState("")
     const [quizInfo, setQuizInfo] = useState({})
     const [players, setPlayers] = useState([])
+    const toast = useToast();
 
     useEffect(() => {
         // Create a socket connection
@@ -61,7 +63,7 @@ export default function Host() {
                 if (response[0].status == 200)
                     setQuizzes(response.length > 1 ? response[1] : [])
                 else
-                    console.log("Failed to get user quizzes")
+                    toast(getToast('Failed to get user quizzes', false))
             }
         }
         getUserQuizzes()
@@ -76,7 +78,7 @@ export default function Host() {
                     setQuizInfo(response[1])
                     setTimerDefaultSeconds(response[1].defaultTimer + PLAYER_LOADING_TIME || DEFAULT_TIMER + PLAYER_LOADING_TIME);
                 } else
-                    console.log("Failed to get quiz")
+                    toast(getToast('Failed to get quiz', false))
             }
         }
         getQuiz()
@@ -94,7 +96,7 @@ export default function Host() {
                         setGameCode(response.joinCode)
                         setPlayers(response.players)
                     } else // Failed to create game
-                        console.log("Failed to create game!")
+                        toast(getToast('Failed to create game!', false))
                 })
             }
         }
@@ -110,9 +112,9 @@ export default function Host() {
                 if (response.success) { // Created game
                     setQuestion(response.question)
                     setQuestionLive(true)
-                    console.log("Starting game!")
+                    toast(getToast('Starting game!', true))
                 } else // Failed to create game
-                    console.log("Failed to start game!")
+                    toast(getToast('Failed to start game!', false))
             })
         }
     }
@@ -154,7 +156,7 @@ export default function Host() {
                     setTimerPause(false)
                 }
             } else // Failed to create game
-                console.log("Failed to get next question!")
+                toast(getToast('Failed to get next question!', false))
         })
         console.log("Timer expired; next question");
     }

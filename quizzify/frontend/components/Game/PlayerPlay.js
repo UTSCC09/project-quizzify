@@ -1,7 +1,7 @@
 import QuizButton from "@/components/Buttons/QuizButton";
 import TextButton from "@/components/Buttons/TextButton";
-import { QUIZ_MODES, QUIZ_TYPES, SOCKET_EVENTS } from "@/constants";
-import { Alert, Box, Container, Drawer, DrawerContent, Flex, Grid, Spinner, Text, useDisclosure } from "@chakra-ui/react";
+import { QUIZ_MODES, QUIZ_TYPES, SOCKET_EVENTS, getToast } from "@/constants";
+import { Alert, Box, Container, Drawer, DrawerContent, Flex, Grid, Spinner, Text, useDisclosure, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import CustomPointTag from "../CustomPointTag";
 import GameOver from "./GameOver";
@@ -22,6 +22,8 @@ export default function PlayerPlay({
     const { isOpen, onOpen, onClose } = useDisclosure()
 
     const [submitted, setSubmitted] = useState(false)
+
+    const toast = useToast();
     
     const onSelect = (response, index) => {
         if (submitted) return
@@ -42,7 +44,7 @@ export default function PlayerPlay({
             } else // Remove from selected answers
                 setSelectedAnswers(selectedAnswers.filter(e => e !== index))
         } else {
-            console.log("No current question; cannot select response")
+            toast(getToast('No current question; cannot select response', false))
         }
     }
 
@@ -72,7 +74,7 @@ export default function PlayerPlay({
     const [currQuestion, setCurrQuestion] = useState({})
     useEffect(() => {
         if (!socket)
-            console.log("Socket not connected")
+            toast(getToast('Socket not connected', false))
         else {
             socket.on(SOCKET_EVENTS.ROOM.questionEnd, (answerResponses) => {
                 setShowAns(true)

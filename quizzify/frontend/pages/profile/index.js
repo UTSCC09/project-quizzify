@@ -34,7 +34,7 @@ export default function Profile({
     if (response[0].status == 200)
       setQuizzes(response.length > 1 ? response[1] : [])
     else
-      console.log("Failed to get user quizzes")
+      toast(getToast('Failed to get user quizzes', false))
   }
   useEffect(() => {
     getUserQuizzes()
@@ -45,10 +45,10 @@ export default function Profile({
       const accessToken = await getAccessTokenSilently();
       const response = await QUIZ_API.copyQuizById(accessToken, quizId);
       if (response[0].status == 200) {
-        console.log("Copied quiz!", response[1])
+        toast(getToast('Quiz has been copied', true))
         getUserQuizzes()
       } else
-        console.log("Failed to copy quiz")
+        toast(getToast('Failed to copy quiz', false))
     }
   }
 
@@ -57,10 +57,10 @@ export default function Profile({
       const accessToken = await getAccessTokenSilently();
       const response = await QUIZ_API.deleteQuizById(accessToken, quizId);
       if (response[0].status == 200) {
-        console.log("Deleted quiz")
+        toast(getToast('Deleted quiz', true))
         getUserQuizzes()
       } else
-        console.log("Failed to delete quiz")
+        toast(getToast('Failed to delete quiz', false))
     }
   }
 

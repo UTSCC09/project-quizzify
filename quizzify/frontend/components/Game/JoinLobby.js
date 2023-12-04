@@ -1,7 +1,7 @@
 import CustomPinInput from "@/components/CustomPinInput";
 import LobbyNavBar from "@/components/Game/LobbyNavBar";
-import { SOCKET_EVENTS } from "@/constants";
-import { PinInput, Flex, HStack, Text, Input } from "@chakra-ui/react";
+import { SOCKET_EVENTS, getToast } from "@/constants";
+import { PinInput, Flex, HStack, Text, Input, useToast } from "@chakra-ui/react";
 import { useState } from "react";
 
 const randomDisplayName = () => [
@@ -29,22 +29,24 @@ export default function JoinLobby({
         setGameCode(value.toLowerCase())
     }
 
+    const toast = useToast();
+
     const handleComplete = (gameCode) => {
         if (!socket)
-            console.log("Socket not connected")
+            toast(getToast('Socket not connected', false))
         else if (connected)
-            console.log("Already connected to a game")
+            toast(getToast('Already connected to a game', false))
         else if (displayName === '')
-            console.log("Display name is invalid")
+            toast(getToast('Display name is invalid', false))
         else {
             // Call WebSocket; move to waiting screen if correct code
             socket.emit(SOCKET_EVENTS.PLAYER.join, gameCode.toLowerCase(), displayName, (response) => {
                 if (response.success) { // Joined game
                     setConnected(true)
-                    console.log("Successfully joined game")
+                    toast(getToast('Successfully joined game', true))
                 } else { // Failed to join game
                     setConnected(false)
-                    console.log("Failed to join game")
+                    toast(getToast('Failed to join game', false))
                 }
             })
         }
