@@ -23,8 +23,7 @@ import {
   FiChevronDown,
 } from 'react-icons/fi'
 
-import { AiFillApi, AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
-import { FaUser } from 'react-icons/fa'
+import { AiFillApi, AiFillHome, AiFillStar } from 'react-icons/ai'
 import { IoIosCreate } from 'react-icons/io'
 import LoginButton from './Buttons/Auth/LoginButton'
 
@@ -33,7 +32,6 @@ const LinkItems = [
   { name: 'Play', icon: AiFillApi, href: "/play" },
   { name: 'Host', icon: AiFillStar, href: "/host", authenticated: true },
   { name: 'Create', icon: IoIosCreate, href: "/quizzes/create", authenticated: true},
-  { name: 'Profile', icon: FaUser, href: "/profile", authenticated: true },
 ]
 
 const SidebarContent = ({ onClose, ...rest }) => {
@@ -171,6 +169,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
               <MenuList
                 bg={'white'}
                 borderColor={'gray.200'}>
+                <MenuItem as="a" href="/profile">Profile</MenuItem>
                 <MenuItem onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>Log out</MenuItem>
               </MenuList>
             </Menu>}

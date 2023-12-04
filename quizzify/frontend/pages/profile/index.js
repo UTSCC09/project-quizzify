@@ -135,7 +135,7 @@ export default function Profile({
                           <CopyIcon cursor={'pointer'} onClick={() => { handleCopyQuiz(quiz._id) }} />
                         </Tooltip>}
 
-                        {selectedUser && selectedUser?.user_id === user?.sub && <>
+                        {((getCurrentUser() == user) || ((getCurrentUser() == selectedUser) && selectedUser?.user_id === user?.sub)) && <>
                           <Tooltip label="Edit">
                             <EditIcon cursor={'pointer'} onClick={() => { handleEditQuiz(quiz._id) }} />
                           </Tooltip>

@@ -7,7 +7,7 @@ import * as USER_API from "@/api/users";
 import { useRouter } from "next/router";
 import Profile from ".";
 
-export default function ProfileActual() {
+export default function ProfileSelectedUser() {
   const {
     isAuthenticated,
     getAccessTokenSilently,
