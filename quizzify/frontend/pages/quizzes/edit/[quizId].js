@@ -53,7 +53,7 @@ export default function Edit() {
         const response = await QUIZ_API.editQuizById(accessToken, quizId, quiz);
         if (response[0].status == 200) {
           console.log("Edited quiz", response[1])
-          toast(getToast('Editted quiz', true))
+          toast(getToast('Edited quiz', true))
         } else
           toast(getToast('Failed to edit quiz', false))
       }

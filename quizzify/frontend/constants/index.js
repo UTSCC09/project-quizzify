@@ -38,7 +38,6 @@ export function convertBEtoFEMode(beMode) {
 
 export function getToast(description, isSuccess) {
     return {
-        title: isSuccess ? 'Success' : 'Error',
         description: description,
         status: isSuccess ? 'success' : 'error',
         duration: 2000,

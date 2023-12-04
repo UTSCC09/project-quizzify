@@ -37,7 +37,7 @@ export default function JoinLobby({
         else if (connected)
             toast(getToast('Already connected to a game', false))
         else if (displayName === '')
-            toast(getToast('Display name is invalid', false))
+            toast(getToast('Invalid display name', false))
         else {
             // Call WebSocket; move to waiting screen if correct code
             socket.emit(SOCKET_EVENTS.PLAYER.join, gameCode.toLowerCase(), displayName, (response) => {
