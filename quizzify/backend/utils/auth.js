@@ -37,9 +37,6 @@ const checkRequiredPermissions = (requiredPermissions) => {
 };
 
 const getManagementToken = async () => {
-  if (process.env.AUTH0_MANAGEMENT_TOKEN)
-    return process.env.AUTH0_MANAGEMENT_TOKEN
-
   let response = await fetch(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
     method: 'POST',
     headers: { 
