@@ -1,5 +1,9 @@
 # Quizzify
 
+<div align="center">
+  <img src="quizzify.png" />
+</div>
+
 ## Project URL
 https://quizzify.games/
 
