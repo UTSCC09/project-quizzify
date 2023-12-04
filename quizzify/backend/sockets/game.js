@@ -295,7 +295,7 @@ const answer = async function (socket, io, payload, callback) {
 
             // difference should not be negative as it can be assumed that Date.now() > currQuestionStartTime
             // if past MULTI_CAP, then differenceInSeconds is too high
-            if (differenceInSeconds > 0 && multi < MULTI_CAP) points = Math.round(points * multi);
+            if (multi > 0 && multi < MULTI_CAP) points = Math.round(points * multi);
         }
 
         game.quiz.questions[game.currQuestion.index].responses
