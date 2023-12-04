@@ -1,5 +1,5 @@
 const Game = require("../models/game");
-const { Quiz, QUIZ_MODES, QUIZ_TIMERS } = require("../models/quiz");
+const { Quiz, QUIZ_MODES, QUIZ_TIMERS, QUIZ_TYPES } = require("../models/quiz");
 
 const eventNamePrefixes = {
     UTILS: "utils",
@@ -277,14 +277,19 @@ const answer = async function (socket, io, payload, callback) {
 
         const responses = game.quiz.questions[game.currQuestion.index].responses
         let numCorrect = 0
+
+        // Give points for non-selected answers in multiple choice mode
+        const quizType = game.quiz.questions[game.currQuestion.index].type
+        const totalNumAnswers = quizType == QUIZ_TYPES.MULTIPLE_CHOICE ? responses.length : responses.filter(response => response.isAnswer).length
+        
         responses.forEach((response, index) => {
             const isSelectedResponse = selectedAnswers.includes(index)
-            if ((response.isAnswer && isSelectedResponse) || (!response.isAnswer && !isSelectedResponse))
+            if ((response.isAnswer && isSelectedResponse) || (quizType == QUIZ_TYPES.MULTIPLE_CHOICE && !response.isAnswer && !isSelectedResponse))
                 numCorrect++
         })
     
         // Calculate points (max 100)
-        let points = Math.floor(100 * (numCorrect / responses.length))
+        let points = Math.floor(100 * (numCorrect / totalNumAnswers))
 
         // Rapid fire mode multiplier
         if (game.quiz.mode === QUIZ_MODES.RAPID_FIRE){
@@ -301,12 +306,12 @@ const answer = async function (socket, io, payload, callback) {
         game.quiz.questions[game.currQuestion.index].responses
         game.players[playerIndex].points += points
         game.players[playerIndex].currQuestionPoints = points
-        game.players[playerIndex].currQuestionResult = numCorrect === responses.length
+        game.players[playerIndex].currQuestionResult = numCorrect === totalNumAnswers
         game.players[playerIndex].currQuestionAnswered = true
 
         // Last man mode logic
         if (game.quiz.mode === QUIZ_MODES.LAST_MAN) {
-            if (numCorrect !== responses.length) game.players[playerIndex].tries--
+            if (numCorrect !== totalNumAnswers) game.players[playerIndex].tries--
     
             if (game.players[playerIndex].tries <= 0) {
                 await game.save()

@@ -2,6 +2,7 @@ import CustomPinInput from "@/components/CustomPinInput";
 import LobbyNavBar from "@/components/Game/LobbyNavBar";
 import { SOCKET_EVENTS, getToast } from "@/constants";
 import { PinInput, Flex, HStack, Text, Input, useToast } from "@chakra-ui/react";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 const randomDisplayName = () => [
@@ -30,11 +31,13 @@ export default function JoinLobby({
     }
 
     const toast = useToast();
+    const router = useRouter();
 
     const handleComplete = (gameCode) => {
-        if (!socket)
+        if (!socket) {
             toast(getToast('Socket not connected', false))
-        else if (connected)
+            router.reload()
+        } else if (connected)
             toast(getToast('Already connected to a game', false))
         else if (displayName === '')
             toast(getToast('Invalid display name', false))

@@ -1,9 +1,9 @@
-import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex } from "@chakra-ui/react";
+import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex, useToast } from "@chakra-ui/react";
 import BubbleWrapper from "./BubbleWrapper";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { LuCopy } from "react-icons/lu";
 import CustomIconButton from "@/components/Buttons/CustomIconButton";
-import { convertBEtoFEMode } from "@/constants";
+import { convertBEtoFEMode, getToast } from "@/constants";
 import LobbyNavBar from "@/components/Game/LobbyNavBar";
 
 export default function HostGameWaitingRoom({
@@ -16,6 +16,12 @@ export default function HostGameWaitingRoom({
   startGame,
   players,
 }) {
+  const toast = useToast()
+  const handleCopyGameCode = () => {
+    navigator.clipboard.writeText(gameCode.toLowerCase())
+    toast(getToast('Copied game code!', true))
+  }
+
   return (
     <>
       <Flex position={'absolute'} zIndex={999}>
@@ -49,7 +55,7 @@ export default function HostGameWaitingRoom({
             <Flex alignItems={'center'} justifyContent={'center'} gap={2}>
               <Text>Game PIN: {gameCode.toUpperCase()}</Text>
               <CustomIconButton variant={'unstyled'} color={'white'} icon={<LuCopy />}
-                onClick={() => navigator.clipboard.writeText(gameCode.toLowerCase())} />
+                onClick={handleCopyGameCode} />
             </Flex>
             <Text>Mode: {convertBEtoFEMode(quizInfo.mode)}</Text>
             <h1>{players.length} Players</h1>
