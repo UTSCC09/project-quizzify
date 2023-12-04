@@ -1,5 +1,5 @@
 const Game = require("../models/game");
-const { Quiz } = require("../models/quiz");
+const { Quiz, QUIZ_MODES, QUIZ_TIMERS, QUIZ_TYPES } = require("../models/quiz");
 
 const eventNamePrefixes = {
     UTILS: "utils",
@@ -27,6 +27,7 @@ const eventNames = {
         end: `${eventNamePrefixes.ROOM}:end`,
         questionEnd: `${eventNamePrefixes.ROOM}:question-end`,
         questionNext: `${eventNamePrefixes.ROOM}:question-next`,
+        allPlayersAnswered: `${eventNamePrefixes.ROOM}:allPlayersAnswered`,
     }
 }
 const PLAYER_QUESTION_SEND_DELAY = 1500 // ms
@@ -36,6 +37,10 @@ const socketLog = (socket, message, joinCode="") => {
     if (joinCode !== "")
         socketIdentifier = `code=${joinCode}, ` + socketIdentifier
     console.log(`[SOCKET] (${socketIdentifier}): ${message}`)
+}
+
+const updatePlayersSorted = (io, joinCode, game) => {
+    io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players.sort((a, b) => { b.points - a.points }))
 }
 
 /* ------------------------------------------------------------------------- */
@@ -53,7 +58,7 @@ const disconnecting = async function (socket, io) {
                     } else { // Player (leave game)
                         game.players = game.players.filter(player => player.socketId !== socket.id)
                         await game.save()
-                        io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+                        updatePlayersSorted(io, joinCode, game)
                         socketLog(socket, "Player left game", joinCode)
                     }
                 }
@@ -87,7 +92,7 @@ const create = async function (socket, io, payload, callback) {
         if (existingGame) { // Clear previously connected players
             game.players = []
             await game.save()
-            io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+            updatePlayersSorted(io, game.joinCode, game)
         }
 
         socket.join(game.joinCode)
@@ -119,10 +124,15 @@ const start = async function (socket, io, payload, callback) {
         
         game.active = true
         await game.save()
-        io.to(joinCode).emit(eventNames.ROOM.start)
+        io.to(joinCode).emit(eventNames.ROOM.start, {
+            name: game.quiz.name,
+            description: game.quiz.description,
+            defaultTimer: game.quiz.defaultTimer,
+            mode: game.quiz.mode,
+        })
         callback({ 
             success: true,
-            question: game.quiz.questions[game.currQuestion.index] 
+            question: game.quiz.questions[game.currQuestion.index]
         })
         socketLog(socket, `Host started game`, joinCode)
         
@@ -149,6 +159,13 @@ const hostNextQuestion = async function (socket, io, callback) {
         if (!game) 
             throw Error("Game not found")
         
+        // Last man mode logic
+        if (game.quiz.mode === QUIZ_MODES.LAST_MAN) {
+            game.players.forEach((player, index)=>{
+                if (game.players[index].currQuestionAnswered === false) game.players[index].tries--
+            })
+        }
+
         // End question
         const answerResponses = game.quiz.questions[game.currQuestion.index].responses
             .map((resp, index) => {
@@ -160,7 +177,7 @@ const hostNextQuestion = async function (socket, io, callback) {
             })
             .filter(response => response.isAnswer)
         io.to(game.joinCode).emit(eventNames.ROOM.questionEnd, answerResponses)
-        io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+        updatePlayersSorted(io, game.joinCode, game)
 
         const numQuestions = game.quiz.questions.length
         setTimeout(async () => { // Wait 6s after question end to send next question
@@ -176,7 +193,15 @@ const hostNextQuestion = async function (socket, io, callback) {
                 socketLog(socket, `Host sent game over`, game.joinCode)
             } else { // Send next question
                 game.currQuestion.index++
+                game.currQuestion.timeIndexUpdated = Date.now()
                 game.currQuestion.numPlayersAnswered = 0
+                
+                game.players.forEach((player, index)=>{
+                    game.players[index].currQuestionPoints = 0
+                    game.players[index].currQuestionResult = false
+                    game.players[index].currQuestionAnswered = false
+                })
+
                 await game.save()
                 
                 const quizHiddenAnswers = game.quiz.hideResponseAnswers()
@@ -193,7 +218,7 @@ const hostNextQuestion = async function (socket, io, callback) {
                 socketLog(socket, `Host sent next question`, game.joinCode)
             }
         }, 6000)
-        io.to(game.joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+        updatePlayersSorted(io, game.joinCode, game)
     } catch (error) {
         console.log(error)
         callback({ success: false })
@@ -204,19 +229,25 @@ const hostNextQuestion = async function (socket, io, callback) {
 /* ------------------------------------------------------------------------- */
 // Player
 
-const join = async function (socket, io, joinCode, callback) {
+const join = async function (socket, io, joinCode, displayName, callback) {
     try {
         const game = await Game.findOne({joinCode: joinCode})
         if (!game)
             throw Error("Game not found")
-    
+        
+        if (game.players.some(player => player.displayName == displayName)) {
+            callback({success: false})
+            socketLog(socket, "Player failed to join game: display name taken", joinCode)
+            return;
+        }
+
         // Update players in game
         socket.join(joinCode)
         if (!game.players.some(player => player.socketId == socket.id)) {
-            game.players.push({ socketId: socket.id })
+            game.players.push({ socketId: socket.id, displayName: displayName })
             await game.save()
         }
-        io.to(joinCode).emit(eventNames.ROOM.updatePlayers, game.players)
+        updatePlayersSorted(io, game.joinCode, game)
         callback({ success: true })
         
         socketLog(socket, "Player connected to game", joinCode)
@@ -242,24 +273,62 @@ const answer = async function (socket, io, payload, callback) {
         if (playerIndex == -1)
             throw Error("Player not found in game")
         
+        if (game.players[playerIndex].tries <= 0) callback({ success: false, playerOutOfGame: true })
+
         const responses = game.quiz.questions[game.currQuestion.index].responses
         let numCorrect = 0
+
+        // Give points for non-selected answers in multiple choice mode
+        const quizType = game.quiz.questions[game.currQuestion.index].type
+        const totalNumAnswers = quizType == QUIZ_TYPES.MULTIPLE_CHOICE ? responses.length : responses.filter(response => response.isAnswer).length
+        
         responses.forEach((response, index) => {
             const isSelectedResponse = selectedAnswers.includes(index)
-            if ((response.isAnswer && isSelectedResponse) || (!response.isAnswer && !isSelectedResponse))
+            if ((response.isAnswer && isSelectedResponse) || (quizType == QUIZ_TYPES.MULTIPLE_CHOICE && !response.isAnswer && !isSelectedResponse))
                 numCorrect++
         })
     
         // Calculate points (max 100)
-        const points = Math.floor(100 * (numCorrect / responses.length))
+        let points = Math.floor(100 * (numCorrect / totalNumAnswers))
+
+        // Rapid fire mode multiplier
+        if (game.quiz.mode === QUIZ_MODES.RAPID_FIRE){
+            const currQuestionStartTime = game.currQuestion.timeIndexUpdated;
+            const differenceInSeconds = (Date.now() - currQuestionStartTime) / 1000; // Convert milliseconds to seconds
+            const MULTI_CAP = 3
+            const multi = Math.min(1 + (15 - differenceInSeconds)/10, MULTI_CAP) // Cap multiplier
+
+            // difference should not be negative as it can be assumed that Date.now() > currQuestionStartTime
+            // if past MULTI_CAP, then differenceInSeconds is too high
+            if (multi > 0 && multi < MULTI_CAP) points = Math.round(points * multi);
+        }
+
         game.quiz.questions[game.currQuestion.index].responses
         game.players[playerIndex].points += points
+        game.players[playerIndex].currQuestionPoints = points
+        game.players[playerIndex].currQuestionResult = numCorrect === totalNumAnswers
+        game.players[playerIndex].currQuestionAnswered = true
+
+        // Last man mode logic
+        if (game.quiz.mode === QUIZ_MODES.LAST_MAN) {
+            if (numCorrect !== totalNumAnswers) game.players[playerIndex].tries--
+    
+            if (game.players[playerIndex].tries <= 0) {
+                await game.save()
+                callback({ success: false, playerOutOfGame: true })
+                socketLog(socket, "Player out of game", game.players[playerIndex].displayName)
+                return;
+            }
+        }
 
         game.currQuestion.numPlayersAnswered++
         await game.save()
 
         callback({ success: true })
         socketLog(socket, "Player answered to game", joinCode)
+
+        if (game.currQuestion.numPlayersAnswered == game.players.length)// All players answered
+            io.to(game.joinCode).emit(eventNames.ROOM.allPlayersAnswered)
     } catch (error) {
         console.log(error)
         callback({ success: false })
@@ -285,7 +354,7 @@ module.exports = (io) => {
     
     // Player
     const player = {
-        join: function (joinCode, callback) { join(this, io, joinCode, callback) },
+        join: function (joinCode, displayName, callback) { join(this, io, joinCode, displayName, callback) },
         answer: function (payload, callback) { answer(this, io, payload, callback) },
     }
 

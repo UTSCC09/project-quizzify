@@ -23,18 +23,15 @@ import {
   FiChevronDown,
 } from 'react-icons/fi'
 
-import { AiFillApi, AiFillCompass, AiFillHome, AiFillStar } from 'react-icons/ai'
-import { FaUser } from 'react-icons/fa'
+import { AiFillApi, AiFillHome, AiFillStar } from 'react-icons/ai'
 import { IoIosCreate } from 'react-icons/io'
-import { AuthenticationGuard } from './AuthenticationGuard'
+import LoginButton from './Buttons/Auth/LoginButton'
 
 const LinkItems = [
   { name: 'Home', icon: AiFillHome, href: "/" },
   { name: 'Play', icon: AiFillApi, href: "/play" },
   { name: 'Host', icon: AiFillStar, href: "/host", authenticated: true },
-  { name: 'Discover', icon: AiFillCompass, href: "/discover"},
-  { name: 'Create', icon: IoIosCreate, href: "/create", authenticated: true},
-  { name: 'Profile', icon: FaUser, href: "/profile", authenticated: true },
+  { name: 'Create', icon: IoIosCreate, href: "/quizzes/create", authenticated: true},
 ]
 
 const SidebarContent = ({ onClose, ...rest }) => {
@@ -146,7 +143,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <Flex alignItems={'center'}>
-          {!isAuthenticated ? <AuthenticationGuard/>  :
+          {!isAuthenticated ? <LoginButton />  :
             <Menu>
               <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
                   <HStack>
@@ -172,6 +169,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
               <MenuList
                 bg={'white'}
                 borderColor={'gray.200'}>
+                <MenuItem as="a" href="/profile">Profile</MenuItem>
                 <MenuItem onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>Log out</MenuItem>
               </MenuList>
             </Menu>}

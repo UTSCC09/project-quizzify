@@ -4,6 +4,7 @@ import { QUIZ_TYPES } from '@/constants';
 
 export default function CustomResponseInput({
     type,
+    responsesListInput,
     response,
     index,
     responseReset,
@@ -11,18 +12,25 @@ export default function CustomResponseInput({
 }) {
   const ref = useRef(null);
   const isAnswerRef = useRef(null);
-  const [isAnswerSelect, setIsAnswerSelect] = useState(false);
+  const [isAnswerSelect, setIsAnswerSelect] = useState(response.isAnswer);
 
   useEffect(() => {
     ref.current.value = response.response;
   }, [responseReset]);
 
   const setIsAnswer = () => {
-    setIsAnswerSelect(!isAnswerSelect) // TODO: only allow one answer to be selected if type is SINGLE_CHOICE
+    let count = 0;
+    responsesListInput?.forEach(response => {
+      if (response.isAnswer) count++
+    })
+
+    // only allow one answer to be selected if type is not MULTIPLE_CHOICE
+    if (type !== QUIZ_TYPES.MULTIPLE_CHOICE && !isAnswerSelect && count + 1 >= 2) return;
+    setIsAnswerSelect(!isAnswerSelect)
   }
 
   useEffect(() =>{
-    onChange(ref.current.value, isAnswerSelect, isAnswerRef.current.innerText, index)
+    onChange(ref.current.value, isAnswerSelect, isAnswerRef.current.innerText, index, response._id)
   }, [isAnswerSelect])
 
   return (

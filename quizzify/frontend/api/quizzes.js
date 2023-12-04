@@ -9,3 +9,19 @@ export const getQuizzes = async (accessToken) => {
 export const createQuiz = async (accessToken, data) => {
   return await postRequest(BASE_API_URL, accessToken, data)
 }
+
+export const getQuizById = async (accessToken, selectedQuizId) => {
+  return await getRequest(`${BASE_API_URL}/${selectedQuizId}`, accessToken)
+}
+
+export const copyQuizById = async (accessToken, selectedQuizId) => {
+  return await getRequest(`${BASE_API_URL}/${selectedQuizId}/copy`, accessToken)
+}
+
+export const editQuizById = async (accessToken, selectedQuizId, data) => {
+  return await putRequest(`${BASE_API_URL}/${selectedQuizId}`, accessToken, data)
+}
+
+export const deleteQuizById = async (accessToken, selectedQuizId) => {
+  return await deleteRequest(`${BASE_API_URL}/${selectedQuizId}`, accessToken)
+}

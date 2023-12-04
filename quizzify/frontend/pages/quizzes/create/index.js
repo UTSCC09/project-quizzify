@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Text, GridItem, Grid, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, GridItem, Grid, useDisclosure, useToast } from "@chakra-ui/react";
 import MainNavBar from "@/components/MainNavBar";
 
 import { 
@@ -10,7 +10,7 @@ import ShortInput from "@/components/Forms/ShortInput";
 import FormSelect from "@/components/Forms/FormSelect";
 import QuizCard from "@/components/QuizCard";
 import AddQuestionForm from "@/components/AddQuestionForm";
-import { PRIVATE, PUBLIC, QUIZ_MODES, QUIZ_TIMERS } from "@/constants";
+import { PRIVATE, PUBLIC, QUIZ_MODES, QUIZ_TIMERS, getToast } from "@/constants";
 import { AuthenticationGuard } from "@/components/AuthenticationGuard";
 import { useRouter } from "next/navigation";
 import NumInput from "@/components/Forms/NumberInput";
@@ -28,6 +28,7 @@ export default function Create() {
   const [defaultTimerInput, setDefaultTimerInput] = useState(QUIZ_TIMERS.MEDIUM);
   const [questionsList, setQuestionsList] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast()
 
   const router = useRouter()
   const createQuiz = useCallback(() => {
@@ -48,7 +49,7 @@ export default function Create() {
           console.log("Created quiz!", response[1])
           router.push("/profile")
         } else
-          console.log("Failed to create quiz")
+          toast(getToast('Failed to create quiz', false))
       }
     }
     if (questionsList.length !== 0) createNewQuiz();

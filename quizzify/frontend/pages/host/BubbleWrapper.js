@@ -3,13 +3,13 @@ export default function BubbleWrapper({
 }) {
     return (
         <>
-            <div class="bubbles-wrapper">
-                <div class="bubbles-container">
-                    <div class="bubbles-container-element">
-                        {...otherProps.children}
+            <div className="bubbles-wrapper">
+                <div className="bubbles-container">
+                    <div className="bubbles-container-element">
+                        {{...otherProps}.children}
                     </div>
                 </div>
-                <ul class="bg-bubbles">
+                <ul className="bg-bubbles">
                     <li></li>
                     <li></li>
                     <li></li>

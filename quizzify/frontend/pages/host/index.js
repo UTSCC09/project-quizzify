@@ -1,18 +1,22 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import { Button, MenuItem, Menu, MenuButton, MenuList, Text, Grid, GridItem, Flex, Box, IconButton } from "@chakra-ui/react";
 import { useTheme } from "@emotion/react";
 import { useEffect, useRef, useState } from 'react';
 import { io } from "socket.io-client";
 
 import * as USER_API from "@/api/users";
-import { SOCKET_EVENTS } from "@/constants";
-import BubbleWrapper from "./BubbleWrapper";
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import { LuCopy } from "react-icons/lu";
+import * as QUIZ_API from "@/api/quizzes";
+import { SOCKET_EVENTS, getToast } from "@/constants";
+import HostGameWaitingRoom from "./HostGameWaitingRoom";
+import HostGameLive from "./HostGameLive";
+import { Leaderboard } from "@/components/Leaderboard";
+import { AuthenticationGuard } from "@/components/AuthenticationGuard";
+import { useToast } from "@chakra-ui/react";
 
 var socket;
+const PLAYER_LOADING_TIME = 3;
+const DEFAULT_TIMER = 25;
 
-export default function Host() {    
+export default function Host() {
     const {
         user,
         isAuthenticated,
@@ -22,7 +26,9 @@ export default function Host() {
 
     const theme = useTheme();
     const [gameCode, setGameCode] = useState("")
+    const [quizInfo, setQuizInfo] = useState({})
     const [players, setPlayers] = useState([])
+    const toast = useToast();
 
     useEffect(() => {
         // Create a socket connection
@@ -33,13 +39,16 @@ export default function Host() {
         })
         socket.on(SOCKET_EVENTS.ROOM.questionEnd, (answerResponses) => {
             setQuestionLive(false)
-            console.log(answerResponses)
             setAnswerResponses(answerResponses)
+        })
+        socket.on(SOCKET_EVENTS.ROOM.allPlayersAnswered, () => {
+            endTimer()
+            moveNextQuestion()
         })
 
         // Clean up the socket connection on unmount
-        return () => { 
-            socket.disconnect() 
+        return () => {
+            socket.disconnect()
         }
     }, []);
 
@@ -51,25 +60,43 @@ export default function Host() {
             if (isAuthenticated) {
                 const accessToken = await getAccessTokenSilently();
                 const response = await USER_API.getQuizzesByUserId(accessToken, user.sub)
-                setQuizzes(response[1])
+                if (response[0].status == 200)
+                    setQuizzes(response.length > 1 ? response[1] : [])
+                else
+                    toast(getToast('Failed to get user quizzes', false))
             }
         }
         getUserQuizzes()
     }, [user, isAuthenticated, getAccessTokenSilently])
 
+    useEffect(() => {
+        const getQuiz = async () => {
+            if (isAuthenticated){
+                const accessToken = await getAccessTokenSilently();
+                const response = await QUIZ_API.getQuizById(accessToken, selectedQuizId)
+                if (response[0].status == 200 && response.length > 1) {
+                    setQuizInfo(response[1])
+                    setTimerDefaultSeconds(response[1].defaultTimer + PLAYER_LOADING_TIME || DEFAULT_TIMER + PLAYER_LOADING_TIME);
+                } else
+                    toast(getToast('Failed to get quiz', false))
+            }
+        }
+        getQuiz()
+    }, [selectedQuizId]);
+
     // Create Game
     useEffect(() => {
         const createNewGame = async () => {
             if (isAuthenticated && socket && selectedQuizId) {
-                socket.emit(SOCKET_EVENTS.HOST.create, { 
+                socket.emit(SOCKET_EVENTS.HOST.create, {
                     userId: user.sub,
                     quizId: selectedQuizId
                 }, (response) => {
                     if (response.success) {// Created game
                         setGameCode(response.joinCode)
-                        setPlayers(response.players)
+                        setPlayers(response.players.sort(sortPlayersByScore))
                     } else // Failed to create game
-                        console.log("Failed to create game!")
+                        toast(getToast('Failed to create game!', false))
                 })
             }
         }
@@ -78,16 +105,16 @@ export default function Host() {
 
     const startGame = async () => {
         if (isAuthenticated && gameCode && players.length > 0) {
-            socket.emit(SOCKET_EVENTS.HOST.start, { 
-                userId: user.sub, 
+            socket.emit(SOCKET_EVENTS.HOST.start, {
+                userId: user.sub,
                 joinCode: gameCode.toLowerCase()
             }, (response) => {
                 if (response.success) { // Created game
                     setQuestion(response.question)
                     setQuestionLive(true)
-                    console.log("Starting game!")
+                    toast(getToast('Starting game!', true))
                 } else // Failed to create game
-                    console.log("Failed to start game!")
+                    toast(getToast('Failed to start game!', false))
             })
         }
     }
@@ -98,114 +125,105 @@ export default function Host() {
     const [answerResponses, setAnswerResponses] = useState([])
     const [questionLive, setQuestionLive] = useState(false)
     const [gameEnd, setGameEnd] = useState(false)
-    const TIMER_DEFAULT_SECONDS = 25+3 // TODO: Short/medium/long (+3 for 2s loading time for players)
-    const [timerSeconds, setTimerSeconds] = useState(TIMER_DEFAULT_SECONDS)
+
+    // DEFAULT_TIMER + PLAYER_LOADING_TIME for 2s loading time for players
+    const [timerDefaultSeconds, setTimerDefaultSeconds] = useState(DEFAULT_TIMER + PLAYER_LOADING_TIME);
+    const [timerSeconds, setTimerSeconds] = useState(timerDefaultSeconds)
+    const [timerPause, setTimerPause] = useState(false);
 
     const startQuestion = (question) => {
         setQuestion(question)
         setQuestionLive(true)
         setAnswerResponses([])
-        setTimerSeconds(TIMER_DEFAULT_SECONDS)
+        setTimerSeconds(timerDefaultSeconds)
     }
     const intervalRef = useRef()
 
+    const endTimer = () => clearInterval(intervalRef.current)
+
+    const toggleTimer = () => setTimerPause(!timerPause)
+
+    const moveNextQuestion = () => {
+        socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
+            if (response.success) {
+                if (response.gameOver) { // No more questions
+                    console.log("No more questions")
+                    setQuestionLive(false)
+                    setGameEnd(true)
+                } else { // Next question
+                    console.log("Updated next question")
+                    startQuestion(response.question)
+                    setTimerPause(false)
+                }
+            } else // Failed to create game
+                toast(getToast('Failed to get next question!', false))
+        })
+        console.log("Timer expired; next question");
+    }
+
+    const intervalTick = () => {
+        if (!timerPause) setTimerSeconds(t => Math.max(t - 0.01, 0))
+    }
+
+    useEffect(() => {
+        setTimerSeconds(timerDefaultSeconds)
+    }, [timerDefaultSeconds]);
+
     useEffect(() => {
         if (questionLive) {
-            const tick = () => setTimerSeconds(t => Math.max(t-1, 0));
-            intervalRef.current = setInterval(tick, 1000)
+            intervalRef.current = setInterval(intervalTick, 10)
         } else {
-            clearInterval(intervalRef.current)
+            endTimer();
         }
-        
-        return () => clearInterval(intervalRef.current)
-    }, [questionLive])
+
+        return () => endTimer();
+    }, [timerPause, questionLive])
 
     useEffect(() => {
         if (timerSeconds === 0) {
-            clearInterval(intervalRef.current);
+            endTimer();
             setQuestionLive(false);
-            socket.emit(SOCKET_EVENTS.HOST.nextQuestion, (response) => {
-                if (response.success) {
-                    if (response.gameOver) { // No more questions
-                        console.log("No more questions")
-                        setQuestionLive(false)
-                        setGameEnd(true)
-                    } else { // Next question
-                        console.log("Updated next question")
-                        startQuestion(response.question)
-                    }
-                } else // Failed to create game
-                    console.log("Failed to get next question!")
-          })
-          console.log("Timer expired; next question");
+            moveNextQuestion();
         }
     }, [timerSeconds]);
-    
-    const sortPlayersByScore = (a, b) => { b.score - a.score }
+
+    const sortPlayersByScore = (a, b) => { b.points - a.points }
 
     return (
         <>
-            <BubbleWrapper>
-                {
-                    Object.keys(question).length === 0 &&
-                    <Flex gap={'10px'} mb={2}>
-                        <Menu>
-                            <MenuButton as={Button} rightIcon={<ChevronDownIcon />} transition="all 0.3s">
-                                {selectedQuizId ? quizzes.find((e) => e._id === selectedQuizId).name : "Click to select quiz"}
-                            </MenuButton>
-                            <MenuList
-                                bg={'white'}
-                                color={'primary.400'}
-                                borderColor={'gray.200'}>
-                                {quizzes.map(quiz => <MenuItem onClick={() => setSelectedQuizId(quiz._id)}>{quiz.name}</MenuItem>)}
-                            </MenuList>
-                        </Menu>
+            {!isAuthenticated ? <AuthenticationGuard/> :
+                question && Object.keys(question).length === 0 ?
+                    <HostGameWaitingRoom
+                        quizInfo={quizInfo}
+                        question={question}
+                        selectedQuizId={selectedQuizId}
+                        setSelectedQuizId={setSelectedQuizId}
+                        quizzes={quizzes}
+                        gameCode={gameCode}
+                        startGame={startGame}
+                        players={players}
+                    /> :
+                    <>
                         {
-                            gameCode &&
-                            <Button onClick={startGame} isDisabled={players.length <= 0}>Start Game</Button>
-                        }
-                    </Flex>
-                }
-
-                {/* TODO: Style the leaderboard */}
-                {
-                    gameCode && 
-                    <Flex flexDirection={'column'}>
-                        <Flex alignItems={'center'} justifyContent={'center'} gap={2}>
-                            <Text>Game PIN: {gameCode.toUpperCase()}</Text>
-                            <IconButton variant={'unstyled'} color={'white'} icon={<LuCopy />} 
-                                onClick={()=>navigator.clipboard.writeText(gameCode.toLowerCase())}/>
-                        </Flex>
-                        <h1>{players.length} Players</h1>
-                        <Grid>
-                            {players.map((player, i) => 
-                                <GridItem key={i}>
-                                    {player.socketId} ({player.points} points)
-                                </GridItem>
-                            )}
-                        </Grid>
-                    </Flex>
-                }
-                
-                {/* TODO: Style questions */}
-                {Object.keys(question).length > 0 ? <>
-                    {!gameEnd ? <>
-                            <h1>Question: {question.question}</h1>
-                            {question.responses.map(resp => <div>- {resp.response}</div>)}
-                            
-                            {questionLive ? <h2>Timer: {timerSeconds} seconds left</h2> : 
-                                <>
-                                    <h1>Answers:</h1>
-                                    {answerResponses.map(resp => <div>- {resp.response}</div> )}
+                            !gameEnd ? 
+                                <HostGameLive
+                                    socket={socket}
+                                    question={question}
+                                    questionLive={questionLive}
+                                    timerSeconds={timerSeconds}
+                                    timerPause={timerPause}
+                                    toggleTimer={toggleTimer}
+                                    endTimer={endTimer}
+                                    moveNextQuestion={moveNextQuestion}
+                                    answerResponses={answerResponses}
+                                    gameDefaultTimer={timerDefaultSeconds}
+                                    players={players}
+                                /> : <>
+                                    <Leaderboard socket={socket} isOpen={true} onClose={()=>{setQuestion([]);setPlayers([])}} players={players}/>
                                 </>
-                            }
-                        </> : <>
-                            <h2>Game over!</h2>
-                            <div>{players[0]?.socketId} won with {players[0]?.points} points</div>
-                        </>
-                    }
-                </> : null}
-            </BubbleWrapper>
+                        }
+                    </>
+            }
         </>
     )
 }

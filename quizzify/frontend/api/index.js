@@ -4,12 +4,22 @@ const headers = (accessToken) => ({
   'Authorization': `Bearer ${accessToken}`,
 })
 
+const parseResponse = async (response) => {
+  let res = [response]
+  try {
+    res.push(await Promise.resolve(response.json()))
+  } catch (e) {
+    console.log("Failed to parse JSON from API response", e)
+  }
+  return res
+}
+
 export const getRequest = (url, accessToken="") => {
   return fetch(url, {
     method: 'GET',
     headers: headers(accessToken)
   })
-    .then(response => Promise.all([response, response.json()]))
+    .then(response => parseResponse(response))
     .catch(error => { throw error })
 }
 
@@ -19,7 +29,7 @@ export const postRequest = (url, accessToken="", data) => {
     headers: headers(accessToken),
     body: JSON.stringify(data)
   })
-    .then(response => Promise.all([response, response.json()]))
+    .then(response => parseResponse(response))
     .catch(error => { throw error })
 }
 
@@ -29,7 +39,7 @@ export const putRequest = (url, accessToken="", data) => {
     headers: headers(accessToken),
     body: JSON.stringify(data)
   })
-    .then(response => Promise.all([response, response.json()]))
+    .then(response => parseResponse(response))
     .catch(error => { throw error })
 }
 
@@ -38,6 +48,6 @@ export const deleteRequest = (url, accessToken="") => {
     method: 'DELETE',
     headers: headers(accessToken)
   })
-    .then(response => Promise.all([response, response.json()]))
+    .then(response => parseResponse(response))
     .catch(error => { throw error })
 }

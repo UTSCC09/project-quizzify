@@ -14,6 +14,7 @@ export default function Play() {
     const [socketConnected, setSocketConnected] = useState(false)
     const [connected, setConnected] = useState(false)
     const [gameStart, setGameStart] = useState(false)
+    const [quizInfo, setQuizInfo] = useState({})
 
     // Set the background color when the component mounts
     useEffect(() => {
@@ -31,9 +32,10 @@ export default function Play() {
         socket = io(process.env.NEXT_PUBLIC_BACKEND_BASE_URL);
         setSocketConnected(true)
         
-        socket.on(SOCKET_EVENTS.ROOM.start, () => {
+        socket.on(SOCKET_EVENTS.ROOM.start, (quiz) => {
             console.log("Host started game!")
             setGameStart(true)
+            setQuizInfo(quiz)
         })
         socket.on(SOCKET_EVENTS.ROOM.end, () => {
             console.log("Host ended game!")
@@ -54,6 +56,7 @@ export default function Play() {
             <PlayerPlay
                 socket={socket} 
                 gameCode={gameCode}
+                quizInfo={quizInfo}
             /> 
             : 
             <JoinLobby
