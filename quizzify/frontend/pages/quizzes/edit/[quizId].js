@@ -148,8 +148,6 @@ export default function Edit() {
                             <QuizCard
                               index={i}
                               question={question}
-                              // TODO: random image, will change
-                              img={`https://picsum.photos/id/${Math.floor(Math.random() * (80 - 1)) + 1}/200/200`}
                               onEditQuestion={onEditQuestion}
                             />
                           </GridItem>
