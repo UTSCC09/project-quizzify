@@ -30,6 +30,22 @@ The main features we implemented to this project were:
 
 **Task:** Leaving deployment aside, explain how the app is built. Please describe the overall code design and be specific about the programming languages, framework, libraries and third-party api that you have used. 
 
+### Frontend Development
+- **Technologies:** React.js, Chakra UI
+- Our frontend, built with React.js and styled with Chakra UI, provides an interactive and user-friendly interface. It is responsible for presenting the quiz content, handling user interactions, and ensuring a responsive design across various devices.
+
+### Backend Development
+- **Technologies:** Express (Node.js), MongoDB, Socket.io, Auth0 
+  - **Express:** A web application framework for Node.js, designed for building web applications and APIs. We managed the database, endpoint and socket routing, and much more within the backend using Express
+  - **Socket.io:** JavaScript library for real-time web applications, which enabled real-time, bi-directional communication between web clients and servers, a crucial aspect for the live quiz functionality in Quizzify.
+  - **MongoDB:** Combined with Mongoose, an object data modeling (ODM) library for Node.js, the non-relational database allowed us to efficiently store and manage relationships between data, while providing schema validation
+  - **Auth0:** 3rd party API integrated into Quizzify to manage user authentication and authorization securely. It simplifies the process of handling user credentials and permissions, ensuring that users have a secure and seamless login experience. It allowed us to secured our API endpoints by restricting access based on authorization
+- The backend handles data management, server-side logic, real-time interactions between users during quizzes, and communicates with the database to store and retrieve quiz information.
+
+### Summary
+In summary, Quizzify is built using a combination of modern technologies and frameworks, each chosen for its specific strengths in creating a seamless, secure, and interactive user experience. React and Chakra UI provide an engaging user interface for the frontend, while Express, MongoDB, and Socket.io ensure robust data handling and real-time interaction capabilities within our backend. Additionally, Auth0's 3rd party integration offers a secure authentication system, completing the robust framework of Quizzify.
+
+
 ## Deployment
 
 First, we dockerized our frontend and backend. Then, following instructions from Lab 9, we deployed the dockerized containers with an Nginx reverse proxy to a Google Compute Engine VM instance with the following configuration:
