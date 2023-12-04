@@ -1,11 +1,11 @@
 import { Box, Flex, Text, Tooltip, chakra, useDisclosure } from "@chakra-ui/react";
 import EditQuestionForm from "./EditQuestionForm";
 import { EditIcon } from "@chakra-ui/icons";
+import { stringToColorHex } from "@/constants";
 
 export default function QuizCard({
     index,
     question,
-    img,
     onEditQuestion
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -32,7 +32,7 @@ export default function QuizCard({
             >
                 {index+1}
             </Flex>
-            <Box w={'200px'} bgSize="cover" style={{backgroundImage: `url(${img})` }} />
+            <Box w={'200px'} bgSize="cover" style={{backgroundColor: stringToColorHex(question.question) }} />
             <Box w={2 / 3} p={4}>
             <chakra.h1 fontSize="lg" fontWeight="600">{question.question}</chakra.h1>
             <Box mt={2} fontSize="sm" color="gray.600">

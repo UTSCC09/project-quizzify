@@ -1,6 +1,7 @@
 import CustomIconButton from "@/components/Buttons/CustomIconButton";
 import HGQuizButton from "@/components/Buttons/HostGame/HGQuizButton";
 import { Leaderboard } from "@/components/Leaderboard";
+import { stringToColorHex } from "@/constants";
 import { Button, Grid, Flex, Box, Progress, Image, Text, useDisclosure } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaCirclePause, FaCirclePlay, FaCircleStop } from "react-icons/fa6";
@@ -39,7 +40,7 @@ export default function HostGameLive({
             </Flex>
             <Flex flexDirection={'column'} alignItems={'center'} padding={4} gap={4}>
                 <Text fontSize={24}>{question?.question}</Text>
-                <Image borderRadius={'15px'} objectFit={'cover'} width={'600px'} src={`https://picsum.photos/id/${Math.floor(Math.random() * (100 - 1) ) + 1}/600/300`}/>
+                <Box h={'300px'} w={'600px'} borderRadius={'15px'} bgSize="cover" style={{backgroundColor: stringToColorHex(question?.question) }} />
                 <Grid
                     marginTop={5}
                     h={'300px'}
