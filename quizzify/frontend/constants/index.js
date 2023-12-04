@@ -70,5 +70,6 @@ export const SOCKET_EVENTS = {
         end: `${eventNamePrefixes.ROOM}:end`,
         questionEnd: `${eventNamePrefixes.ROOM}:question-end`,
         questionNext: `${eventNamePrefixes.ROOM}:question-next`,
+        allPlayersAnswered: `${eventNamePrefixes.ROOM}:allPlayersAnswered`,
     }
 }

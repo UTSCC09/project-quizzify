@@ -39,6 +39,10 @@ export default function Host() {
             setQuestionLive(false)
             setAnswerResponses(answerResponses)
         })
+        socket.on(SOCKET_EVENTS.ROOM.allPlayersAnswered, () => {
+            endTimer()
+            moveNextQuestion()
+        })
 
         // Clean up the socket connection on unmount
         return () => {

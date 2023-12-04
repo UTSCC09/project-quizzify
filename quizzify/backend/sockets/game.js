@@ -27,6 +27,7 @@ const eventNames = {
         end: `${eventNamePrefixes.ROOM}:end`,
         questionEnd: `${eventNamePrefixes.ROOM}:question-end`,
         questionNext: `${eventNamePrefixes.ROOM}:question-next`,
+        allPlayersAnswered: `${eventNamePrefixes.ROOM}:allPlayersAnswered`,
     }
 }
 const PLAYER_QUESTION_SEND_DELAY = 1500 // ms
@@ -320,6 +321,9 @@ const answer = async function (socket, io, payload, callback) {
 
         callback({ success: true })
         socketLog(socket, "Player answered to game", joinCode)
+
+        if (game.currQuestion.numPlayersAnswered == game.players.length)// All players answered
+            io.to(game.joinCode).emit(eventNames.ROOM.allPlayersAnswered)
     } catch (error) {
         console.log(error)
         callback({ success: false })
