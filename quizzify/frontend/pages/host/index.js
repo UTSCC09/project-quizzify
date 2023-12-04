@@ -94,7 +94,7 @@ export default function Host() {
                 }, (response) => {
                     if (response.success) {// Created game
                         setGameCode(response.joinCode)
-                        setPlayers(response.players)
+                        setPlayers(response.players.sort(sortPlayersByScore))
                     } else // Failed to create game
                         toast(getToast('Failed to create game!', false))
                 })

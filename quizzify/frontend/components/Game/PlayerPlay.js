@@ -193,7 +193,7 @@ export default function PlayerPlay({
                                 fontSize={24}
                                 fontWeight={700}>
                                 {
-                                    userCorrect ? <Text>Good job!</Text> : <Text>Sorry, Your answer is not correct</Text>
+                                    userCorrect ? <Text>Good job!</Text> : <Text>Sorry, your answer is not correct</Text>
                                 }
                                 <CustomPointTag text={`+${pointsEarned}`} />
                             </Flex>
