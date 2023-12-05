@@ -10,7 +10,10 @@ import '../styles/globals.css';
 export default function App({ Component, pageProps }) {
   return (
     <>
-      <Head><title>Quizzify</title></Head>
+      <Head>
+        <title>Quizzify</title>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </Head>
       <Auth0Provider
         domain={`https://${process.env.NEXT_PUBLIC_AUTH0_DOMAIN}`}
         clientId={process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID}
